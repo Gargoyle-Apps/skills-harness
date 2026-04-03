@@ -4,7 +4,7 @@
 
 1. Copy the **Skills Harness** section below (from `# Skills Harness` through **Rules**) into a new file at the repository root named `.windsurfrules`, **or** merge into an existing `.windsurfrules` between `<!-- skills-harness start -->` and `<!-- skills-harness end -->`.
 2. Delete this SETUP block from `.windsurfrules` when done.
-3. Replace root `AGENTS.md` with a pointer:
+3. **Project `AGENTS.md`:** add a pointer to `.windsurfrules`. If `AGENTS.md` does not exist, create it with the block below. If it already exists, **merge** the pointer — do not erase existing content.
 
 ```markdown
 # Skills harness
@@ -13,6 +13,8 @@ Skills: see [.windsurfrules](./.windsurfrules).
 ```
 
 Minimal one-liner: `Skills: see .windsurfrules`.
+
+4. Delete **`AGENTS_skills.md`** from the repository root.
 
 <!-- END SETUP -->
 
@@ -30,3 +32,4 @@ Skills are in `.skills/_skills/`. The index is at `.skills/_index.md`.
 - If a skill lists `dependencies`, load those skills before proceeding.
 - Add new skills to the index when you create them.
 - If `.skills/` is missing from the repo, warn the user and do not invent skill content.
+- If `AGENTS_skills.md` exists at the repository root, skills harness setup is incomplete: do not create or refactor skills or change `.skills/_index.md` for new skills until the user has declared their environment and `AGENTS_skills.md` is removed per bootstrap instructions.

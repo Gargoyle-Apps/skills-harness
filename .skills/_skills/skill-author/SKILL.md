@@ -13,6 +13,10 @@ version: "1.0.0"
 
 # Skill Author
 
+## Prerequisites
+
+- If **`AGENTS_skills.md`** exists at the repository root, skills harness setup is **not** complete. Do not follow these steps until the user has **declared their environment** and that bootstrap file has been removed per `.skills/_harness/` instructions.
+
 Load `skill-template` first if you need the canonical layout and refactor notes.
 
 ## Steps
