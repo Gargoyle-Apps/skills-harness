@@ -24,7 +24,22 @@ Zero-dependency, file-only **skills harness**: drop `.skills/` and `AGENTS.md` i
 ## After setup
 
 - **Skills manifest:** [`.skills/_index.md`](.skills/_index.md) — the single place to list skills.
-- **Skill bodies:** `.skills/_skills/<name>/SKILL.md`
+- **Skill bodies:** `.skills/_skills/<name>/SKILL.md` — each file opens with **YAML front matter** (between `---` lines) so the index and harness can discover metadata cheaply before loading the full body.
+
+### YAML front matter for each `SKILL.md`
+
+Every skill should use this shape (see [`.skills/_skills/skill-template/SKILL.md`](.skills/_skills/skill-template/SKILL.md) for a filled-in example):
+
+| Field | Required | Purpose |
+|-------|----------|---------|
+| `name` | yes | Must match the directory name exactly (kebab-case, e.g. `my-skill`). |
+| `description` | yes | One sentence; used in the index and for relevance matching. |
+| `triggers` | yes | List of phrases or keywords that should cause this skill to load. |
+| `dependencies` | yes | Other skill `name`s to load first; use `[]` if none. |
+| `version` | yes | Semver string for humans (e.g. `1.0.0`). |
+
+The Markdown **body** starts after the closing `---`. Keeping **all** skills in this format— including ones you are porting from ad-hoc rules, plain markdown, or older layouts—is **strongly recommended**: the harness and index stay consistent, the agent can resolve dependencies and triggers the same way everywhere, and you avoid mixed conventions in `.skills/_skills/`.
+
 - **Harness:** root `AGENTS.md` (or a sidecar like `CLAUDE.md`, `.clinerules`, etc., depending on template) contains the **Rules** that tell the agent to read the index first and load skills on demand only.
 
 Confirm the agent reads `.skills/_index.md` for non-trivial work and does not preload every `SKILL.md`.
