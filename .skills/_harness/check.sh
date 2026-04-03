@@ -15,8 +15,10 @@ RULES_FILE="$HARNESS_DIR/_rules.md"
 
 errors=0
 
-err() { echo "ERROR: $1"; ((errors++)); }
-warn() { echo "WARN:  $1"; }
+# Use ((++errors)) not ((errors++)) — with set -e, post-increment returns status 1 when the
+# value was 0 and aborts the script. Pre-increment is always non-zero. Requires bash 3+.
+err() { echo "ERROR: $1" >&2; ((++errors)) || true; }
+warn() { echo "WARN:  $1" >&2; }
 
 trim() {
   local s="$1"
@@ -71,7 +73,8 @@ if [[ -d "$SKILLS_DIR" ]]; then
 
     in_frontmatter=false
     frontmatter_closed=false
-    declare -A found_fields=()
+    # Pipe-delimited list of seen keys (bash 3.2–compatible; no associative arrays)
+    found_keys="|"
     fm_name=""
 
     while IFS= read -r line; do
@@ -88,7 +91,7 @@ if [[ -d "$SKILLS_DIR" ]]; then
         key="$(trim "$(echo "$line" | cut -d: -f1)")"
         for f in "${required_fields[@]}"; do
           if [[ "$key" == "$f" ]]; then
-            found_fields["$f"]=1
+            found_keys="${found_keys}${f}|"
             if [[ "$f" == "name" ]]; then
               fm_name="$(trim "$(echo "$line" | cut -d: -f2-)")"
             fi
@@ -103,7 +106,7 @@ if [[ -d "$SKILLS_DIR" ]]; then
     fi
 
     for f in "${required_fields[@]}"; do
-      if [[ -z "${found_fields[$f]:-}" ]]; then
+      if [[ "$found_keys" != *"|${f}|"* ]]; then
         err "$dir_name/SKILL.md: missing required frontmatter field '$f'"
       fi
     done
@@ -111,8 +114,6 @@ if [[ -d "$SKILLS_DIR" ]]; then
     if [[ -n "$fm_name" && "$fm_name" != "$dir_name" ]]; then
       err "$dir_name/SKILL.md: frontmatter name '$fm_name' does not match directory name '$dir_name'"
     fi
-
-    unset found_fields
   done
 fi
 

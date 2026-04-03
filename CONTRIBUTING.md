@@ -8,9 +8,9 @@ The canonical Rules text lives in **`.skills/_harness/_rules.md`**. All template
 
 When you change `_rules.md`:
 
-1. Edit `.skills/_harness/_rules.md` with the new wording.
-2. Copy the updated `## Rules` section into every `*_template.md` under `.skills/_harness/`, replacing the existing Rules block in each.
-3. Run `.skills/_harness/check.sh` to verify all templates match the canonical source.
+1. Edit `.skills/_harness/_rules.md` with the new wording (canonical heading is `# Rules`; templates use `## Rules` plus the same bullet list).
+2. Copy the updated bullet list into every `*_template.md` under `.skills/_harness/`, replacing the existing **Rules** block in each.
+3. Run `.skills/_harness/check.sh` to verify all templates match the canonical source (works with macOS `/bin/bash` 3.2 and newer).
 
 ## Adding a new environment template
 
