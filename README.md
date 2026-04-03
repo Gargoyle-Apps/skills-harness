@@ -14,7 +14,7 @@ The bootstrap is intentionally named **`AGENTS_skills.md`** (not `AGENTS.md`) so
 
 Some projects (call it **foo**) add this kit because they want to **author portable skills** under `.skills/` using the same formats and bundled **skill-template** / **skill-author**, but **must not** install a single tool’s harness **in that repo** — **foo** might be used in Cursor, Claude Code, or elsewhere depending on who clones it.
 
-For that case, follow **Path B** in **`AGENTS_skills.md`**: declare **agnostic / multi-ecosystem** mode, **do not** copy templates into `AGENTS.md` / `CLAUDE.md` / etc., document the choice in **README** or **CONTRIBUTING**, then remove **`AGENTS_skills.md`**. Skill files and the index remain tool-neutral; each consumer or deployment can apply **Path A** (or their own harness) in *their* checkout if they want runtime loading rules in a specific ecosystem.
+For that case, follow **Path B** in **`AGENTS_skills.md`**: declare **agnostic / multi-ecosystem** mode, **do not** paste harness bodies from `.skills/_harness/*_template.md` into `AGENTS.md` or tool sidecars — those files stay **reference** for consumers. Your existing **`AGENTS.md`** remains the **project contract**; add a short **policy-only** section there (recommended) and/or **README** / **CONTRIBUTING**, then remove **`AGENTS_skills.md`**. That way agents still see an authoring gate after the bootstrap file is gone. Skill files and the index remain tool-neutral; each consumer or deployment can apply **Path A** in *their* checkout if they want a runtime harness in one ecosystem.
 
 ## Supported tools
 
@@ -50,7 +50,7 @@ Every skill should use this shape (see [`.skills/_skills/skill-template/SKILL.md
 The Markdown **body** starts after the closing `---`. Keeping **all** skills in this format— including ones you are porting from ad-hoc rules, plain markdown, or older layouts—is **strongly recommended**: the harness and index stay consistent, the agent can resolve dependencies and triggers the same way everywhere, and you avoid mixed conventions in `.skills/_skills/`.
 
 - **Harness (Path A):** root **`AGENTS.md`** or a sidecar (`CLAUDE.md`, `.clinerules`, …) holds the **Rules** for on-demand loading. **Path B** repos intentionally have **no** such harness here — skills still live under `.skills/` for portability.
-- If **`AGENTS_skills.md`** is still present, bootstrap is unfinished and templates + **`AGENTS_skills.md`** tell the agent **not** to create or refactor skills until Path A or B is completed.
+- If **`AGENTS_skills.md`** is still present, bootstrap is unfinished; **`AGENTS_skills.md`** and harness **Rules** (in templates used for Path A) apply only **while** that file exists. After removal, **`skill-author`** and other skills do **not** depend on it — use project **`AGENTS.md`** / README for Path B policy.
 
 Confirm the agent reads `.skills/_index.md` for non-trivial work and does not preload every `SKILL.md`.
 

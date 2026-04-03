@@ -39,10 +39,21 @@ Use when this repository should install **one** tool’s harness so agents worki
 Use when this repository **maintains portable skills** (and may use this kit’s formats and bundled authoring skills) but **must stay neutral**: the same repo might be opened in Cursor, Claude, Windsurf, etc., and you **do not** want to commit **this** tree to a single ecosystem’s harness files.
 
 1. **The user explicitly declares** agnostic mode — e.g. “agnostic”, “multi-ecosystem”, “skills only, no harness”, or equivalent. Do not assume; **ask** if unsure.
-2. **Do not** install environment templates into **`AGENTS.md`**, **`CLAUDE.md`**, **`.clinerules`**, **`GEMINI.md`**, or other tool-specific paths **for this repo**. Downstream users or each deployment apply their own harness when they use this project in a specific tool.
-3. **You may** create and edit skills under `.skills/_skills/`, update `.skills/_index.md`, and use **skill-template** / **skill-author** like any other kit consumer — the skills and index are **portable**.
-4. **Record** the decision where future contributors will see it (recommended: one short paragraph in **README** or **CONTRIBUTING**: this repo keeps ecosystem-agnostic skills; consumers should drop in **`AGENTS_skills.md` + `.skills/`** or attach a harness per their environment).
-5. Remove **`AGENTS_skills.md`** once the above is done.
+2. **Do not** paste **harness templates** from `.skills/_harness/*_template.md` into **`AGENTS.md`** or any tool-specific path **for this repo**. Those files are **reference** for *other* checkouts or consumers who run Path A (Cursor `[CURSOR]` blocks, `CLAUDE.md` harness body, etc.). Path B is **policy only**, not a runtime harness install.
+3. **Existing `AGENTS.md`** (if any) stays the **project contract**. You may add a short **policy section** (see example below); do **not** replace or drown it with tool-specific harness markup from the templates.
+4. **You may** create and edit skills under `.skills/_skills/`, update `.skills/_index.md`, and use **skill-template** / **skill-author** — the skills and index are **portable**.
+5. **Record** Path B where agents and humans will see it. **Recommended:** add a section to root **`AGENTS.md`** (so agents that read it still have an authoring gate after **`AGENTS_skills.md`** is deleted). **Alternatively or additionally:** **README** or **CONTRIBUTING**. Say that `.skills/_harness/` is reference-only here unless this project later adopts Path A.
+6. Remove **`AGENTS_skills.md`** once steps 1–5 are satisfied.
+
+**Example — optional section to merge into root `AGENTS.md` (adapt wording):**
+
+```markdown
+## Skills (agnostic / multi-ecosystem)
+
+This repo maintains portable skills under `.skills/` (manifest: `.skills/_index.md`). We do **not** install a tool-specific runtime harness from `.skills/_harness/*_template.md` in this tree; those files are **reference** for consumers who clone this repo and may run Path A in their own environment.
+
+**Authoring:** Use bundled `skill-template` / `skill-author` and the index; do not paste ecosystem harness blocks into this file for this repository.
+```
 
 ---
 

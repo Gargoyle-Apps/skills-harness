@@ -8,14 +8,20 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
-version: "1.0.0"
+version: "1.0.1"
 ---
 
 # Skill Author
 
 ## Prerequisites
 
-- If **`AGENTS_skills.md`** exists at the repository root, bootstrap setup is **not** finished. Do not follow these steps until **either** the user has completed **Path A** (declare one ecosystem + complete the matching template in `.skills/_harness/`) **or** **Path B** (declare **agnostic / multi-ecosystem** skills-only mode per `AGENTS_skills.md`, record it in docs, remove the bootstrap). See **`AGENTS_skills.md`** for both paths.
+Skill authoring must not be blocked after the temporary bootstrap file is removed.
+
+1. **If `AGENTS_skills.md` exists** at the repository root — bootstrap is **not** finished. Do not follow these steps until **`AGENTS_skills.md`** Path A or Path B is completed and that file is removed (see **`AGENTS_skills.md`**).
+
+2. **If `AGENTS_skills.md` does not exist** — the repo has finished bootstrap. Proceed **unless** the project’s own docs forbid it: check root **`AGENTS.md`**, **README**, or **CONTRIBUTING** for a Path B “skills / authoring” policy or any project-specific gate. Path B repos usually record policy in **`AGENTS.md`** so agents still see the rules without relying on a deleted bootstrap file.
+
+Do **not** treat “`AGENTS_skills.md` missing” as an error — it is expected after setup. Rely on **`AGENTS_skills.md`** only while it is present.
 
 Load `skill-template` first if you need the canonical layout and refactor notes.
 

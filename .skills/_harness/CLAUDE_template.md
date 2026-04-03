@@ -32,4 +32,4 @@ Skills are in `.skills/_skills/`. The index is at `.skills/_index.md`.
 - If a skill lists `dependencies`, load those skills before proceeding.
 - Add new skills to the index when you create them.
 - If `.skills/` is missing from the repo, warn the user and do not invent skill content.
-- If `AGENTS_skills.md` exists at the repository root, skills harness setup is incomplete: do not create or refactor skills or change `.skills/_index.md` for new skills until the user has declared their environment and `AGENTS_skills.md` is removed per bootstrap instructions.
+- **Temporary bootstrap only:** While `AGENTS_skills.md` exists at the repository root (skills-harness bootstrap not finished), do not create or refactor skills or change `.skills/_index.md` for new skills — complete Path A or B in that file. Once it is removed, this rule does not apply. Path B repos may record ongoing policy in root `AGENTS.md` instead.
