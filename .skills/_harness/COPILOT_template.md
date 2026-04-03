@@ -1,26 +1,20 @@
 <!-- SETUP — remove this entire section after setup is complete -->
 
-## Setup instructions (Claude Code)
+## Setup instructions (GitHub Copilot)
 
-1. Copy the **Skills Harness** section below (from `# Skills Harness` through **Rules**) into a new file at the repository root named `CLAUDE.md`, **or** append to an existing `CLAUDE.md` under a `## Skills Harness` heading.
-2. Delete this SETUP block from `CLAUDE.md` when done.
-3. **Project `AGENTS.md`:** append a pointer to `CLAUDE.md`. If `AGENTS.md` does not exist, create it with the block below. If `AGENTS.md` already exists, **append** the pointer under a `## Skills Harness` heading — do not erase existing project content.
+1. Delete this SETUP section (from the opening comment through `<!-- END SETUP -->` inclusive).
+2. Install the harness into root **`AGENTS.md`**:
+   - **If `AGENTS.md` does not exist:** create it containing only the harness below.
+   - **If `AGENTS.md` already exists** with project content: **append** the harness under a new `## Skills Harness` heading. Do not replace existing project instructions.
+3. Delete **`AGENTS_skills.md`** from the repository root (the temporary bootstrap file).
 
-```markdown
-## Skills Harness
-
-Skills: see [CLAUDE.md](./CLAUDE.md).
-```
-
-4. Delete **`AGENTS_skills.md`** from the repository root.
-
-**Verify:** `CLAUDE.md` contains the Skills Harness section; `AGENTS.md` has the pointer; this SETUP block is gone; `AGENTS_skills.md` is removed.
+**Verify:** `AGENTS.md` contains the Skills Harness section; this SETUP block is gone; `AGENTS_skills.md` is removed.
 
 <!-- END SETUP -->
 
 ---
 
-# Skills Harness
+# Skills Harness (Copilot)
 
 Skills are in `.skills/_skills/`. The index is at `.skills/_index.md`.
 

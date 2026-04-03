@@ -21,16 +21,16 @@ Use when this repository should install **one** tool’s harness so agents worki
 
 | Environment | Template |
 |-------------|----------|
-| Cursor | `.skills/_harness/AGENTS_template.md` |
-| Codex | `.skills/_harness/AGENTS_template.md` |
-| Copilot | `.skills/_harness/AGENTS_template.md` |
+| Cursor | `.skills/_harness/CURSOR_template.md` |
+| Codex | `.skills/_harness/CODEX_template.md` |
+| Copilot | `.skills/_harness/COPILOT_template.md` |
 | Claude Code | `.skills/_harness/CLAUDE_template.md` |
 | Cline | `.skills/_harness/CLINE_template.md` |
 | Windsurf | `.skills/_harness/WINDSURF_template.md` |
 | Gemini CLI | `.skills/_harness/GEMINI_template.md` |
 | Other | `.skills/_harness/GENERIC_template.md` |
 
-**Note:** If the repo already has a project **`AGENTS.md`**, merge the **AGENTS** harness into it (prepend, append, or a dedicated section) — do not replace project instructions blindly. Same for pointers into an existing **`AGENTS.md`**.
+**Note:** If the repo already has a project **`AGENTS.md`**, **append** the harness under a `## Skills Harness` heading — do not replace project instructions. Same for pointers into an existing **`AGENTS.md`**.
 
 ---
 

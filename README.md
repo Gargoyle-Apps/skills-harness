@@ -8,7 +8,7 @@ The bootstrap is intentionally named **`AGENTS_skills.md`** (not `AGENTS.md`) so
 
 1. Copy this repository’s **`AGENTS_skills.md`** and **`.skills/`** directory into your project root (or submodule / subtree).
 2. Open **`AGENTS_skills.md`** in your agent. Follow the **hard gate** there: the user must **declare the environment** before any skill authoring or refactor work. Then open the matching template under **`.skills/_harness/`**.
-3. Complete that template’s **Setup** (strip the SETUP block, install the harness). For **Cursor / Codex / Copilot**, merge the harness into **`AGENTS.md`** if that file already exists — do not blindly replace project instructions. Remove **`AGENTS_skills.md`** when done.
+3. Complete that template’s **Setup** (strip the SETUP block, install the harness). For **Cursor / Codex / Copilot**, append the harness under a `## Skills Harness` heading in **`AGENTS.md`** if that file already exists — do not replace project instructions. Remove **`AGENTS_skills.md`** when done.
 
 ### Multi-ecosystem (agnostic) repositories
 
@@ -20,9 +20,9 @@ For that case, follow **Path B** in **`AGENTS_skills.md`**: declare **agnostic /
 
 | Environment | Template file |
 |-------------|----------------|
-| Cursor | [`.skills/_harness/AGENTS_template.md`](.skills/_harness/AGENTS_template.md) |
-| Codex | [`.skills/_harness/AGENTS_template.md`](.skills/_harness/AGENTS_template.md) |
-| GitHub Copilot (VS Code / similar) | [`.skills/_harness/AGENTS_template.md`](.skills/_harness/AGENTS_template.md) |
+| Cursor | [`.skills/_harness/CURSOR_template.md`](.skills/_harness/CURSOR_template.md) |
+| Codex | [`.skills/_harness/CODEX_template.md`](.skills/_harness/CODEX_template.md) |
+| GitHub Copilot (VS Code / similar) | [`.skills/_harness/COPILOT_template.md`](.skills/_harness/COPILOT_template.md) |
 | Claude Code | [`.skills/_harness/CLAUDE_template.md`](.skills/_harness/CLAUDE_template.md) |
 | Cline | [`.skills/_harness/CLINE_template.md`](.skills/_harness/CLINE_template.md) |
 | Windsurf | [`.skills/_harness/WINDSURF_template.md`](.skills/_harness/WINDSURF_template.md) |
@@ -73,6 +73,14 @@ If your client supports MCP and you want progressive skill loading outside this 
 ## Kit version
 
 Optional metadata: [`.skills/_meta.yml`](.skills/_meta.yml).
+
+## Validation
+
+Run `.skills/_harness/check.sh` to verify index-to-directory consistency, frontmatter completeness, and Rules block sync across templates. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

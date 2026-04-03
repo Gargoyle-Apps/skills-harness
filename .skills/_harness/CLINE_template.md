@@ -2,19 +2,19 @@
 
 ## Setup instructions (Cline)
 
-1. Copy the **Skills Harness** section below (from `# Skills Harness` through **Rules**) into a new file at the repository root named `.clinerules`, **or** merge into an existing `.clinerules` between `<!-- skills-harness start -->` and `<!-- skills-harness end -->`.
+1. Copy the **Skills Harness** section below (from `# Skills Harness` through **Rules**) into a new file at the repository root named `.clinerules`, **or** append to an existing `.clinerules` under a `## Skills Harness` heading.
 2. Delete this SETUP block from `.clinerules` when done.
-3. **Project `AGENTS.md`:** add a pointer to `.clinerules`. If `AGENTS.md` does not exist, create it with the block below. If it already exists, **merge** the pointer — do not erase existing content.
+3. **Project `AGENTS.md`:** append a pointer to `.clinerules`. If `AGENTS.md` does not exist, create it with the block below. If it already exists, **append** the pointer under a `## Skills Harness` heading — do not erase existing content.
 
 ```markdown
-# Skills harness
+## Skills Harness
 
 Skills: see [.clinerules](./.clinerules).
 ```
 
-Minimal one-liner: `Skills: see .clinerules`.
-
 4. Delete **`AGENTS_skills.md`** from the repository root.
+
+**Verify:** `.clinerules` contains the Skills Harness section; `AGENTS.md` has the pointer; this SETUP block is gone; `AGENTS_skills.md` is removed.
 
 <!-- END SETUP -->
 

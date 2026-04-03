@@ -5,10 +5,12 @@
 1. Open your tool's **system**, **project**, or **custom instructions** field (or a pinned note the agent always reads).
 2. Paste the **Skills Harness** section below (from `# Skills Harness` through **Rules**) into that field.
 3. Delete this SETUP block from what you paste — only the harness content should remain in the tool.
-4. **Project `AGENTS.md` (optional):** if you use one, merge in a pointer such as `Skills: see .skills/_harness/GENERIC_template.md` (after stripping SETUP there) instead of overwriting existing instructions.
+4. **Project `AGENTS.md` (optional):** if you use one, **append** a pointer under a `## Skills Harness` heading: `Skills: see .skills/_harness/GENERIC_template.md` (after stripping SETUP there). Do not overwrite existing instructions.
 5. Delete **`AGENTS_skills.md`** from the repository root.
 
 **Limitation:** with paste-only setup there is no automatic progressive loading; keep `.skills/_index.md` small. For MCP-based progressive loading, see the README **Optional: MCP** section.
+
+**Verify:** harness is pasted into your tool; `AGENTS_skills.md` is removed.
 
 <!-- END SETUP -->
 

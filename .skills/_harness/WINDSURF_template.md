@@ -2,19 +2,19 @@
 
 ## Setup instructions (Windsurf)
 
-1. Copy the **Skills Harness** section below (from `# Skills Harness` through **Rules**) into a new file at the repository root named `.windsurfrules`, **or** merge into an existing `.windsurfrules` between `<!-- skills-harness start -->` and `<!-- skills-harness end -->`.
+1. Copy the **Skills Harness** section below (from `# Skills Harness` through **Rules**) into a new file at the repository root named `.windsurfrules`, **or** append to an existing `.windsurfrules` under a `## Skills Harness` heading.
 2. Delete this SETUP block from `.windsurfrules` when done.
-3. **Project `AGENTS.md`:** add a pointer to `.windsurfrules`. If `AGENTS.md` does not exist, create it with the block below. If it already exists, **merge** the pointer — do not erase existing content.
+3. **Project `AGENTS.md`:** append a pointer to `.windsurfrules`. If `AGENTS.md` does not exist, create it with the block below. If it already exists, **append** the pointer under a `## Skills Harness` heading — do not erase existing content.
 
 ```markdown
-# Skills harness
+## Skills Harness
 
 Skills: see [.windsurfrules](./.windsurfrules).
 ```
 
-Minimal one-liner: `Skills: see .windsurfrules`.
-
 4. Delete **`AGENTS_skills.md`** from the repository root.
+
+**Verify:** `.windsurfrules` contains the Skills Harness section; `AGENTS.md` has the pointer; this SETUP block is gone; `AGENTS_skills.md` is removed.
 
 <!-- END SETUP -->
 

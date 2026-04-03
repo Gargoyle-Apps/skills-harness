@@ -2,19 +2,19 @@
 
 ## Setup instructions (Gemini CLI)
 
-1. Copy the **Skills Harness** section below (from `# Skills Harness` through **Rules**) into a new file at the repository root named `GEMINI.md`, **or** merge into an existing `GEMINI.md` between `<!-- skills-harness start -->` and `<!-- skills-harness end -->`.
+1. Copy the **Skills Harness** section below (from `# Skills Harness` through **Rules**) into a new file at the repository root named `GEMINI.md`, **or** append to an existing `GEMINI.md` under a `## Skills Harness` heading.
 2. Delete this SETUP block from `GEMINI.md` when done.
-3. **Project `AGENTS.md`:** add a pointer to `GEMINI.md`. If `AGENTS.md` does not exist, create it with the block below. If it already exists, **merge** the pointer — do not erase existing content.
+3. **Project `AGENTS.md`:** append a pointer to `GEMINI.md`. If `AGENTS.md` does not exist, create it with the block below. If it already exists, **append** the pointer under a `## Skills Harness` heading — do not erase existing content.
 
 ```markdown
-# Skills harness
+## Skills Harness
 
 Skills: see [GEMINI.md](./GEMINI.md).
 ```
 
-Minimal one-liner: `Skills: see GEMINI.md`.
-
 4. Delete **`AGENTS_skills.md`** from the repository root.
+
+**Verify:** `GEMINI.md` contains the Skills Harness section; `AGENTS.md` has the pointer; this SETUP block is gone; `AGENTS_skills.md` is removed.
 
 <!-- END SETUP -->
 

@@ -51,7 +51,6 @@ $RECYCLE.BIN/
 # Env and secrets (common)
 .env
 .env.*
-!.env.example
 
 # Cursor local rules (machine-specific)
 .cursorrules
