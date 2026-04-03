@@ -10,6 +10,12 @@ The bootstrap is intentionally named **`AGENTS_skills.md`** (not `AGENTS.md`) so
 2. Open **`AGENTS_skills.md`** in your agent. Follow the **hard gate** there: the user must **declare the environment** before any skill authoring or refactor work. Then open the matching template under **`.skills/_harness/`**.
 3. Complete that template’s **Setup** (strip the SETUP block, install the harness). For **Cursor / Codex / Copilot**, merge the harness into **`AGENTS.md`** if that file already exists — do not blindly replace project instructions. Remove **`AGENTS_skills.md`** when done.
 
+### Multi-ecosystem (agnostic) repositories
+
+Some projects (call it **foo**) add this kit because they want to **author portable skills** under `.skills/` using the same formats and bundled **skill-template** / **skill-author**, but **must not** install a single tool’s harness **in that repo** — **foo** might be used in Cursor, Claude Code, or elsewhere depending on who clones it.
+
+For that case, follow **Path B** in **`AGENTS_skills.md`**: declare **agnostic / multi-ecosystem** mode, **do not** copy templates into `AGENTS.md` / `CLAUDE.md` / etc., document the choice in **README** or **CONTRIBUTING**, then remove **`AGENTS_skills.md`**. Skill files and the index remain tool-neutral; each consumer or deployment can apply **Path A** (or their own harness) in *their* checkout if they want runtime loading rules in a specific ecosystem.
+
 ## Supported tools
 
 | Environment | Template file |
@@ -25,7 +31,7 @@ The bootstrap is intentionally named **`AGENTS_skills.md`** (not `AGENTS.md`) so
 
 ## After setup
 
-- **Bootstrap:** `AGENTS_skills.md` should be **gone** after setup (unless a template explicitly says otherwise).
+- **Bootstrap:** `AGENTS_skills.md` should be **gone** after **Path A** (harness installed) or **Path B** (agnostic mode documented) — see **`AGENTS_skills.md`**.
 - **Skills manifest:** [`.skills/_index.md`](.skills/_index.md) — the single place to list skills.
 - **Skill bodies:** `.skills/_skills/<name>/SKILL.md` — each file opens with **YAML front matter** (between `---` lines) so the index and harness can discover metadata cheaply before loading the full body.
 
@@ -43,13 +49,14 @@ Every skill should use this shape (see [`.skills/_skills/skill-template/SKILL.md
 
 The Markdown **body** starts after the closing `---`. Keeping **all** skills in this format— including ones you are porting from ad-hoc rules, plain markdown, or older layouts—is **strongly recommended**: the harness and index stay consistent, the agent can resolve dependencies and triggers the same way everywhere, and you avoid mixed conventions in `.skills/_skills/`.
 
-- **Harness:** root **`AGENTS.md`** (or a sidecar like `CLAUDE.md`, `.clinerules`, etc., depending on template) contains the **Rules** that tell the agent to read the index first and load skills on demand only. If **`AGENTS_skills.md`** is still present, setup is incomplete and the Rules in templates tell the agent **not** to create or refactor skills yet.
+- **Harness (Path A):** root **`AGENTS.md`** or a sidecar (`CLAUDE.md`, `.clinerules`, …) holds the **Rules** for on-demand loading. **Path B** repos intentionally have **no** such harness here — skills still live under `.skills/` for portability.
+- If **`AGENTS_skills.md`** is still present, bootstrap is unfinished and templates + **`AGENTS_skills.md`** tell the agent **not** to create or refactor skills until Path A or B is completed.
 
 Confirm the agent reads `.skills/_index.md` for non-trivial work and does not preload every `SKILL.md`.
 
 ## Adding a skill
 
-Only after **`AGENTS_skills.md`** has been removed and harness setup is complete:
+Only after **`AGENTS_skills.md`** Path A or Path B is complete and the bootstrap file has been removed (see **`AGENTS_skills.md`**):
 
 1. Copy [`.skills/_skills/skill-template/SKILL.md`](.skills/_skills/skill-template/SKILL.md) to `.skills/_skills/<your-skill-name>/SKILL.md` and edit frontmatter + body.
 2. Add a row to [`.skills/_index.md`](.skills/_index.md).

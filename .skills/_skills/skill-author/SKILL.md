@@ -15,7 +15,7 @@ version: "1.0.0"
 
 ## Prerequisites
 
-- If **`AGENTS_skills.md`** exists at the repository root, skills harness setup is **not** complete. Do not follow these steps until the user has **declared their environment** and that bootstrap file has been removed per `.skills/_harness/` instructions.
+- If **`AGENTS_skills.md`** exists at the repository root, bootstrap setup is **not** finished. Do not follow these steps until **either** the user has completed **Path A** (declare one ecosystem + complete the matching template in `.skills/_harness/`) **or** **Path B** (declare **agnostic / multi-ecosystem** skills-only mode per `AGENTS_skills.md`, record it in docs, remove the bootstrap). See **`AGENTS_skills.md`** for both paths.
 
 Load `skill-template` first if you need the canonical layout and refactor notes.
 

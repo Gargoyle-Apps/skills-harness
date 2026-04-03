@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-04-02
+
+### Added
+
+- **`AGENTS_skills.md` Path B — agnostic / multi-ecosystem:** author portable skills under `.skills/` without installing a tool-specific harness in the repo; document in README/CONTRIBUTING and remove bootstrap.
+- **README:** subsection for agnostic repositories and downstream harness usage.
+
+### Changed
+
+- **`skill-author` prerequisites:** allow completion via Path A or Path B (`AGENTS_skills.md`).
+
 ## [0.2.0] - 2026-04-02
 
 ### Changed
