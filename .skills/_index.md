@@ -11,3 +11,4 @@ Read the full `SKILL.md` only at that point — never preemptively.
 | skill-author | How to write a skill from scratch | write skill, author skill |
 
 Add a row here whenever a new skill is added to `.skills/_skills/`.
+| ghost | x | x |
