@@ -8,7 +8,7 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
-version: "1.0.1"
+version: "1.1.0"
 ---
 
 # Skill Author
@@ -32,8 +32,17 @@ Load `skill-template` first if you need the canonical layout and refactor notes.
 3. Fill in frontmatter — `name` must match directory name exactly
 4. Write the body as agent-facing instructions, not human documentation
 5. Choose triggers carefully — these are what cause the skill to be loaded
-6. Add a row to `.skills/_index.md`
+6. Add a row to `.skills/_index.md` — the index is the source of truth and must always be in sync with `.skills/_skills/`
 7. If this skill depends on another, list it in `dependencies`
+
+## Renaming or deleting a skill
+
+When renaming or removing an existing skill, update `.skills/_index.md` in the same operation:
+
+- **Rename:** update the directory name, the frontmatter `name` field, and the index row together.
+- **Delete:** remove the directory and its index row together.
+
+Never leave the index out of sync with the skills directory.
 
 ## Frontmatter checklist
 
