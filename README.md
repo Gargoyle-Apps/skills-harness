@@ -1,64 +1,58 @@
 # skills-harness
 
-Zero-dependency, file-only **skills harness**: drop `.skills/` and **`AGENTS_skills.md`** into any repository so your coding agent discovers skills from `.skills/_index.md` and loads each skill’s `SKILL.md` only when the task matches its triggers.
-
-The bootstrap is intentionally named **`AGENTS_skills.md`** (not `AGENTS.md`) so it **never overwrites** an existing project **`AGENTS.md`**. After one-time setup, **`AGENTS_skills.md` is removed**; the long-lived harness lives in **`AGENTS.md`** (Cursor / Codex / Copilot) or in a sidecar file (e.g. `CLAUDE.md`), per the template you use.
+A zero-dependency, file-only kit that teaches coding agents how to discover and load skills on demand. Drop `.skills/` and `AGENTS_skills.md` into any repo — the agent sets itself up, reads the index, and loads each `SKILL.md` only when the task matches its triggers.
 
 ## Quick start
 
-1. Copy this repository’s **`AGENTS_skills.md`** and **`.skills/`** directory into your project root (or submodule / subtree).
-2. Open **`AGENTS_skills.md`** in your agent. Follow the **hard gate** there: the user must **declare the environment** before any skill authoring or refactor work. Then open the matching template under **`.skills/_harness/`**.
-3. Complete that template’s **Setup** (strip the SETUP block, install the harness). For **Cursor / Codex / Copilot**, append the harness under a `## Skills Harness` heading in **`AGENTS.md`** if that file already exists — do not replace project instructions. Remove **`AGENTS_skills.md`** when done.
+1. Copy `AGENTS_skills.md` and `.skills/` into your project root.
+2. Open `AGENTS_skills.md` in your agent. It will ask which environment you use, then walk through setup automatically.
+3. After setup, `AGENTS_skills.md` is deleted. The harness lives in `AGENTS.md` or a sidecar file, depending on your IDE.
 
-### Multi-ecosystem (agnostic) repositories
+For repos that need to stay **IDE-neutral** (used across Cursor, Claude Code, Windsurf, etc. by different people), follow **Path B** in `AGENTS_skills.md` — skills stay portable under `.skills/` without committing to a single tool's config files.
 
-Some projects (call it **foo**) add this kit because they want to **author portable skills** under `.skills/` using the same formats and bundled **skill-template** / **skill-author**, but **must not** install a single tool’s harness **in that repo** — **foo** might be used in Cursor, Claude Code, or elsewhere depending on who clones it.
+## How it works
 
-For that case, follow **Path B** in **`AGENTS_skills.md`**: declare **agnostic / multi-ecosystem** mode, **do not** paste harness bodies from `.skills/_harness/*_template.md` into `AGENTS.md` or tool sidecars — those files stay **reference** for consumers. Your existing **`AGENTS.md`** remains the **project contract**; add a short **policy-only** section there (recommended) and/or **README** / **CONTRIBUTING**, then remove **`AGENTS_skills.md`**. That way agents still see an authoring gate after the bootstrap file is gone. Skill files and the index remain tool-neutral; each consumer or deployment can apply **Path A** in *their* checkout if they want a runtime harness in one ecosystem.
+| Role | What it does | Implemented by |
+|------|-------------|----------------|
+| **User** | Sets goals, chooses the IDE, resolves conflicts | The human |
+| **Agent** | Reads the index, loads skills on demand, manages files | The AI in your IDE |
+| **Index** | Routes — declares what skills exist and when to trigger them | `.skills/_index.md` |
+| **Skills** | Execute — step-by-step instructions for a specific task | `.skills/_skills/<name>/SKILL.md` |
+
+The agent reads the index at the start of non-trivial work. When a task matches a skill's triggers, the agent loads that `SKILL.md` — never preemptively. If a skill lists dependencies, those are loaded first. Skills cannot override user intent or agent core behavior; they only provide domain-specific procedures.
 
 ## Supported tools
 
-| Environment | Template file |
-|-------------|----------------|
-| Cursor | [`.skills/_harness/CURSOR_template.md`](.skills/_harness/CURSOR_template.md) |
-| Codex | [`.skills/_harness/CODEX_template.md`](.skills/_harness/CODEX_template.md) |
-| GitHub Copilot (VS Code / similar) | [`.skills/_harness/COPILOT_template.md`](.skills/_harness/COPILOT_template.md) |
-| Claude Code | [`.skills/_harness/CLAUDE_template.md`](.skills/_harness/CLAUDE_template.md) |
-| Cline | [`.skills/_harness/CLINE_template.md`](.skills/_harness/CLINE_template.md) |
-| Windsurf | [`.skills/_harness/WINDSURF_template.md`](.skills/_harness/WINDSURF_template.md) |
-| Gemini CLI | [`.skills/_harness/GEMINI_template.md`](.skills/_harness/GEMINI_template.md) |
-| Roo Code | [`.skills/_harness/ROO_template.md`](.skills/_harness/ROO_template.md) |
-| OpenCode | [`.skills/_harness/OPENCODE_template.md`](.skills/_harness/OPENCODE_template.md) |
-| Other / paste-only | [`.skills/_harness/GENERIC_template.md`](.skills/_harness/GENERIC_template.md) |
+| Environment | Template |
+|-------------|----------|
+| Cursor | [CURSOR_template.md](.skills/_harness/CURSOR_template.md) |
+| Codex | [CODEX_template.md](.skills/_harness/CODEX_template.md) |
+| GitHub Copilot | [COPILOT_template.md](.skills/_harness/COPILOT_template.md) |
+| Claude Code | [CLAUDE_template.md](.skills/_harness/CLAUDE_template.md) |
+| Cline | [CLINE_template.md](.skills/_harness/CLINE_template.md) |
+| Windsurf | [WINDSURF_template.md](.skills/_harness/WINDSURF_template.md) |
+| Gemini CLI | [GEMINI_template.md](.skills/_harness/GEMINI_template.md) |
+| Roo Code | [ROO_template.md](.skills/_harness/ROO_template.md) |
+| OpenCode | [OPENCODE_template.md](.skills/_harness/OPENCODE_template.md) |
+| Other / paste-only | [GENERIC_template.md](.skills/_harness/GENERIC_template.md) |
 
-## After setup
+## Skill format
 
-- **Bootstrap:** `AGENTS_skills.md` should be **gone** after **Path A** (harness installed) or **Path B** (agnostic mode documented) — see **`AGENTS_skills.md`**.
-- **Skills manifest:** [`.skills/_index.md`](.skills/_index.md) — the single place to list skills.
-- **Skill bodies:** `.skills/_skills/<name>/SKILL.md` — each file opens with **YAML front matter** (between `---` lines) so the index and harness can discover metadata cheaply before loading the full body.
-
-### YAML front matter for each `SKILL.md`
-
-Every skill should use this shape (see [`.skills/_skills/skill-template/SKILL.md`](.skills/_skills/skill-template/SKILL.md) for a filled-in example):
+Each `SKILL.md` opens with YAML frontmatter. See [skill-template](.skills/_skills/skill-template/SKILL.md) for a complete example.
 
 | Field | Required | Purpose |
 |-------|----------|---------|
-| `name` | yes | Must match the directory name exactly (kebab-case, e.g. `my-skill`). |
-| `description` | yes | One sentence; used in the index and for relevance matching. |
-| `triggers` | yes | List of phrases or keywords that should cause this skill to load. |
-| `dependencies` | yes | Other skill `name`s to load first; use `[]` if none. |
-| `version` | yes | Semver string for humans (e.g. `1.0.0`). |
+| `name` | yes | Must match directory name (kebab-case, 1–64 chars) |
+| `description` | yes | One sentence for index and IDE matching (1–1024 chars) |
+| `triggers` | yes | Phrases that should cause this skill to load |
+| `dependencies` | yes | Other skill names to load first (`[]` if none) |
+| `version` | yes | Semver string (e.g. `1.0.0`) |
 
-The Markdown **body** starts after the closing `---`. Keeping **all** skills in this format— including ones you are porting from ad-hoc rules, plain markdown, or older layouts—is **strongly recommended**: the harness and index stay consistent, the agent can resolve dependencies and triggers the same way everywhere, and you avoid mixed conventions in `.skills/_skills/`.
-
-- **Harness (Path A):** root **`AGENTS.md`** or a sidecar (`CLAUDE.md`, `.clinerules`, …) holds the **Rules** for on-demand loading. **Path B** repos intentionally have **no** such harness here — skills still live under `.skills/` for portability.
-- If **`AGENTS_skills.md`** is still present, bootstrap is unfinished; **`AGENTS_skills.md`** and harness **Rules** (in templates used for Path A) apply only **while** that file exists. After removal, **`skill-author`** and other skills do **not** depend on it — use project **`AGENTS.md`** / README for Path B policy.
-
-Confirm the agent reads `.skills/_index.md` for non-trivial work and does not preload every `SKILL.md`.
+These fields follow the [agentskills.io specification](https://agentskills.io/specification). IDEs that support native skill discovery use `name` and `description`; the harness adds `triggers`, `dependencies`, and `version` on top.
 
 ## Native IDE discovery
 
-Most coding IDEs auto-discover skills from standard directories. After harness setup, run the symlink helper to enable native features (auto-invocation, `@skill-name` mentions, skill panels):
+Most IDEs auto-discover skills from standard directories. After setup, run the symlink helper to enable native features (`@skill-name` mentions, auto-invocation, skill panels):
 
 ```bash
 # Most IDEs (Cursor, Codex, Copilot, Windsurf, Gemini CLI, Roo Code, OpenCode)
@@ -68,44 +62,42 @@ Most coding IDEs auto-discover skills from standard directories. After harness s
 .skills/_harness/link.sh .claude/skills
 ```
 
-This creates symlinks from the cross-agent discovery path to `.skills/_skills/` — no files are copied or moved. Add the target directory to `.gitignore` (symlinks are machine-local, not committed).
+Symlinks point from the cross-agent discovery path back to `.skills/_skills/`. Add the target directory to `.gitignore` — symlinks are machine-local, not committed.
 
-The harness index (`.skills/_index.md`) continues to work alongside native discovery. Native gives you IDE integration; the index gives you trigger keywords and dependency chains. Both load the same `SKILL.md` files.
+The harness index and native discovery work side by side: native gives IDE integration, the index gives trigger keywords and dependency chains.
 
 ### Swapping IDEs
 
-Skills stay in `.skills/_skills/` regardless of which IDE you use. To switch:
+Skills stay in `.skills/_skills/` regardless of IDE. To switch:
 
-1. Follow the new IDE's template under `.skills/_harness/` to install harness rules.
-2. Run `link.sh` with the appropriate target if you haven't already.
-3. Both `.agents/skills/` and `.claude/skills/` symlinks can coexist — they point to the same skills.
+1. Follow the new IDE's template to install harness rules.
+2. Run `link.sh` with the appropriate target if not already done.
+3. `.agents/skills/` and `.claude/skills/` symlinks can coexist.
 
-For a guided upgrade from an older harness version, use the bundled **harness-upgrade** skill (see index).
+For upgrading from an older harness version, use the bundled **harness-upgrade** skill.
 
 ## Adding a skill
 
-Only after **`AGENTS_skills.md`** Path A or Path B is complete and the bootstrap file has been removed (see **`AGENTS_skills.md`**):
-
-1. Copy [`.skills/_skills/skill-template/SKILL.md`](.skills/_skills/skill-template/SKILL.md) to `.skills/_skills/<your-skill-name>/SKILL.md` and edit frontmatter + body.
+1. Copy [skill-template](.skills/_skills/skill-template/SKILL.md) to `.skills/_skills/<name>/SKILL.md` and edit.
 2. Add a row to [`.skills/_index.md`](.skills/_index.md).
-3. If native discovery symlinks are configured, re-run `.skills/_harness/link.sh` to include the new skill.
-4. For detailed steps, load the **skill-author** skill (see index) after **skill-template** if you need the authoring checklist.
+3. Re-run `.skills/_harness/link.sh` if native discovery symlinks are set up.
+4. For the full checklist, load the **skill-author** skill.
 
 ## Updating the kit
 
-Merge or replace files from upstream **skills-harness**; keep your custom skills under `.skills/_skills/` and your index rows. Resolve conflicts in **`AGENTS.md`**, sidecar harness files, and **`AGENTS_skills.md`** the same way you would for any shared boilerplate.
-
-## Optional: MCP (progressive loading)
-
-If your client supports MCP and you want progressive skill loading outside this file-based flow, see **[skillport](https://github.com/gotalab/skillport)**. This repo does not ship a server; use skillport (or similar) with `.skills/_skills/` as documented there.
-
-## Kit version
-
-Optional metadata: [`.skills/_meta.yml`](.skills/_meta.yml).
+Merge or replace `.skills/_harness/` and bundled skills from upstream. Keep your custom skills under `.skills/_skills/` and your index rows. See the **harness-upgrade** skill for guided migration.
 
 ## Validation
 
-Run `.skills/_harness/check.sh` to verify index-to-directory consistency, frontmatter completeness, and Rules block sync across templates. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+Run `.skills/_harness/check.sh` to verify index/directory consistency, frontmatter, template sync, and symlink integrity.
+
+## Optional: MCP
+
+For progressive skill loading via MCP, see [skillport](https://github.com/gotalab/skillport). This kit does not ship a server.
+
+## Kit version
+
+[`.skills/_meta.yml`](.skills/_meta.yml)
 
 ## Contributing
 

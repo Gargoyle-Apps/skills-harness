@@ -35,6 +35,7 @@ Load `skill-template` first if you need the canonical layout and refactor notes.
 6. Add a row to `.skills/_index.md` — the index is the source of truth and must always be in sync with `.skills/_skills/`
 7. If this skill depends on another, list it in `dependencies`
 8. If native discovery symlinks are configured, re-run `.skills/_harness/link.sh` with the appropriate target (e.g. `.agents/skills`) to include the new skill
+9. Run `.skills/_harness/check.sh` to validate index and frontmatter consistency (if your environment supports script execution)
 
 ## Renaming or deleting a skill
 
