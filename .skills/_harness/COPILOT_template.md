@@ -6,9 +6,10 @@
 2. Install the harness into root **`AGENTS.md`**:
    - **If `AGENTS.md` does not exist:** create it containing only the harness below.
    - **If `AGENTS.md` already exists** with project content: **append** the harness under a new `## Skills Harness` heading. Do not replace existing project instructions.
-3. Delete **`AGENTS_skills.md`** from the repository root (the temporary bootstrap file).
+3. **Native discovery:** run `.skills/_harness/link.sh .agents/skills` from the repo root. Add `.agents/skills/` to `.gitignore` if not already present.
+4. Delete **`AGENTS_skills.md`** from the repository root (the temporary bootstrap file).
 
-**Verify:** `AGENTS.md` contains the Skills Harness section; this SETUP block is gone; `AGENTS_skills.md` is removed.
+**Verify:** `AGENTS.md` contains the Skills Harness section; `.agents/skills/` contains symlinks to `.skills/_skills/`; this SETUP block is gone; `AGENTS_skills.md` is removed.
 
 <!-- END SETUP -->
 

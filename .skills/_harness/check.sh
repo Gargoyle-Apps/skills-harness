@@ -7,11 +7,13 @@ set -euo pipefail
 #   3. Each SKILL.md has required frontmatter fields
 #   4. Each SKILL.md name field matches its directory name
 #   5. Rules blocks in all templates match the canonical _rules.md
+#   6. Symlinks in .agents/skills/ and .claude/skills/ are valid (if present)
 
 HARNESS_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_DIR="$(dirname "$HARNESS_DIR")/_skills"
 INDEX_FILE="$(dirname "$HARNESS_DIR")/_index.md"
 RULES_FILE="$HARNESS_DIR/_rules.md"
+REPO_ROOT="$(dirname "$(dirname "$HARNESS_DIR")")"
 
 errors=0
 
@@ -141,6 +143,33 @@ if [[ -f "$RULES_FILE" ]]; then
 else
   warn "_rules.md not found; skipping Rules sync check"
 fi
+
+# --- 6: Symlink validation (optional) ---
+
+for symdir in ".agents/skills" ".claude/skills"; do
+  symdir_abs="$REPO_ROOT/$symdir"
+  [[ ! -d "$symdir_abs" ]] && continue
+
+  for link in "$symdir_abs"/*/; do
+    # Guard: skip unexpanded glob when directory is empty (bash has no nullglob by default)
+    [[ ! -e "${link%/}" && ! -L "${link%/}" ]] && continue
+    name="$(basename "${link%/}")"
+
+    if [[ ! -L "${link%/}" ]]; then
+      warn "$symdir/$name is not a symlink"
+      continue
+    fi
+
+    if [[ ! -d "${link%/}" ]]; then
+      err "$symdir/$name is a broken symlink (target: $(readlink "${link%/}"))"
+      continue
+    fi
+
+    if [[ ! -f "${link%/}/SKILL.md" ]]; then
+      warn "$symdir/$name symlink target has no SKILL.md"
+    fi
+  done
+done
 
 # --- Summary ---
 

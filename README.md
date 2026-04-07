@@ -27,6 +27,8 @@ For that case, follow **Path B** in **`AGENTS_skills.md`**: declare **agnostic /
 | Cline | [`.skills/_harness/CLINE_template.md`](.skills/_harness/CLINE_template.md) |
 | Windsurf | [`.skills/_harness/WINDSURF_template.md`](.skills/_harness/WINDSURF_template.md) |
 | Gemini CLI | [`.skills/_harness/GEMINI_template.md`](.skills/_harness/GEMINI_template.md) |
+| Roo Code | [`.skills/_harness/ROO_template.md`](.skills/_harness/ROO_template.md) |
+| OpenCode | [`.skills/_harness/OPENCODE_template.md`](.skills/_harness/OPENCODE_template.md) |
 | Other / paste-only | [`.skills/_harness/GENERIC_template.md`](.skills/_harness/GENERIC_template.md) |
 
 ## After setup
@@ -54,13 +56,40 @@ The Markdown **body** starts after the closing `---`. Keeping **all** skills in 
 
 Confirm the agent reads `.skills/_index.md` for non-trivial work and does not preload every `SKILL.md`.
 
+## Native IDE discovery
+
+Most coding IDEs auto-discover skills from standard directories. After harness setup, run the symlink helper to enable native features (auto-invocation, `@skill-name` mentions, skill panels):
+
+```bash
+# Most IDEs (Cursor, Codex, Copilot, Windsurf, Gemini CLI, Roo Code, OpenCode)
+.skills/_harness/link.sh .agents/skills
+
+# Claude Code and Cline
+.skills/_harness/link.sh .claude/skills
+```
+
+This creates symlinks from the cross-agent discovery path to `.skills/_skills/` — no files are copied or moved. Add the target directory to `.gitignore` (symlinks are machine-local, not committed).
+
+The harness index (`.skills/_index.md`) continues to work alongside native discovery. Native gives you IDE integration; the index gives you trigger keywords and dependency chains. Both load the same `SKILL.md` files.
+
+### Swapping IDEs
+
+Skills stay in `.skills/_skills/` regardless of which IDE you use. To switch:
+
+1. Follow the new IDE's template under `.skills/_harness/` to install harness rules.
+2. Run `link.sh` with the appropriate target if you haven't already.
+3. Both `.agents/skills/` and `.claude/skills/` symlinks can coexist — they point to the same skills.
+
+For a guided upgrade from an older harness version, use the bundled **harness-upgrade** skill (see index).
+
 ## Adding a skill
 
 Only after **`AGENTS_skills.md`** Path A or Path B is complete and the bootstrap file has been removed (see **`AGENTS_skills.md`**):
 
 1. Copy [`.skills/_skills/skill-template/SKILL.md`](.skills/_skills/skill-template/SKILL.md) to `.skills/_skills/<your-skill-name>/SKILL.md` and edit frontmatter + body.
 2. Add a row to [`.skills/_index.md`](.skills/_index.md).
-3. For detailed steps, load the **skill-author** skill (see index) after **skill-template** if you need the authoring checklist.
+3. If native discovery symlinks are configured, re-run `.skills/_harness/link.sh` to include the new skill.
+4. For detailed steps, load the **skill-author** skill (see index) after **skill-template** if you need the authoring checklist.
 
 ## Updating the kit
 

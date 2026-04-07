@@ -1,6 +1,6 @@
 <!-- SETUP — remove this entire section after setup is complete -->
 
-## Setup instructions (Cursor)
+## Setup instructions (OpenCode)
 
 1. Delete this SETUP section (from the opening comment through `<!-- END SETUP -->` inclusive).
 2. Install the harness into root **`AGENTS.md`**:
@@ -9,18 +9,13 @@
 3. **Native discovery:** run `.skills/_harness/link.sh .agents/skills` from the repo root. Add `.agents/skills/` to `.gitignore` if not already present.
 4. Delete **`AGENTS_skills.md`** from the repository root (the temporary bootstrap file).
 
-**Verify:** `AGENTS.md` contains the Skills Harness section with Cursor frontmatter; `.agents/skills/` contains symlinks to `.skills/_skills/`; this SETUP block is gone; `AGENTS_skills.md` is removed.
+**Verify:** `AGENTS.md` contains the Skills Harness section; `.agents/skills/` contains symlinks to `.skills/_skills/`; this SETUP block is gone; `AGENTS_skills.md` is removed.
 
 <!-- END SETUP -->
 
 ---
 
----
-description: Skills harness for Cursor
-alwaysApply: true
----
-
-# Skills Harness (Cursor)
+# Skills Harness (OpenCode)
 
 Skills are in `.skills/_skills/`. The index is at `.skills/_index.md`.
 

@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-04-07
+
+### Added
+
+- **`link.sh`:** symlink helper script that creates symlinks from native IDE discovery paths (`.agents/skills/`, `.claude/skills/`) into `.skills/_skills/`, enabling auto-invocation, `@skill-name` mentions, and skill panels across 9 IDEs.
+- **`ROO_template.md`:** Roo Code environment template.
+- **`OPENCODE_template.md`:** OpenCode environment template.
+- **`harness-upgrade` skill (v1.0.0):** guides upgrading older harness installations to v0.4.0+ with native IDE discovery; includes IDE swap instructions.
+- **`.gitignore`:** `.agents/skills/` and `.claude/skills/` entries for generated symlink directories.
+
+### Changed
+
+- **All templates:** SETUP sections now include a "Native discovery" step calling `link.sh` with the IDE-appropriate target directory.
+- **`check.sh`:** added optional symlink validation for `.agents/skills/` and `.claude/skills/` directories.
+- **`skill-template` v1.1.0:** added [agentskills.io](https://agentskills.io/specification) frontmatter constraints (`name` length/format, `description` length) to authoring instructions.
+- **`skill-author` v1.2.0:** added step to re-run `link.sh` after creating a new skill.
+- **`link.sh`:** stale symlink detection (auto-updates wrong targets), `_`-prefixed directory filter, flexible `--clean` arg position.
+- **`AGENTS_skills.md`:** bootstrap table now includes Roo Code and OpenCode rows.
+- **`README.md`:** added native IDE discovery section with `link.sh` usage and IDE swap guide; updated supported tools table.
+- **`CONTRIBUTING.md`:** added frontmatter compatibility requirements and symlink helper guidance.
+
 ## [0.3.2] - 2026-04-04
 
 ### Changed

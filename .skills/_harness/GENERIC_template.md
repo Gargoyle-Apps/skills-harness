@@ -10,6 +10,8 @@
 
 **Limitation:** with paste-only setup there is no automatic progressive loading; keep `.skills/_index.md` small. For MCP-based progressive loading, see the README **Optional: MCP** section.
 
+**Native discovery:** if your tool supports skill auto-discovery from `.agents/skills/` or `.claude/skills/`, you can also run `.skills/_harness/link.sh .agents/skills` (or `.claude/skills`) to enable it alongside the paste-based harness.
+
 **Verify:** harness is pasted into your tool; `AGENTS_skills.md` is removed.
 
 <!-- END SETUP -->

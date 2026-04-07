@@ -12,9 +12,10 @@
 Skills: see [GEMINI.md](./GEMINI.md).
 ```
 
-4. Delete **`AGENTS_skills.md`** from the repository root.
+4. **Native discovery:** run `.skills/_harness/link.sh .agents/skills` from the repo root. Add `.agents/skills/` to `.gitignore` if not already present.
+5. Delete **`AGENTS_skills.md`** from the repository root.
 
-**Verify:** `GEMINI.md` contains the Skills Harness section; `AGENTS.md` has the pointer; this SETUP block is gone; `AGENTS_skills.md` is removed.
+**Verify:** `GEMINI.md` contains the Skills Harness section; `AGENTS.md` has the pointer; `.agents/skills/` contains symlinks to `.skills/_skills/`; this SETUP block is gone; `AGENTS_skills.md` is removed.
 
 <!-- END SETUP -->
 

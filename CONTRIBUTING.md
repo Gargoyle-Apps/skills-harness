@@ -30,7 +30,8 @@ Follow the bundled **skill-author** skill (`.skills/_skills/skill-author/SKILL.m
 1. Create `.skills/_skills/<name>/SKILL.md` using `skill-template` as a starting point.
 2. Fill in YAML frontmatter (`name`, `description`, `triggers`, `dependencies`, `version`).
 3. Add a row to `.skills/_index.md`.
-4. Run `.skills/_harness/check.sh` to verify index-to-directory consistency.
+4. If native discovery symlinks are set up, re-run `.skills/_harness/link.sh <target>` to include the new skill.
+5. Run `.skills/_harness/check.sh` to verify index-to-directory consistency.
 
 ## Testing
 
@@ -59,3 +60,23 @@ There is no automated CI. Use the validation script and manual smoke testing:
 - Templates use **append with `## Skills Harness` heading** as the standard merge strategy.
 - SETUP blocks are ephemeral; harness content is permanent. Keep them clearly separated with `<!-- SETUP -->` / `<!-- END SETUP -->` comments.
 - Skills use kebab-case directory names, one-sentence descriptions, and phrase-based triggers.
+
+## Frontmatter compatibility
+
+All `SKILL.md` files must include `name` and `description` in YAML frontmatter per the [agentskills.io specification](https://agentskills.io/specification). These fields enable native IDE discovery across Cursor, Windsurf, Cline, Codex, Copilot, Claude Code, Gemini CLI, Roo Code, and OpenCode.
+
+Harness-specific fields (`triggers`, `dependencies`, `version`) are recommended and used by the harness index. IDEs that don't recognize them silently ignore them.
+
+| Field | Required by | Purpose |
+|-------|-------------|---------|
+| `name` | agentskills.io + harness | Must match directory name (kebab-case, 1–64 chars) |
+| `description` | agentskills.io + harness | 1–1024 chars; used for native IDE matching and the index |
+| `triggers` | harness only | Phrases that cause the harness to load the skill |
+| `dependencies` | harness only | Other skills to load first |
+| `version` | harness only | Semver for humans |
+
+## Symlink helper (`link.sh`)
+
+`.skills/_harness/link.sh <target-dir>` creates symlinks from `<target-dir>/<skill-name>` to `.skills/_skills/<skill-name>` for every skill directory. It is idempotent (safe to re-run). Pass `--clean` to remove existing symlinks before creating new ones.
+
+When adding a new IDE template, include a "Native discovery" SETUP step calling `link.sh` with the IDE's cross-agent path (`.agents/skills/` or `.claude/skills/`).

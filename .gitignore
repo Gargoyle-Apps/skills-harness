@@ -54,3 +54,7 @@ $RECYCLE.BIN/
 
 # Cursor local rules (machine-specific)
 .cursorrules
+
+# Native IDE skill discovery (symlinks, not committed)
+.agents/skills/
+.claude/skills/

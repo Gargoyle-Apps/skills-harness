@@ -8,7 +8,7 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
-version: "1.1.0"
+version: "1.2.0"
 ---
 
 # Skill Author
@@ -34,6 +34,7 @@ Load `skill-template` first if you need the canonical layout and refactor notes.
 5. Choose triggers carefully — these are what cause the skill to be loaded
 6. Add a row to `.skills/_index.md` — the index is the source of truth and must always be in sync with `.skills/_skills/`
 7. If this skill depends on another, list it in `dependencies`
+8. If native discovery symlinks are configured, re-run `.skills/_harness/link.sh` with the appropriate target (e.g. `.agents/skills`) to include the new skill
 
 ## Renaming or deleting a skill
 

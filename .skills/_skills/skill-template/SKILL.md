@@ -8,7 +8,7 @@ triggers:
   - reformat skill
   - convert rule
 dependencies: []
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # Skill Template
@@ -23,8 +23,8 @@ Load when the user needs the canonical skill layout, is creating a new skill, or
 ## Instructions
 
 1. Copy this file to `.skills/_skills/<name>/SKILL.md`.
-2. Set `name` to match the directory name exactly (kebab-case).
-3. Write `description` as one sentence for the index.
+2. Set `name` to match the directory name exactly — kebab-case, 1–64 characters, lowercase alphanumeric and hyphens only, no leading/trailing/consecutive hyphens ([agentskills.io](https://agentskills.io/specification) `name` rules).
+3. Write `description` as one sentence, 1–1024 characters — used by the harness index and native IDE skill matching ([agentskills.io](https://agentskills.io/specification) `description` rules).
 4. List natural-language `triggers` users might say.
 5. Fill **When to use**, **Instructions**, and **Examples** for the agent.
 

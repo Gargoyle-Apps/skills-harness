@@ -12,9 +12,10 @@
 Skills: see [CLAUDE.md](./CLAUDE.md).
 ```
 
-4. Delete **`AGENTS_skills.md`** from the repository root.
+4. **Native discovery:** run `.skills/_harness/link.sh .claude/skills` from the repo root. Add `.claude/skills/` to `.gitignore` if not already present.
+5. Delete **`AGENTS_skills.md`** from the repository root.
 
-**Verify:** `CLAUDE.md` contains the Skills Harness section; `AGENTS.md` has the pointer; this SETUP block is gone; `AGENTS_skills.md` is removed.
+**Verify:** `CLAUDE.md` contains the Skills Harness section; `AGENTS.md` has the pointer; `.claude/skills/` contains symlinks to `.skills/_skills/`; this SETUP block is gone; `AGENTS_skills.md` is removed.
 
 <!-- END SETUP -->
 

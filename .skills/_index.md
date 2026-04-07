@@ -9,5 +9,6 @@ Read the full `SKILL.md` only at that point — never preemptively.
 |------|-------------|----------|
 | skill-template | Canonical skill format and authoring reference | new skill, create skill, skill format |
 | skill-author | How to write a skill from scratch | write skill, author skill |
+| harness-upgrade | Upgrade a skills-harness installation to the latest version with native IDE discovery | upgrade harness, update harness, migrate harness, add native discovery |
 
 Add a row here whenever a new skill is added to `.skills/_skills/`.

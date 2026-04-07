@@ -28,6 +28,8 @@ Use when this repository should install **one** tool’s harness so agents worki
 | Cline | `.skills/_harness/CLINE_template.md` |
 | Windsurf | `.skills/_harness/WINDSURF_template.md` |
 | Gemini CLI | `.skills/_harness/GEMINI_template.md` |
+| Roo Code | `.skills/_harness/ROO_template.md` |
+| OpenCode | `.skills/_harness/OPENCODE_template.md` |
 | Other | `.skills/_harness/GENERIC_template.md` |
 
 **Note:** If the repo already has a project **`AGENTS.md`**, **append** the harness under a `## Skills Harness` heading — do not replace project instructions. Same for pointers into an existing **`AGENTS.md`**.
