@@ -51,9 +51,14 @@ There is no automated CI. Use the validation script and manual smoke testing:
 
 ## Versioning
 
-- **Kit version** in `.skills/_meta.yml` — bump on template, index, or structural changes.
-- **Per-skill version** in each `SKILL.md` frontmatter — bump when behaviour changes.
-- **`CHANGELOG.md`** — add an entry for every release, following [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+- **Kit release (semver for the whole kit)** — follow the bundled **kit-release** skill (`.skills/_skills/kit-release/SKILL.md`). In one change set, update:
+  - **`CHANGELOG.md`** — new `## [x.y.z] - date` section at the top of the release list
+  - **`.skills/_meta.yml`** — `kit_version`
+  - **`README.md`** — **Kit version** → **Current release:** `` `x.y.z` ``
+  - **`AGENTS_skills.md`** — **Kit version:** `` `x.y.z` `` on the line under the main heading
+  - Then run **`.skills/_harness/check.sh`** — it asserts those values match each other and the newest changelog heading.
+- **Per-skill version** in each `SKILL.md` frontmatter — bump when that skill’s behaviour changes; mention significant skill bumps in the kit changelog when you cut a release.
+- **`CHANGELOG.md`** — [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) for every kit release.
 
 ## Style guidelines
 

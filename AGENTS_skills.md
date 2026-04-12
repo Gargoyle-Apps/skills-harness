@@ -1,5 +1,7 @@
 # Skills Harness — bootstrap (temporary)
 
+**Kit version:** `0.4.1` — history in root **`CHANGELOG.md`**. Maintainers shipping a new kit release: follow the **kit-release** skill so **`CHANGELOG.md`**, **`.skills/_meta.yml`**, this line, and **`README.md`** (Kit version) stay in sync; run **`.skills/_harness/check.sh`** when done.
+
 This file is **`AGENTS_skills.md`** so dropping the kit into a repo **does not overwrite** an existing project **`AGENTS.md`**. It exists only until one-time setup is finished. After setup, **delete this file** (or replace it with a one-line pointer only if your template says so).
 
 ## Hard gate — declare a path before skills work

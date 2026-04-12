@@ -97,7 +97,13 @@ For progressive skill loading via MCP, see [skillport](https://github.com/gotala
 
 ## Kit version
 
-[`.skills/_meta.yml`](.skills/_meta.yml)
+**Current release:** `0.4.1`
+
+- **Canonical:** [`kit_version` in `.skills/_meta.yml`](.skills/_meta.yml)
+- **History:** [CHANGELOG.md](CHANGELOG.md)
+- **Bootstrap:** [`AGENTS_skills.md`](AGENTS_skills.md) shows the same release for agents during setup
+
+When bumping the kit in this repository, load the **kit-release** skill and update the changelog, `_meta.yml`, this section, and `AGENTS_skills.md` together, then run `.skills/_harness/check.sh`. See [CONTRIBUTING.md — Versioning](CONTRIBUTING.md#versioning).
 
 ## Contributing
 

@@ -8,6 +8,7 @@ set -euo pipefail
 #   4. Each SKILL.md name field matches its directory name
 #   5. Rules blocks in all templates match the canonical _rules.md
 #   6. Symlinks in .agents/skills/ and .claude/skills/ are valid (if present)
+#   7. kit_version in _meta.yml matches newest CHANGELOG release, README, and AGENTS_skills.md
 
 HARNESS_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_DIR="$(dirname "$HARNESS_DIR")/_skills"
@@ -170,6 +171,57 @@ for symdir in ".agents/skills" ".claude/skills"; do
     fi
   done
 done
+
+# --- 7: Kit version surfaces (_meta.yml, CHANGELOG, README, AGENTS_skills.md) ---
+
+META_FILE="$(dirname "$HARNESS_DIR")/_meta.yml"
+CHANGELOG_FILE="$REPO_ROOT/CHANGELOG.md"
+README_FILE="$REPO_ROOT/README.md"
+BOOTSTRAP_FILE="$REPO_ROOT/AGENTS_skills.md"
+
+if [[ -f "$META_FILE" ]]; then
+  meta_line="$(grep -E '^kit_version:' "$META_FILE" | head -1 || true)"
+  meta_ver="${meta_line#kit_version:}"
+  meta_ver="$(trim "$meta_ver")"
+  meta_ver="${meta_ver#\"}"
+  meta_ver="${meta_ver%\"}"
+
+  if [[ -z "$meta_ver" ]]; then
+    err "_meta.yml: could not parse kit_version"
+  else
+    if [[ -f "$CHANGELOG_FILE" ]]; then
+      cl_line="$(grep -E '^## \[[0-9]' "$CHANGELOG_FILE" | head -1 || true)"
+      if [[ -z "$cl_line" ]]; then
+        err "CHANGELOG.md: no release heading like ## [x.y.z] found after intro"
+      else
+        cl_ver="$(echo "$cl_line" | sed -E 's/^## \[([^]]+)\].*/\1/')"
+        if [[ "$cl_ver" != "$meta_ver" ]]; then
+          err "CHANGELOG first release [$cl_ver] does not match _meta.yml kit_version ($meta_ver)"
+        fi
+      fi
+    else
+      err "CHANGELOG.md not found at $CHANGELOG_FILE (required for kit version check)"
+    fi
+
+    if [[ -f "$README_FILE" ]]; then
+      if ! grep -Fq "**Current release:** \`${meta_ver}\`" "$README_FILE"; then
+        err "README.md: expected **Current release:** \`${meta_ver}\` to match .skills/_meta.yml"
+      fi
+    else
+      err "README.md not found at $README_FILE (required for kit version check)"
+    fi
+
+    if [[ -f "$BOOTSTRAP_FILE" ]]; then
+      if ! grep -Fq "**Kit version:** \`${meta_ver}\`" "$BOOTSTRAP_FILE"; then
+        err "AGENTS_skills.md: expected **Kit version:** \`${meta_ver}\` to match .skills/_meta.yml"
+      fi
+    else
+      err "AGENTS_skills.md not found at $BOOTSTRAP_FILE (required for kit version check)"
+    fi
+  fi
+else
+  warn ".skills/_meta.yml not found; skipping kit version surface check"
+fi
 
 # --- Summary ---
 
