@@ -40,15 +40,15 @@ The agent reads the index at the start of non-trivial work. When a task matches 
 
 Each `SKILL.md` opens with YAML frontmatter. See [skill-template](.skills/_skills/skill-template/SKILL.md) for a complete example.
 
-| Field | Required | Purpose |
-|-------|----------|---------|
-| `name` | yes | Must match directory name (kebab-case, 1–64 chars) |
-| `description` | yes | One sentence for index and IDE matching (1–1024 chars) |
-| `triggers` | yes | Phrases that should cause this skill to load |
-| `dependencies` | yes | Other skill names to load first (`[]` if none) |
-| `version` | yes | Semver string (e.g. `1.0.0`) |
+| Field | Required by | Purpose |
+|-------|-------------|---------|
+| `name` | agentskills.io + harness | Must match directory name (kebab-case, 1–64 chars) |
+| `description` | agentskills.io + harness | One sentence for index and IDE matching (1–1024 chars) |
+| `triggers` | harness only | Phrases that should cause this skill to load |
+| `dependencies` | harness only | Other skill names to load first (`[]` if none) |
+| `version` | harness only | Semver string (e.g. `1.0.0`) |
 
-These fields follow the [agentskills.io specification](https://agentskills.io/specification). IDEs that support native skill discovery use `name` and `description`; the harness adds `triggers`, `dependencies`, and `version` on top.
+`name` and `description` follow the [agentskills.io specification](https://agentskills.io/specification) and are used by IDEs with native skill discovery. The harness adds `triggers`, `dependencies`, and `version`; IDEs that don't recognize them silently ignore them.
 
 ## Native IDE discovery
 
@@ -97,7 +97,7 @@ For progressive skill loading via MCP, see [skillport](https://github.com/gotala
 
 ## Kit version
 
-**Current release:** `0.4.1`
+**Current release:** `0.5.1`
 
 - **Canonical:** [`kit_version` in `.skills/_meta.yml`](.skills/_meta.yml)
 - **History:** [CHANGELOG.md](CHANGELOG.md)

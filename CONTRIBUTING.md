@@ -9,7 +9,7 @@ The canonical Rules text lives in **`.skills/_harness/_rules.md`**. All template
 When you change `_rules.md`:
 
 1. Edit `.skills/_harness/_rules.md` with the new wording (canonical heading is `# Rules`; templates use `## Rules` plus the same bullet list).
-2. Copy the updated bullet list into every `*_template.md` under `.skills/_harness/`, replacing the existing **Rules** block in each.
+2. Run `.skills/_harness/sync.sh --write` to propagate the updated rules into every `*_template.md`.
 3. Run `.skills/_harness/check.sh` to verify all templates match the canonical source (works with macOS `/bin/bash` 3.2 and newer).
 
 ## Adding a new environment template
@@ -29,7 +29,7 @@ Follow the bundled **skill-author** skill (`.skills/_skills/skill-author/SKILL.m
 
 1. Create `.skills/_skills/<name>/SKILL.md` using `skill-template` as a starting point.
 2. Fill in YAML frontmatter (`name`, `description`, `triggers`, `dependencies`, `version`).
-3. Add a row to `.skills/_index.md`.
+3. Run `.skills/_harness/build-index.sh --write` to regenerate `.skills/_index.md` from frontmatter.
 4. If native discovery symlinks are set up, re-run `.skills/_harness/link.sh <target>` to include the new skill.
 5. Run `.skills/_harness/check.sh` to verify index-to-directory consistency.
 
@@ -79,6 +79,21 @@ Harness-specific fields (`triggers`, `dependencies`, `version`) are recommended 
 | `triggers` | harness only | Phrases that cause the harness to load the skill |
 | `dependencies` | harness only | Other skills to load first |
 | `version` | harness only | Semver for humans |
+
+## Environment overrides
+
+Both `check.sh` and `link.sh` derive paths from their own location. If your repo has a non-standard layout (monorepo, submodule, `tools/.skills/`), override with environment variables:
+
+| Variable | Used by | Default |
+|----------|---------|---------|
+| `SKILLS_HARNESS_DIR` | check, link | directory containing the script |
+| `SKILLS_DIR` | check, link | `../_skills` relative to harness |
+| `SKILLS_REPO_ROOT` | check, link | two levels above harness |
+| `SKILLS_INDEX` | check | `../_index.md` relative to harness |
+| `SKILLS_RULES` | check | `_rules.md` in harness dir |
+| `SKILLS_CHECK_KIT_SURFACES` | check | `1` (set `0` to skip README + AGENTS_skills.md version assertions) |
+
+`check.sh` also accepts `--quiet` to suppress the success footer (useful in CI/hooks).
 
 ## Symlink helper (`link.sh`)
 

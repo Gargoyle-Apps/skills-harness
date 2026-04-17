@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-04-16
+
+### Changed
+
+- **`README.md`:** "Skill format" table column changed from "Required" (all yes) to "Required by" (agentskills.io + harness vs harness only), matching the CONTRIBUTING.md style.
+- **`AGENTS_skills.md`:** added upstream maintainer HTML comment explaining why the file remains in the canonical repo. Collapsed Path A template table into a pointer to the README "Supported tools" table; added Roo Code and OpenCode to the Path A environment list.
+
+## [0.5.0] - 2026-04-16
+
+### Added
+
+- **`sync.sh`:** new script regenerates the Rules block in all `*_template.md` files from `_rules.md`. Dry-run by default; `sync.sh --write` performs edits. Replaces the manual copy-paste step in CONTRIBUTING.md.
+- **`build-index.sh`:** new script regenerates `_index.md` table rows from SKILL.md frontmatter. Dry-run by default; `build-index.sh --write` performs edits. Frontmatter is now the author-time source of truth for index content.
+
+### Changed
+
+- **`CONTRIBUTING.md`:** "Changing the Rules block" step 2 now references `sync.sh --write`; "Adding or editing a skill" step 3 now references `build-index.sh --write`.
+- **`skill-author` v1.3.0:** step 6 updated to run `build-index.sh --write` instead of manually adding an index row.
+- **`_index.md`:** table rows regenerated from frontmatter (richer descriptions and full trigger lists).
+
+## [0.4.2] - 2026-04-16
+
+### Added
+
+- **`check.sh --quiet`:** suppresses success footer for clean CI/hook output.
+- **`SKILLS_CHECK_KIT_SURFACES=0`:** env var to skip README and `AGENTS_skills.md` version assertions (for downstream kits with custom surfaces).
+- **Env-var overrides:** `check.sh` and `link.sh` accept `SKILLS_HARNESS_DIR`, `SKILLS_DIR`, `SKILLS_REPO_ROOT` (plus `SKILLS_INDEX`, `SKILLS_RULES` for check) to support non-standard repo layouts without forking scripts.
+- **`link.sh` dangling-symlink pruning:** re-running `link.sh` without `--clean` now auto-removes broken symlinks left by deleted or renamed skills.
+
+### Changed
+
+- **`CONTRIBUTING.md`:** new "Environment overrides" section documenting env vars and `--quiet`.
+
 ## [0.4.1] - 2026-04-12
 
 ### Added

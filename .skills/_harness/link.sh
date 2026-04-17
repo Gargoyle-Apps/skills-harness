@@ -10,9 +10,9 @@
 
 set -eu
 
-HARNESS_DIR="$(cd "$(dirname "$0")" && pwd)"
-SKILLS_DIR="$(dirname "$HARNESS_DIR")/_skills"
-REPO_ROOT="$(dirname "$(dirname "$HARNESS_DIR")")"
+HARNESS_DIR="${SKILLS_HARNESS_DIR:-$(cd "$(dirname "$0")" && pwd)}"
+SKILLS_DIR="${SKILLS_DIR:-$(dirname "$HARNESS_DIR")/_skills}"
+REPO_ROOT="${SKILLS_REPO_ROOT:-$(dirname "$(dirname "$HARNESS_DIR")")}"
 
 usage() {
   echo "Usage: $(basename "$0") [--clean] <target-dir>" >&2
@@ -68,6 +68,7 @@ REL_SKILLS="${rel_prefix}.skills/_skills"
 linked=0
 skipped=0
 updated=0
+pruned=0
 
 for skill_dir in "$SKILLS_DIR"/*/; do
   [ ! -d "$skill_dir" ] && continue
@@ -105,10 +106,24 @@ for skill_dir in "$SKILLS_DIR"/*/; do
   linked=$((linked + 1))
 done
 
+# Prune dangling symlinks (targets that no longer exist)
+for item in "$TARGET_ABS"/*/; do
+  [ ! -L "${item%/}" ] && continue
+  if [ ! -d "${item%/}" ]; then
+    link_target="$(readlink "${item%/}")"
+    echo "  pruned  $TARGET_REL/$(basename "${item%/}") (dangling -> $link_target)"
+    rm -f "${item%/}"
+    pruned=$((pruned + 1))
+  fi
+done
+
 echo ""
 summary="Done: $linked linked, $skipped unchanged"
 if [ "$updated" -gt 0 ]; then
   summary="$summary, $updated updated"
+fi
+if [ "$pruned" -gt 0 ]; then
+  summary="$summary, $pruned pruned"
 fi
 echo "$summary."
 if [ "$linked" -gt 0 ]; then

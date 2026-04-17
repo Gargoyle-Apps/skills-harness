@@ -8,7 +8,7 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
-version: "1.2.0"
+version: "1.3.0"
 ---
 
 # Skill Author
@@ -32,7 +32,7 @@ Load `skill-template` first if you need the canonical layout and refactor notes.
 3. Fill in frontmatter — `name` must match directory name exactly
 4. Write the body as agent-facing instructions, not human documentation
 5. Choose triggers carefully — these are what cause the skill to be loaded
-6. Add a row to `.skills/_index.md` — the index is the source of truth and must always be in sync with `.skills/_skills/`
+6. Run `.skills/_harness/build-index.sh --write` to regenerate `.skills/_index.md` from frontmatter — the index is the source of truth at runtime and must always be in sync with `.skills/_skills/`
 7. If this skill depends on another, list it in `dependencies`
 8. If native discovery symlinks are configured, re-run `.skills/_harness/link.sh` with the appropriate target (e.g. `.agents/skills`) to include the new skill
 9. Run `.skills/_harness/check.sh` to validate index and frontmatter consistency (if your environment supports script execution)

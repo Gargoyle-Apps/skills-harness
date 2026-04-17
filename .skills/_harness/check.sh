@@ -10,11 +10,18 @@ set -euo pipefail
 #   6. Symlinks in .agents/skills/ and .claude/skills/ are valid (if present)
 #   7. kit_version in _meta.yml matches newest CHANGELOG release, README, and AGENTS_skills.md
 
-HARNESS_DIR="$(cd "$(dirname "$0")" && pwd)"
-SKILLS_DIR="$(dirname "$HARNESS_DIR")/_skills"
-INDEX_FILE="$(dirname "$HARNESS_DIR")/_index.md"
-RULES_FILE="$HARNESS_DIR/_rules.md"
-REPO_ROOT="$(dirname "$(dirname "$HARNESS_DIR")")"
+QUIET=false
+for arg in "$@"; do
+  case "$arg" in
+    --quiet) QUIET=true ;;
+  esac
+done
+
+HARNESS_DIR="${SKILLS_HARNESS_DIR:-$(cd "$(dirname "$0")" && pwd)}"
+SKILLS_DIR="${SKILLS_DIR:-$(dirname "$HARNESS_DIR")/_skills}"
+INDEX_FILE="${SKILLS_INDEX:-$(dirname "$HARNESS_DIR")/_index.md}"
+RULES_FILE="${SKILLS_RULES:-$HARNESS_DIR/_rules.md}"
+REPO_ROOT="${SKILLS_REPO_ROOT:-$(dirname "$(dirname "$HARNESS_DIR")")}"
 
 errors=0
 
@@ -203,20 +210,22 @@ if [[ -f "$META_FILE" ]]; then
       err "CHANGELOG.md not found at $CHANGELOG_FILE (required for kit version check)"
     fi
 
-    if [[ -f "$README_FILE" ]]; then
-      if ! grep -Fq "**Current release:** \`${meta_ver}\`" "$README_FILE"; then
-        err "README.md: expected **Current release:** \`${meta_ver}\` to match .skills/_meta.yml"
+    if [[ "${SKILLS_CHECK_KIT_SURFACES:-1}" == "1" ]]; then
+      if [[ -f "$README_FILE" ]]; then
+        if ! grep -Fq "**Current release:** \`${meta_ver}\`" "$README_FILE"; then
+          err "README.md: expected **Current release:** \`${meta_ver}\` to match .skills/_meta.yml"
+        fi
+      else
+        err "README.md not found at $README_FILE (required for kit version check)"
       fi
-    else
-      err "README.md not found at $README_FILE (required for kit version check)"
-    fi
 
-    if [[ -f "$BOOTSTRAP_FILE" ]]; then
-      if ! grep -Fq "**Kit version:** \`${meta_ver}\`" "$BOOTSTRAP_FILE"; then
-        err "AGENTS_skills.md: expected **Kit version:** \`${meta_ver}\` to match .skills/_meta.yml"
+      if [[ -f "$BOOTSTRAP_FILE" ]]; then
+        if ! grep -Fq "**Kit version:** \`${meta_ver}\`" "$BOOTSTRAP_FILE"; then
+          err "AGENTS_skills.md: expected **Kit version:** \`${meta_ver}\` to match .skills/_meta.yml"
+        fi
+      else
+        err "AGENTS_skills.md not found at $BOOTSTRAP_FILE (required for kit version check)"
       fi
-    else
-      err "AGENTS_skills.md not found at $BOOTSTRAP_FILE (required for kit version check)"
     fi
   fi
 else
@@ -227,7 +236,7 @@ fi
 
 echo ""
 if (( errors == 0 )); then
-  echo "All checks passed."
+  $QUIET || echo "All checks passed."
 else
   echo "$errors error(s) found."
   exit 1

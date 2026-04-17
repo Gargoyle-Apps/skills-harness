@@ -1,6 +1,13 @@
 # Skills Harness — bootstrap (temporary)
 
-**Kit version:** `0.4.1` — history in root **`CHANGELOG.md`**. Maintainers shipping a new kit release: follow the **kit-release** skill so **`CHANGELOG.md`**, **`.skills/_meta.yml`**, this line, and **`README.md`** (Kit version) stay in sync; run **`.skills/_harness/check.sh`** when done.
+<!--
+  UPSTREAM MAINTAINER NOTE: This file intentionally remains in the
+  skills-harness repository. It is the canonical template that consumers
+  copy into their own repos. The "delete this file after setup" instruction
+  applies to consumer repos after bootstrap, NOT to this upstream repo.
+-->
+
+**Kit version:** `0.5.1` — history in root **`CHANGELOG.md`**. Maintainers shipping a new kit release: follow the **kit-release** skill so **`CHANGELOG.md`**, **`.skills/_meta.yml`**, this line, and **`README.md`** (Kit version) stay in sync; run **`.skills/_harness/check.sh`** when done.
 
 This file is **`AGENTS_skills.md`** so dropping the kit into a repo **does not overwrite** an existing project **`AGENTS.md`**. It exists only until one-time setup is finished. After setup, **delete this file** (or replace it with a one-line pointer only if your template says so).
 
@@ -18,21 +25,8 @@ Reading `.skills/_index.md` only to describe the system is OK.
 
 Use when this repository should install **one** tool’s harness so agents working *in this repo* load skills the same way (e.g. always Cursor, or always Claude Code).
 
-1. **The user explicitly declares** which environment applies (one of: Cursor, Codex, GitHub Copilot, Claude Code, Cline, Windsurf, Gemini CLI, or Other / paste-only). Do not infer from filenames alone; if unclear, **ask**.
-2. **Complete** the matching template under `.skills/_harness/` (SETUP removed, harness merged or written per that template). Remove **`AGENTS_skills.md`** when done.
-
-| Environment | Template |
-|-------------|----------|
-| Cursor | `.skills/_harness/CURSOR_template.md` |
-| Codex | `.skills/_harness/CODEX_template.md` |
-| Copilot | `.skills/_harness/COPILOT_template.md` |
-| Claude Code | `.skills/_harness/CLAUDE_template.md` |
-| Cline | `.skills/_harness/CLINE_template.md` |
-| Windsurf | `.skills/_harness/WINDSURF_template.md` |
-| Gemini CLI | `.skills/_harness/GEMINI_template.md` |
-| Roo Code | `.skills/_harness/ROO_template.md` |
-| OpenCode | `.skills/_harness/OPENCODE_template.md` |
-| Other | `.skills/_harness/GENERIC_template.md` |
+1. **The user explicitly declares** which environment applies (one of: Cursor, Codex, GitHub Copilot, Claude Code, Cline, Windsurf, Gemini CLI, Roo Code, OpenCode, or Other / paste-only). Do not infer from filenames alone; if unclear, **ask**.
+2. **Complete** the matching template under `.skills/_harness/` (SETUP removed, harness merged or written per that template). See the **Supported tools** table in root `README.md` for the canonical per-environment template mapping. Remove **`AGENTS_skills.md`** when done.
 
 **Note:** If the repo already has a project **`AGENTS.md`**, **append** the harness under a `## Skills Harness` heading — do not replace project instructions. Same for pointers into an existing **`AGENTS.md`**.
 
