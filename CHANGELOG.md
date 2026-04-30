@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] - 2026-04-29
+
+### Added
+
+- **`skill-author` v1.4.0:** new "Naming convention" section. Skills authored in **consumer repos** must be prefixed with the repo's initials (split repo dir name on `-`/`_`, take first letter of each segment, lowercased, append `-`; e.g. `ux-package-management` → `uxpm-`, `git-minder` → `gm-`, `warehouse` → `w-`). The kit itself (`skills-harness`) deliberately stays unprefixed to avoid collisions with consumer repos that share initials (e.g. `so-high`).
+- **`AGENTS_skills.md`:** new "Skill naming in consumer repos" section above the hard gate so consumers see the convention during bootstrap.
+- **`CONTRIBUTING.md`:** callout in "Adding or editing a skill" clarifying that kit skills (added to this repo) stay unprefixed.
+
 ## [0.5.1] - 2026-04-16
 
 ### Changed

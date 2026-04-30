@@ -8,7 +8,7 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
-version: "1.3.0"
+version: "1.4.0"
 ---
 
 # Skill Author
@@ -25,11 +25,36 @@ Do **not** treat “`AGENTS_skills.md` missing” as an error — it is expected
 
 Load `skill-template` first if you need the canonical layout and refactor notes.
 
+## Naming convention
+
+Skills authored in a **consumer repo** (any repository that has installed this kit) **must** be prefixed with the consumer repo's initials, followed by `-`. Skills shipped as part of the **skills-harness kit itself** (the upstream repo, directory named `skills-harness`) are **unprefixed**.
+
+**Deriving the prefix from the repo's root directory name:**
+
+- Split on `-` and `_`
+- Take the first letter of each segment, lowercase
+- Append `-`
+
+Examples:
+
+| Repo directory      | Prefix   |
+|---------------------|----------|
+| `ux-package-management` | `uxpm-` |
+| `eng-package-management` | `epm-` |
+| `git-minder`        | `gm-`    |
+| `warehouse`         | `w-`     |
+| `ware_house`        | `wh-`    |
+| `skills-harness`    | *(none — kit itself)* |
+
+**Why:** When the kit is installed into a consumer repo, prefixes make it obvious which skills came from the kit vs. were added by the consumer, and avoid name collisions across repos that happen to share initials with the kit (`skills-harness` and `so-high` would both yield `sh-`, so the kit deliberately stays unprefixed).
+
+**How to apply:** Before creating `.skills/_skills/<name>/`, derive the prefix from the current repo's root directory name and prepend it to `<name>`. The frontmatter `name` field and the index row use the prefixed form. Renames of pre-existing unprefixed consumer skills are out of scope unless the user asks.
+
 ## Steps
 
-1. Create directory: `.skills/_skills/<name>/`
+1. Create directory: `.skills/_skills/<prefix><name>/` (see **Naming convention** above; the kit itself uses no prefix)
 2. Copy `.skills/_skills/skill-template/SKILL.md` as your starting point
-3. Fill in frontmatter — `name` must match directory name exactly
+3. Fill in frontmatter — `name` must match directory name exactly (including any prefix)
 4. Write the body as agent-facing instructions, not human documentation
 5. Choose triggers carefully — these are what cause the skill to be loaded
 6. Run `.skills/_harness/build-index.sh --write` to regenerate `.skills/_index.md` from frontmatter — the index is the source of truth at runtime and must always be in sync with `.skills/_skills/`

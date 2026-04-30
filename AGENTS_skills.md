@@ -7,9 +7,17 @@
   applies to consumer repos after bootstrap, NOT to this upstream repo.
 -->
 
-**Kit version:** `0.5.1` — history in root **`CHANGELOG.md`**. Maintainers shipping a new kit release: follow the **kit-release** skill so **`CHANGELOG.md`**, **`.skills/_meta.yml`**, this line, and **`README.md`** (Kit version) stay in sync; run **`.skills/_harness/check.sh`** when done.
+**Kit version:** `0.5.2` — history in root **`CHANGELOG.md`**. Maintainers shipping a new kit release: follow the **kit-release** skill so **`CHANGELOG.md`**, **`.skills/_meta.yml`**, this line, and **`README.md`** (Kit version) stay in sync; run **`.skills/_harness/check.sh`** when done.
 
 This file is **`AGENTS_skills.md`** so dropping the kit into a repo **does not overwrite** an existing project **`AGENTS.md`**. It exists only until one-time setup is finished. After setup, **delete this file** (or replace it with a one-line pointer only if your template says so).
+
+## Skill naming in consumer repos
+
+Skills authored **in this repo** (the consumer repo that installed the kit) must be prefixed with this repo's initials followed by `-`. Skills shipped by the upstream kit (`skill-author`, `skill-template`, `harness-upgrade`, `kit-release`) stay unprefixed.
+
+Derive the prefix by splitting the repo's root directory name on `-` and `_`, taking the first letter of each segment lowercased, and appending `-`. Examples: `ux-package-management` → `uxpm-`, `git-minder` → `gm-`, `warehouse` → `w-`, `ware_house` → `wh-`. The upstream `skills-harness` repo deliberately uses no prefix to avoid colliding with consumer repos like `so-high` that would also derive `sh-`.
+
+See `skill-author` for full guidance. After this bootstrap file is removed, the convention is preserved by `skill-author/SKILL.md`.
 
 ## Hard gate — declare a path before skills work
 

@@ -27,6 +27,8 @@ When a new tool gains a standard project-local config file:
 
 Follow the bundled **skill-author** skill (`.skills/_skills/skill-author/SKILL.md`). In short:
 
+> **Kit skills are unprefixed.** Skills added to this repo (`skills-harness`) ship as part of the kit and use bare names like `skill-author`, `harness-upgrade`. The naming-prefix convention in `skill-author` applies to **consumer repos** that install the kit — they prefix new skills with their repo initials (e.g. `uxpm-`, `gm-`). Do not add a prefix when authoring kit skills here.
+
 1. Create `.skills/_skills/<name>/SKILL.md` using `skill-template` as a starting point.
 2. Fill in YAML frontmatter (`name`, `description`, `triggers`, `dependencies`, `version`).
 3. Run `.skills/_harness/build-index.sh --write` to regenerate `.skills/_index.md` from frontmatter.
