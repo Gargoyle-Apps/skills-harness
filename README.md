@@ -147,7 +147,7 @@ chmod +x .skills/_harness/migrate-to-subtree.sh
 .skills/_harness/migrate-to-subtree.sh        # dry-run first
 ```
 
-Swap `main` for a release tag (e.g. `v0.6.0`) for a reproducible install. The script ignores its own untracked status and any `*.bak/` directories during the dirty-tree check, so running it from `.skills/_harness/` is fine.
+Swap `main` for a release tag (e.g. `v1.0.0`) for a reproducible install. The script ignores its own untracked status and any `*.bak/` directories during the dirty-tree check, so running it from `.skills/_harness/` is fine.
 
 ### Pinning
 
@@ -173,7 +173,7 @@ For progressive skill loading via MCP, see [skillport](https://github.com/gotala
 
 ## Kit version
 
-**Current release:** `0.6.1`
+**Current release:** `1.0.0`
 
 - **Canonical:** [`kit_version` in `.skills/_meta.yml`](.skills/_meta.yml)
 - **History:** [CHANGELOG.md](CHANGELOG.md)

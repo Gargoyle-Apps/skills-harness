@@ -8,7 +8,7 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
-version: "1.5.1"
+version: "1.5.2"
 ---
 
 # Skill Author
@@ -58,7 +58,7 @@ Some consumer repos host **multiple distinct skill families** that should be nam
 To support this, a consumer repo may **declare an explicit list of allowed prefixes** in **`.skills/_meta.yml`**:
 
 ```yaml
-kit_version: "0.6.0"
+kit_version: "1.0.0"
 repo_url: "https://github.com/example/build-tools"
 prefixes:
   - bld-

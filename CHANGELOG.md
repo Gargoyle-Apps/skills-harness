@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-05-02
+
+First **stable** kit release for multi-repo deployment. Intended behaviour matches **0.6.1**; the major version marks production readiness of the subtree workflow (`migrate-to-subtree.sh`, `--skip-subtree`, `--reconcile`, `--symlink-consumer-skills`), optional `prefixes:` / `consumer_skills_dir:` in `.skills/_meta.yml`, symlink-safe `check.sh`, consumer/kit role autodetection, and the upgrade/migration skills — after validation beyond the initial test consumers.
+
+### Changed
+
+- **Pinning examples** in **README** and **harness-subtree** now cite `v1.0.0` for reproducible curl/bootstrap and subtree pulls.
+- **`harness-subtree` v1.5.0** — frontmatter bump; bootstrap/curl examples aligned with the `v1.0.0` tag.
+- **`skill-author` v1.5.2** — example `_meta.yml` snippet: `kit_version` set to `1.0.0`.
+
 ## [0.6.1] - 2026-05-02
 
 Closes the two follow-ups from [issue #3](https://github.com/Gargoyle-Apps/skills-harness/issues/3) (originally deferred from 0.6.0). Verified end-to-end against the same consumer (`Minecraft Minder`) that produced the original report; ImpureCrumpet flagged `--symlink-consumer-skills` as the single biggest UX win in the validation comment.
