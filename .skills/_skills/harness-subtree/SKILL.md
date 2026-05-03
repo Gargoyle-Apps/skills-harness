@@ -12,7 +12,7 @@ triggers:
   - migrate manual install to subtree
   - convert harness install to subtree
 dependencies: []
-version: "1.5.0"
+version: "1.5.1"
 ---
 
 # Harness Subtree
@@ -187,10 +187,19 @@ The script's dirty-tree check ignores its own untracked file plus any `*.bak/` d
 
 ### Stale `repo_url` in `.skills/_meta.yml`
 
-Old installs sometimes carry an outdated upstream URL (forks, archived locations). The script will **refuse** to vendor a non-canonical URL (one that doesn't contain `Gargoyle-Apps/skills-harness`) unless you explicitly opt in with one of:
+Legacy manual installs frequently carry an outdated upstream URL — typically a fork or pre-rename location that is no longer reachable (e.g. `gotalab/skills-harness`, which 404s). When migrating these repos to subtree, the script will **refuse** to vendor any URL that doesn't contain `Gargoyle-Apps/skills-harness`. **This is expected**, not a bug in the consumer's repo.
 
-- `--remote-url https://github.com/Gargoyle-Apps/skills-harness` (recommended — vendors the real upstream)
-- `--accept-derived-url` (only if you really mean to vendor whatever URL `_meta.yml` currently lists)
+The standard fix when adopting the official upstream:
+
+```bash
+.skills/_harness/migrate-to-subtree.sh \
+  --remote-url https://github.com/Gargoyle-Apps/skills-harness \
+  --apply --reconcile --symlink-consumer-skills
+```
+
+`--reconcile` rewrites `.skills/_meta.yml` so `repo_url` and `kit_version` match the vendored subtree, so no manual edit is needed afterwards.
+
+`--accept-derived-url` exists only for the rare case where a team **deliberately** maintains a private fork at the URL `_meta.yml` lists and wants to vendor that fork. **Do not use `--accept-derived-url` to silence the canonical check on a stale install** — the subtree add will fail if the URL is dead, or (worse) silently vendor the wrong tree.
 
 ### What it changes (apply mode)
 

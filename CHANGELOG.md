@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-05-02
+
+Discoverability fix for [issue #4](https://github.com/Gargoyle-Apps/skills-harness/issues/4): legacy manual installs whose `.skills/_meta.yml` `repo_url` points at an old fork (e.g. `gotalab/skills-harness`, which now 404s) hit the canonical-URL guard during migration, and the previous error didn't make clear that **`--remote-url https://github.com/Gargoyle-Apps/skills-harness`** is the **normal** fix when adopting the official upstream — not an exotic override.
+
+### Changed
+
+- **`migrate-to-subtree.sh` — clearer canonical-URL error.** The refusal message now (a) frames the situation as the **expected** legacy-install path, (b) shows the full canonical-upstream invocation including `--reconcile --symlink-consumer-skills`, (c) notes that `--reconcile` will rewrite `_meta.yml` to the canonical `repo_url`/`kit_version` after apply (so no manual edit is needed), and (d) explicitly warns that `--accept-derived-url` is **unsafe** when the listed URL is dead or stale and should only be used for deliberately maintained private forks.
+- **`harness-subtree` v1.5.1** — "Stale `repo_url` in `.skills/_meta.yml`" section rewritten with the canonical-upstream command block, the `--reconcile` rewrite guarantee, and the same `--accept-derived-url` safety note.
+
 ## [1.0.0] - 2026-05-02
 
 First **stable** kit release for multi-repo deployment. Intended behaviour matches **0.6.1**; the major version marks production readiness of the subtree workflow (`migrate-to-subtree.sh`, `--skip-subtree`, `--reconcile`, `--symlink-consumer-skills`), optional `prefixes:` / `consumer_skills_dir:` in `.skills/_meta.yml`, symlink-safe `check.sh`, consumer/kit role autodetection, and the upgrade/migration skills — after validation beyond the initial test consumers.

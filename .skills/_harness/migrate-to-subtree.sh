@@ -173,10 +173,23 @@ if [[ "$REMOTE_URL_SOURCE" != "explicit --remote-url" ]]; then
     echo "  derived  : $REMOTE_URL ($REMOTE_URL_SOURCE)" >&2
     echo "  expected : a URL containing '$CANONICAL_URL_SUBSTR'" >&2
     echo "" >&2
-    echo "Stale .skills/_meta.yml installations often have an outdated repo_url." >&2
-    echo "Re-run with one of:" >&2
-    echo "  --remote-url https://github.com/Gargoyle-Apps/skills-harness" >&2
-    echo "  --accept-derived-url    (only if you really want to vendor the URL above)" >&2
+    echo "This is the EXPECTED situation when migrating a legacy manual install" >&2
+    echo "whose .skills/_meta.yml was copied from an old fork or pre-rename" >&2
+    echo "repo (e.g. gotalab/skills-harness, which is no longer reachable)." >&2
+    echo "" >&2
+    echo "Almost always, the right fix is to vendor the canonical upstream:" >&2
+    echo "" >&2
+    echo "  $0 \\" >&2
+    echo "    --remote-url https://github.com/Gargoyle-Apps/skills-harness \\" >&2
+    echo "    [--apply] [--reconcile] [--symlink-consumer-skills]" >&2
+    echo "" >&2
+    echo "  After --apply, --reconcile rewrites .skills/_meta.yml so repo_url" >&2
+    echo "  and kit_version match the vendored subtree. No manual edit needed." >&2
+    echo "" >&2
+    echo "Use --accept-derived-url ONLY if you have deliberately maintained a" >&2
+    echo "private fork at the URL above and you want to vendor that fork. Do" >&2
+    echo "NOT use it to silence this error when the listed URL is dead or" >&2
+    echo "stale — the subtree add will fail (or worse, vendor the wrong tree)." >&2
     exit 1
   fi
 fi
