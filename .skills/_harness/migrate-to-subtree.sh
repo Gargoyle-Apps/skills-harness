@@ -264,11 +264,62 @@ derive_prefix() {
 }
 
 REPO_DIR_NAME="$(basename "$REPO_ROOT")"
-EXPECTED_PREFIX="$(derive_prefix "$REPO_DIR_NAME")"
+DERIVED_PREFIX="$(derive_prefix "$REPO_DIR_NAME")"
+
+# Multi-prefix support: if .skills/_meta.yml declares `prefixes:`, parse it as
+# a YAML list and use those instead of the auto-derived single prefix.
+# Minimal parser — supports the canonical form documented in skill-author:
+#
+#   prefixes:
+#     - bld-
+#     - bin-
+#
+# Entries may be quoted with single or double quotes. Anything outside that
+# shape (flow-style lists, anchors) is not supported; declare prefixes in the
+# block-style form above.
+DECLARED_PREFIXES=""
+if [[ -f "$META_FILE" ]] && grep -q '^prefixes:' "$META_FILE"; then
+  in_list=false
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^prefixes: ]]; then in_list=true; continue; fi
+    if $in_list; then
+      # Stop at the next top-level key (no leading whitespace, contains a colon)
+      if [[ "$line" =~ ^[A-Za-z_] ]]; then break; fi
+      # Match indented "- value" entries
+      if [[ "$line" =~ ^[[:space:]]*-[[:space:]]*(.*)$ ]]; then
+        val="${BASH_REMATCH[1]}"
+        val="$(trim "$val")"
+        val="${val#\"}"; val="${val%\"}"
+        val="${val#\'}"; val="${val%\'}"
+        [[ -n "$val" ]] && DECLARED_PREFIXES="$DECLARED_PREFIXES $val"
+      fi
+    fi
+  done < "$META_FILE"
+fi
+
+if [[ -n "$DECLARED_PREFIXES" ]]; then
+  ALLOWED_PREFIXES="$DECLARED_PREFIXES"
+  PREFIX_SOURCE="declared in .skills/_meta.yml"
+else
+  ALLOWED_PREFIXES=" $DERIVED_PREFIX"
+  PREFIX_SOURCE="derived from repo dir name '$REPO_DIR_NAME'"
+fi
+
+# Trim leading space for display
+ALLOWED_PREFIXES_DISPLAY="$(printf '%s' "$ALLOWED_PREFIXES" | sed 's/^ //; s/ /, /g')"
+
+prefix_match() {
+  # Returns 0 if $1 starts with any prefix in $ALLOWED_PREFIXES, else 1.
+  local name="$1" p
+  for p in $ALLOWED_PREFIXES; do
+    [[ "$name" == "$p"* ]] && return 0
+  done
+  return 1
+}
 
 note "Step: audit consumer-authored skills"
 note "  repo dir name    : $REPO_DIR_NAME"
-note "  expected prefix  : $EXPECTED_PREFIX  (per skill-author convention)"
+note "  allowed prefixes : $ALLOWED_PREFIXES_DISPLAY  ($PREFIX_SOURCE)"
 
 REQUIRED_FIELDS="name description triggers dependencies version"
 prefix_violations=0
@@ -281,10 +332,16 @@ if [[ -d ".skills/_skills" ]]; then
     [[ -L "${d%/}" ]] && continue
     if is_kit_skill "$name"; then continue; fi
 
-    # Prefix audit
-    if [[ "$name" != "$EXPECTED_PREFIX"* ]]; then
-      warn "consumer skill '$name' is missing prefix '$EXPECTED_PREFIX'"
-      warn "      → suggested rename: $EXPECTED_PREFIX$name (also update SKILL.md frontmatter 'name' and .skills/_index.md)"
+    # Prefix audit (multi-prefix aware)
+    if ! prefix_match "$name"; then
+      if [[ -n "$DECLARED_PREFIXES" ]]; then
+        warn "consumer skill '$name' does not start with any declared prefix ($ALLOWED_PREFIXES_DISPLAY)"
+        warn "      → choose the family this skill belongs to and rename: <prefix>$name"
+        warn "        (also update SKILL.md frontmatter 'name' and .skills/_index.md)"
+      else
+        warn "consumer skill '$name' is missing prefix '$DERIVED_PREFIX'"
+        warn "      → suggested rename: $DERIVED_PREFIX$name (also update SKILL.md frontmatter 'name' and .skills/_index.md)"
+      fi
       prefix_violations=$((prefix_violations + 1))
     fi
 

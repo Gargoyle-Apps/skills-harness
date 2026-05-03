@@ -12,7 +12,7 @@ triggers:
   - migrate manual install to subtree
   - convert harness install to subtree
 dependencies: []
-version: "1.1.0"
+version: "1.2.0"
 ---
 
 # Harness Subtree
@@ -187,7 +187,11 @@ The kit ships a helper for this: **`.skills/_harness/migrate-to-subtree.sh`**. I
 
 ### What it audits (warns, never modifies)
 
-- **Prefix convention** (per **skill-author**): for every consumer-authored skill, the script derives the expected prefix from the repo's root directory name (split on `-`/`_`, first letter of each segment, lowercased, append `-`) and warns when the skill name doesn't start with it. For example, in a repo named `eng-package-management`, a skill called `deploy-checklist` triggers `→ suggested rename: epm-deploy-checklist (also update SKILL.md frontmatter 'name' and .skills/_index.md)`. Renaming is a manual, deliberate step — the script never renames automatically because the index, frontmatter, and any cross-skill `dependencies` references all need to update together.
+- **Prefix convention** (per **skill-author**): for every consumer-authored skill, the script checks the name against the repo's allowed prefix set:
+  - **Default (single-prefix repos):** the expected prefix is derived from the repo's root directory name (split on `-`/`_`, first letter of each segment, lowercased, append `-`). In a repo named `eng-package-management`, a skill called `deploy-checklist` triggers `→ suggested rename: epm-deploy-checklist`.
+  - **Multi-prefix repos:** if `.skills/_meta.yml` declares a `prefixes:` list (e.g. `[bld-, bin-]`), the script accepts **any** of those prefixes and ignores the auto-derived one. A violation message lists all declared prefixes so the user can pick the family the skill belongs to. Kit-bundled skills stay unprefixed in either mode.
+
+  Renaming is a manual, deliberate step — the script never renames automatically because the index, frontmatter, and any cross-skill `dependencies` references all need to update together.
 - **Frontmatter shape**: each consumer SKILL.md is checked for the five required fields (`name`, `description`, `triggers`, `dependencies`, `version`) and that `name` matches the directory. Missing fields are reported so you can patch them up against the current `skill-template`.
 
 ### Workflow

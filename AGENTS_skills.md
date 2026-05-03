@@ -27,7 +27,7 @@ Skills authored **in this repo** (the consumer repo that installed the kit) must
 
 Derive the prefix by splitting the repo's root directory name on `-` and `_`, taking the first letter of each segment lowercased, and appending `-`. Examples: `ux-package-management` → `uxpm-`, `git-minder` → `gm-`, `warehouse` → `w-`, `ware_house` → `wh-`. The upstream `skills-harness` repo deliberately uses no prefix to avoid colliding with consumer repos like `so-high` that would also derive `sh-`.
 
-See `skill-author` for full guidance. After this bootstrap file is removed, the convention is preserved by `skill-author/SKILL.md`.
+**Multi-prefix repos:** if a single derived prefix can't describe the skill families in this repo (e.g. a build-tools repo with both `bld-` build steps and `bin-` publishing steps), the consumer can declare an explicit list of allowed prefixes under `prefixes:` in `.skills/_meta.yml`. Every consumer-authored skill must then start with one of those prefixes; the auto-derived single prefix is bypassed. Kit-bundled skills stay unprefixed regardless. See `skill-author` for full guidance. After this bootstrap file is removed, the convention is preserved by `skill-author/SKILL.md`.
 
 ## Hard gate — declare a path before skills work
 

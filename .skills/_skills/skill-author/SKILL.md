@@ -8,7 +8,7 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
-version: "1.4.0"
+version: "1.5.0"
 ---
 
 # Skill Author
@@ -49,6 +49,34 @@ Examples:
 **Why:** When the kit is installed into a consumer repo, prefixes make it obvious which skills came from the kit vs. were added by the consumer, and avoid name collisions across repos that happen to share initials with the kit (`skills-harness` and `so-high` would both yield `sh-`, so the kit deliberately stays unprefixed).
 
 **How to apply:** Before creating `.skills/_skills/<name>/`, derive the prefix from the current repo's root directory name and prepend it to `<name>`. The frontmatter `name` field and the index row use the prefixed form. Renames of pre-existing unprefixed consumer skills are out of scope unless the user asks.
+
+### Multiple prefixes (per-repo override)
+
+Some consumer repos host **multiple distinct skill families** that should be namespaced separately — e.g. a build-pipeline repo with a `bld-` family for build steps and a `bin-` family for binary-publishing steps. The single auto-derived prefix is too coarse for those repos.
+
+To support this, a consumer repo may **declare an explicit list of allowed prefixes** in **`.skills/_meta.yml`**:
+
+```yaml
+kit_version: "0.6.0"
+repo_url: "https://github.com/example/build-tools"
+prefixes:
+  - bld-
+  - bin-
+```
+
+Rules when `prefixes:` is present:
+
+- Every consumer-authored skill **must** start with one of the listed prefixes. Choose the prefix that matches the family the skill belongs to.
+- The auto-derived single prefix is **not** required and **not** preferred — the explicit list is the source of truth.
+- Each prefix entry must end with `-` and contain only lowercase alphanumerics and hyphens (same character set as `name`).
+- Kit-bundled skills (`skill-author`, `harness-subtree`, `kit-release`, etc.) remain **unprefixed** regardless of what the consumer declares; the list applies only to consumer-authored skills.
+
+Rules when `prefixes:` is absent (default / single-family repos):
+
+- Use the single auto-derived prefix from the repo directory name (rules in the section above).
+- This is the right choice for the vast majority of repos. Only declare `prefixes:` when one prefix genuinely cannot describe the families in the repo.
+
+**Authoring against a multi-prefix repo:** before creating a new skill, read `.skills/_meta.yml`. If `prefixes:` is present, ask the user (or pick from context) which family the new skill belongs to and use that prefix. If absent, derive the single prefix as before. The bundled `migrate-to-subtree.sh` audit reads the same list and accepts any of the declared prefixes.
 
 ## Steps
 
