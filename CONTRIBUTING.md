@@ -93,7 +93,7 @@ Both `check.sh` and `link.sh` derive paths from their own location. If your repo
 | `SKILLS_REPO_ROOT` | check, link | two levels above harness |
 | `SKILLS_INDEX` | check | `../_index.md` relative to harness |
 | `SKILLS_RULES` | check | `_rules.md` in harness dir |
-| `SKILLS_CHECK_KIT_SURFACES` | check | `1` (set `0` to skip README + AGENTS_skills.md version assertions) |
+| `SKILLS_CHECK_KIT_SURFACES` | check | auto: `0` if `.skills-harness/` exists at repo root or `_meta.yml` has `role: consumer`; otherwise `1`. Set explicitly to override. |
 
 `check.sh` also accepts `--quiet` to suppress the success footer (useful in CI/hooks).
 

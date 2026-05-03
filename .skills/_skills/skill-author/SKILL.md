@@ -8,7 +8,7 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
-version: "1.5.0"
+version: "1.5.1"
 ---
 
 # Skill Author
@@ -31,8 +31,8 @@ Skills authored in a **consumer repo** (any repository that has installed this k
 
 **Deriving the prefix from the repo's root directory name:**
 
-- Split on `-` and `_`
-- Take the first letter of each segment, lowercase
+- Split on `-`, `_`, and whitespace (consecutive separators are collapsed)
+- Take the first letter of each non-empty segment, lowercase
 - Append `-`
 
 Examples:
@@ -44,6 +44,7 @@ Examples:
 | `git-minder`        | `gm-`    |
 | `warehouse`         | `w-`     |
 | `ware_house`        | `wh-`    |
+| `Media Library`     | `ml-`    |
 | `skills-harness`    | *(none — kit itself)* |
 
 **Why:** When the kit is installed into a consumer repo, prefixes make it obvious which skills came from the kit vs. were added by the consumer, and avoid name collisions across repos that happen to share initials with the kit (`skills-harness` and `so-high` would both yield `sh-`, so the kit deliberately stays unprefixed).
@@ -75,6 +76,15 @@ Rules when `prefixes:` is absent (default / single-family repos):
 
 - Use the single auto-derived prefix from the repo directory name (rules in the section above).
 - This is the right choice for the vast majority of repos. Only declare `prefixes:` when one prefix genuinely cannot describe the families in the repo.
+
+**Overriding the auto-derived prefix on a single-family repo:** if the auto-derivation gives the wrong answer for your repo (e.g. you want `ml-` but the dir name `media` derives `m-`, or you've informally settled on a different prefix), declare a single-entry list:
+
+```yaml
+prefixes:
+  - ml-
+```
+
+That makes the override explicit and machine-readable for the audit, instead of relying on contributors to remember the unwritten convention.
 
 **Authoring against a multi-prefix repo:** before creating a new skill, read `.skills/_meta.yml`. If `prefixes:` is present, ask the user (or pick from context) which family the new skill belongs to and use that prefix. If absent, derive the single prefix as before. The bundled `migrate-to-subtree.sh` audit reads the same list and accepts any of the declared prefixes.
 

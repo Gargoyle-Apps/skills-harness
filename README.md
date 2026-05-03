@@ -134,7 +134,18 @@ Read `.skills-harness/CHANGELOG.md` for the diff, refresh kit-skill symlinks (id
 
 ### Migrating an existing manual install
 
-If a repo already has `.skills/` from a file-copy install and you want to switch to subtree updates, run `.skills/_harness/migrate-to-subtree.sh` (dry-run by default; `--apply` to perform). It vendors the subtree, replaces kit-owned pieces with symlinks, and **never touches consumer-authored skills, the index, or `_meta.yml`**. It also audits consumer skills against the prefix convention (per **skill-author**) and required frontmatter fields, and prints rename/patch suggestions for you to apply manually. Full procedure, including how drifted kit skills are kept vs. overwritten with `--force`, lives in **harness-subtree**.
+If a repo already has `.skills/` from a file-copy install and you want to switch to subtree updates, run `.skills/_harness/migrate-to-subtree.sh` (dry-run by default; `--apply` to perform). It vendors the subtree, replaces kit-owned pieces with symlinks, and **never touches consumer-authored skills, the index, or `_meta.yml`**. It also audits consumer skills against the prefix convention (per **skill-author**) and required frontmatter fields, and prints rename/patch suggestions for you to apply manually. Full procedure (including drift handling with `--accept-upstream <name>` or `--force`) lives in **harness-subtree**.
+
+**Bootstrapping on a stale install** (pre-0.6.0 doesn't ship the script):
+
+```bash
+curl -sSLo .skills/_harness/migrate-to-subtree.sh \
+  https://raw.githubusercontent.com/Gargoyle-Apps/skills-harness/main/.skills/_harness/migrate-to-subtree.sh
+chmod +x .skills/_harness/migrate-to-subtree.sh
+.skills/_harness/migrate-to-subtree.sh        # dry-run first
+```
+
+Swap `main` for a release tag (e.g. `v0.6.0`) for a reproducible install. The script ignores its own untracked status and any `*.bak/` directories during the dirty-tree check, so running it from `.skills/_harness/` is fine.
 
 ### Pinning
 
@@ -151,6 +162,8 @@ Because the kit can be updated mid-project with a single command, **per-skill `v
 ## Validation
 
 Run `.skills/_harness/check.sh` to verify index/directory consistency, frontmatter, template sync, and symlink integrity.
+
+The kit-version surface checks (CHANGELOG/README/AGENTS_skills.md must agree on `kit_version`) only make sense in this upstream repo. **Consumer repos auto-skip them** when either `.skills-harness/` exists at the repo root (subtree install) or `.skills/_meta.yml` declares `role: consumer`. Override with `SKILLS_CHECK_KIT_SURFACES=1` (force checks) or `SKILLS_CHECK_KIT_SURFACES=0` (suppress) when the auto-detect gets it wrong. See [CONTRIBUTING.md — Environment overrides](CONTRIBUTING.md#environment-overrides) for the full list.
 
 ## Optional: MCP
 

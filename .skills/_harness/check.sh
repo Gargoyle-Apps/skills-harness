@@ -17,11 +17,35 @@ for arg in "$@"; do
   esac
 done
 
-HARNESS_DIR="${SKILLS_HARNESS_DIR:-$(cd "$(dirname "$0")" && pwd)}"
+# Resolve the script's own location WITHOUT following symlinks, so subtree-vendored
+# installs (where .skills/_harness/ is a symlink into .skills-harness/.skills/_harness/)
+# still derive the consumer's _skills/_index.md/repo root rather than the subtree's.
+# See gh issue #3, friction point 5.
+script_src="${BASH_SOURCE[0]:-$0}"
+script_dir="$(dirname "$script_src")"
+HARNESS_DIR="${SKILLS_HARNESS_DIR:-$(cd "$script_dir" && pwd -L)}"
 SKILLS_DIR="${SKILLS_DIR:-$(dirname "$HARNESS_DIR")/_skills}"
 INDEX_FILE="${SKILLS_INDEX:-$(dirname "$HARNESS_DIR")/_index.md}"
 RULES_FILE="${SKILLS_RULES:-$HARNESS_DIR/_rules.md}"
 REPO_ROOT="${SKILLS_REPO_ROOT:-$(dirname "$(dirname "$HARNESS_DIR")")}"
+
+# Auto-detect consumer-vs-kit role for the kit-surface checks (CHANGELOG/README/AGENTS_skills.md
+# version assertions). These only make sense in the upstream kit repo; consumers shouldn't
+# need to mirror them. Detection signals:
+#   - .skills-harness/ subtree directory at REPO_ROOT (subtree-vendored install), OR
+#   - role: consumer in .skills/_meta.yml
+# The SKILLS_CHECK_KIT_SURFACES env var still wins if set explicitly (0/1).
+if [[ -z "${SKILLS_CHECK_KIT_SURFACES:-}" ]]; then
+  SKILLS_CHECK_KIT_SURFACES=1
+  if [[ -d "$REPO_ROOT/.skills-harness" ]]; then
+    SKILLS_CHECK_KIT_SURFACES=0
+  else
+    META_FILE_AUTO="$(dirname "$HARNESS_DIR")/_meta.yml"
+    if [[ -f "$META_FILE_AUTO" ]] && grep -qE '^role:[[:space:]]*consumer[[:space:]]*$' "$META_FILE_AUTO"; then
+      SKILLS_CHECK_KIT_SURFACES=0
+    fi
+  fi
+fi
 
 errors=0
 
@@ -60,6 +84,8 @@ else
 
   if [[ -d "$SKILLS_DIR" ]]; then
     for dir in "$SKILLS_DIR"/*/; do
+      # Guard: bash has no nullglob by default, so an empty dir leaves '*/' literal.
+      [[ -d "$dir" ]] || continue
       dir_name="$(basename "$dir")"
       found=false
       for name in "${index_names[@]}"; do
@@ -196,21 +222,25 @@ if [[ -f "$META_FILE" ]]; then
   if [[ -z "$meta_ver" ]]; then
     err "_meta.yml: could not parse kit_version"
   else
-    if [[ -f "$CHANGELOG_FILE" ]]; then
-      cl_line="$(grep -E '^## \[[0-9]' "$CHANGELOG_FILE" | head -1 || true)"
-      if [[ -z "$cl_line" ]]; then
-        err "CHANGELOG.md: no release heading like ## [x.y.z] found after intro"
-      else
-        cl_ver="$(echo "$cl_line" | sed -E 's/^## \[([^]]+)\].*/\1/')"
-        if [[ "$cl_ver" != "$meta_ver" ]]; then
-          err "CHANGELOG first release [$cl_ver] does not match _meta.yml kit_version ($meta_ver)"
-        fi
-      fi
-    else
-      err "CHANGELOG.md not found at $CHANGELOG_FILE (required for kit version check)"
-    fi
-
+    # All three kit-version surface checks (CHANGELOG, README, AGENTS_skills.md)
+    # only make sense in the upstream kit repo. Consumers auto-skip via the
+    # SKILLS_CHECK_KIT_SURFACES detection at the top of this script. See gh
+    # issue #3, friction point 6.
     if [[ "${SKILLS_CHECK_KIT_SURFACES:-1}" == "1" ]]; then
+      if [[ -f "$CHANGELOG_FILE" ]]; then
+        cl_line="$(grep -E '^## \[[0-9]' "$CHANGELOG_FILE" | head -1 || true)"
+        if [[ -z "$cl_line" ]]; then
+          err "CHANGELOG.md: no release heading like ## [x.y.z] found after intro"
+        else
+          cl_ver="$(echo "$cl_line" | sed -E 's/^## \[([^]]+)\].*/\1/')"
+          if [[ "$cl_ver" != "$meta_ver" ]]; then
+            err "CHANGELOG first release [$cl_ver] does not match _meta.yml kit_version ($meta_ver)"
+          fi
+        fi
+      else
+        err "CHANGELOG.md not found at $CHANGELOG_FILE (required for kit version check)"
+      fi
+
       if [[ -f "$README_FILE" ]]; then
         if ! grep -Fq "**Current release:** \`${meta_ver}\`" "$README_FILE"; then
           err "README.md: expected **Current release:** \`${meta_ver}\` to match .skills/_meta.yml"

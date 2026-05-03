@@ -35,12 +35,16 @@ set -euo pipefail
 #   ref         = main
 #   prefix      = .skills-harness
 
+CANONICAL_URL_SUBSTR="Gargoyle-Apps/skills-harness"
+
 APPLY=false
 FORCE=false
 REMOTE_NAME="skills-harness"
 REMOTE_URL=""
 REF="main"
 PREFIX=".skills-harness"
+ACCEPT_UPSTREAM=""    # comma-separated names whose drift should be overwritten with upstream
+ACCEPT_DERIVED_URL=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -50,8 +54,10 @@ while [[ $# -gt 0 ]]; do
     --remote-url) REMOTE_URL="$2"; shift ;;
     --ref) REF="$2"; shift ;;
     --prefix) PREFIX="$2"; shift ;;
+    --accept-upstream) ACCEPT_UPSTREAM="$2"; shift ;;
+    --accept-derived-url) ACCEPT_DERIVED_URL=true ;;
     -h|--help)
-      sed -n '3,40p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '3,50p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *) echo "ERROR: unknown arg: $1" >&2; exit 2 ;;
@@ -59,7 +65,12 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-HARNESS_DIR="${SKILLS_HARNESS_DIR:-$(cd "$(dirname "$0")" && pwd)}"
+# Symlink-safe: derive paths from the script's invocation path without following
+# symlinks (relevant after migration when .skills/_harness/ is a symlink into
+# .skills-harness/.skills/_harness/). See gh issue #3, friction point 5.
+script_src="${BASH_SOURCE[0]:-$0}"
+script_dir="$(dirname "$script_src")"
+HARNESS_DIR="${SKILLS_HARNESS_DIR:-$(cd "$script_dir" && pwd -L)}"
 SKILLS_DIR="${SKILLS_DIR:-$(dirname "$HARNESS_DIR")/_skills}"
 REPO_ROOT="${SKILLS_REPO_ROOT:-$(dirname "$(dirname "$HARNESS_DIR")")}"
 META_FILE="$(dirname "$HARNESS_DIR")/_meta.yml"
@@ -96,21 +107,52 @@ if [[ -e "$PREFIX" ]]; then
   exit 1
 fi
 if $APPLY; then
-  if [[ -n "$(git status --porcelain)" ]]; then
-    echo "ERROR: working tree is dirty. Commit or stash before --apply." >&2
+  # Filter the dirty-tree check so the user can drop this script directly into
+  # .skills/_harness/migrate-to-subtree.sh and run from there. We ignore the
+  # script itself plus any *.bak directories (which can only exist mid-migration).
+  # See gh issue #3, friction point 2.
+  script_basename="$(basename "$script_src")"
+  dirty="$(git status --porcelain 2>/dev/null \
+    | grep -v -E "(^|/)${script_basename}\$" \
+    | grep -v -E '\.bak/?$' \
+    || true)"
+  if [[ -n "$dirty" ]]; then
+    echo "ERROR: working tree has uncommitted changes (other than the script itself):" >&2
+    echo "$dirty" >&2
+    echo "Commit or stash before --apply." >&2
     exit 1
   fi
 fi
 
+REMOTE_URL_SOURCE="explicit --remote-url"
 if [[ -z "$REMOTE_URL" && -f "$META_FILE" ]]; then
   raw="$(grep -E '^repo_url:' "$META_FILE" | head -1 | sed 's/^repo_url://' || true)"
   raw="$(trim "$raw")"
   raw="${raw#\"}"; raw="${raw%\"}"
   REMOTE_URL="$raw"
+  REMOTE_URL_SOURCE="derived from .skills/_meta.yml repo_url"
 fi
 if [[ -z "$REMOTE_URL" ]]; then
   echo "ERROR: no upstream URL. Pass --remote-url or set repo_url in .skills/_meta.yml." >&2
   exit 1
+fi
+
+# Stale-install safety: if repo_url was derived from _meta.yml AND it doesn't
+# point at the canonical Gargoyle-Apps/skills-harness, the consumer probably
+# has a stale install pointing at an old fork. Refuse unless the user
+# explicitly accepts. See gh issue #3, friction point 3.
+if [[ "$REMOTE_URL_SOURCE" != "explicit --remote-url" ]]; then
+  if [[ "$REMOTE_URL" != *"$CANONICAL_URL_SUBSTR"* ]] && ! $ACCEPT_DERIVED_URL; then
+    echo "ERROR: derived repo_url does not look like the canonical kit upstream." >&2
+    echo "  derived  : $REMOTE_URL ($REMOTE_URL_SOURCE)" >&2
+    echo "  expected : a URL containing '$CANONICAL_URL_SUBSTR'" >&2
+    echo "" >&2
+    echo "Stale .skills/_meta.yml installations often have an outdated repo_url." >&2
+    echo "Re-run with one of:" >&2
+    echo "  --remote-url https://github.com/Gargoyle-Apps/skills-harness" >&2
+    echo "  --accept-derived-url    (only if you really want to vendor the URL above)" >&2
+    exit 1
+  fi
 fi
 
 note "skills-harness migrate-to-subtree"
@@ -213,6 +255,19 @@ migrate_kit_skill() {
     return
   fi
 
+  # Per-skill upstream acceptance via --accept-upstream (gh issue #3, friction point 4).
+  # Comma-separated list of kit-skill names whose drift should be overwritten with
+  # upstream. Cleaner than --force, which sledgehammers every drifted skill.
+  accept_this=false
+  if [[ -n "$ACCEPT_UPSTREAM" ]]; then
+    saved_ifs="$IFS"; IFS=','
+    for n in $ACCEPT_UPSTREAM; do
+      n="$(trim "$n")"
+      [[ "$n" == "$name" ]] && accept_this=true
+    done
+    IFS="$saved_ifs"
+  fi
+
   # Compare to upstream copy if the subtree exists yet.
   if [[ -n "$SUBTREE_SKILLS" && -d "$SUBTREE_SKILLS/$name" ]]; then
     if diff -r -q "$local_path" "$SUBTREE_SKILLS/$name" >/dev/null 2>&1; then
@@ -224,14 +279,16 @@ migrate_kit_skill() {
         plan "$name is identical to upstream → backup + symlink"
       fi
     else
-      if $FORCE && $APPLY; then
-        do_ "[--force] backup local-modified $local_path -> $local_path.bak, then symlink"
+      if ($FORCE || $accept_this) && $APPLY; then
+        reason="$($accept_this && echo "[--accept-upstream]" || echo "[--force]")"
+        do_ "$reason backup local-modified $local_path -> $local_path.bak, then symlink"
         mv "$local_path" "$local_path.bak"
         ln -s "$target_rel" "$local_path"
       else
         warn "$name differs from upstream — kept local copy."
         warn "      Review with: diff -ru $local_path $SUBTREE_SKILLS/$name"
-        warn "      To accept upstream and discard local edits, re-run with --force --apply."
+        warn "      To accept upstream for this skill only:  --accept-upstream $name --apply"
+        warn "      To accept upstream for ALL drifted kit skills:  --force --apply"
       fi
     fi
   else
@@ -248,10 +305,12 @@ note ""
 # --- Step 5: audit consumer-authored skills (never modify) --------------------
 
 derive_prefix() {
-  # Split repo dir name on '-' and '_', take first letter of each lowercase segment, append '-'.
+  # Split repo dir name on '-', '_', and whitespace; take the first letter of
+  # each non-empty lowercase segment; append '-'. Whitespace handling fixes
+  # gh issue #3, friction point 9 (e.g. "Media Library" → "ml-", not "m-").
   local dir="$1" out="" seg ch
-  # Replace _ with - for splitting via IFS.
-  local norm="${dir//_/-}"
+  # Normalize all separators to '-'.
+  local norm="$(printf '%s' "$dir" | tr '_ \t' '---')"
   local saved_ifs="$IFS"
   IFS='-'
   for seg in $norm; do
@@ -317,9 +376,28 @@ prefix_match() {
   return 1
 }
 
+# Optional: consumer_skills_dir hint. When the consumer keeps real skill bodies
+# outside .skills/_skills/ (e.g. .cursor/skills/) and uses .skills/_skills/<name>/
+# as a thin symlink shim, surface that during the audit so the user knows the
+# script won't generate those symlinks (gh issue #3, friction point 8 — auto-
+# symlinking from a foreign tree is deferred to a follow-up release).
+CONSUMER_SKILLS_DIR=""
+if [[ -f "$META_FILE" ]]; then
+  raw_csd="$(grep -E '^consumer_skills_dir:' "$META_FILE" | head -1 | sed 's/^consumer_skills_dir://' || true)"
+  raw_csd="$(trim "$raw_csd")"
+  raw_csd="${raw_csd#\"}"; raw_csd="${raw_csd%\"}"
+  raw_csd="${raw_csd#\'}"; raw_csd="${raw_csd%\'}"
+  CONSUMER_SKILLS_DIR="$raw_csd"
+fi
+
 note "Step: audit consumer-authored skills"
 note "  repo dir name    : $REPO_DIR_NAME"
 note "  allowed prefixes : $ALLOWED_PREFIXES_DISPLAY  ($PREFIX_SOURCE)"
+if [[ -n "$CONSUMER_SKILLS_DIR" ]]; then
+  note "  consumer_skills_dir declared in _meta.yml: $CONSUMER_SKILLS_DIR"
+  note "    (real skill bodies live there; .skills/_skills/<name>/ should be symlinks pointing at them)"
+  note "    (auto-symlinking from this tree is not yet implemented — see harness-subtree skill)"
+fi
 
 REQUIRED_FIELDS="name description triggers dependencies version"
 prefix_violations=0

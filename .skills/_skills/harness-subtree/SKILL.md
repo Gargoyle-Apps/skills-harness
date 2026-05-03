@@ -12,7 +12,7 @@ triggers:
   - migrate manual install to subtree
   - convert harness install to subtree
 dependencies: []
-version: "1.2.0"
+version: "1.3.0"
 ---
 
 # Harness Subtree
@@ -171,13 +171,34 @@ Use this when a repo already has `.skills/` (installed by file-copy from an earl
 
 The kit ships a helper for this: **`.skills/_harness/migrate-to-subtree.sh`**. It is **dry-run by default** — it inventories the repo, classifies each skill as kit-bundled vs. consumer-authored, and prints exactly what it would change. Re-run with `--apply` to perform the changes.
 
+### Bootstrapping the script on a stale install
+
+Older harness installs (pre-0.6.0) don't ship `migrate-to-subtree.sh`. Pull it from upstream into the existing `.skills/_harness/` directory before running:
+
+```bash
+curl -sSLo .skills/_harness/migrate-to-subtree.sh \
+  https://raw.githubusercontent.com/Gargoyle-Apps/skills-harness/main/.skills/_harness/migrate-to-subtree.sh
+chmod +x .skills/_harness/migrate-to-subtree.sh
+```
+
+The script's dirty-tree check ignores its own untracked file plus any `*.bak/` directories, so dropping it directly into `.skills/_harness/` and running from there is fine. For a fully reproducible install, swap `main` in the URL above for a kit release tag (e.g. `v0.6.0`).
+
+### Stale `repo_url` in `.skills/_meta.yml`
+
+Old installs sometimes carry an outdated upstream URL (forks, archived locations). The script will **refuse** to vendor a non-canonical URL (one that doesn't contain `Gargoyle-Apps/skills-harness`) unless you explicitly opt in with one of:
+
+- `--remote-url https://github.com/Gargoyle-Apps/skills-harness` (recommended — vendors the real upstream)
+- `--accept-derived-url` (only if you really mean to vendor whatever URL `_meta.yml` currently lists)
+
 ### What it changes (apply mode)
 
 - Adds the upstream remote (`skills-harness` by default; URL pulled from `.skills/_meta.yml` `repo_url` or `--remote-url`).
 - Runs `git subtree add --prefix=.skills-harness <remote> <ref> --squash` (one squash commit, fully reversible with `git revert`).
 - For each **kit-owned** target:
   - `.skills/_harness/` is moved aside to `.skills/_harness.bak/` and replaced with a symlink into the subtree.
-  - For each kit-bundled skill (`skill-template`, `skill-author`, `harness-upgrade`, `kit-release`, `harness-subtree`): if the local copy is **byte-identical** to upstream, it is moved to `<name>.bak/` and replaced with a symlink. If the local copy **differs** (i.e. you hand-edited it or you're on an older kit version), the script **leaves the local copy in place** and prints the diff command. Re-run with `--force --apply` to overwrite local edits with upstream after you've reviewed them.
+  - For each kit-bundled skill (`skill-template`, `skill-author`, `harness-upgrade`, `kit-release`, `harness-subtree`): if the local copy is **byte-identical** to upstream, it is moved to `<name>.bak/` and replaced with a symlink. If the local copy **differs** (you hand-edited it, or you're on an older kit version), the script **leaves the local copy in place** and prints the diff command. Two ways to accept upstream after review:
+    - `--accept-upstream <name>[,<name>…] --apply` — surgical: backup-and-symlink only the listed skills.
+    - `--force --apply` — sledgehammer: backup-and-symlink **every** drifted kit skill in one pass.
 
 ### What it never touches
 
@@ -204,7 +225,7 @@ The kit ships a helper for this: **`.skills/_harness/migrate-to-subtree.sh`**. I
 
    Read the output. Note any kit skills flagged as drifted, and any consumer skills flagged for prefix or frontmatter issues.
 
-2. **Decide on drifted kit skills.** For each drift report, run the suggested `diff -ru` command. If your edits should be upstreamed, contribute them and pull a new release later. If your edits are throwaway/local and you want the upstream version, plan to re-run with `--force`.
+2. **Decide on drifted kit skills.** For each drift report, run the suggested `diff -ru` command. If your edits should be upstreamed, contribute them and pull a new release later. If your edits are throwaway/local and you want the upstream version, plan to re-run with `--accept-upstream <name>` (per-skill) or `--force` (all drifted skills).
 
 3. **Fix prefix and frontmatter issues** *before* the migration if possible — it keeps the index reconcile (step 6) cleaner. For each prefix warning:
    - `git mv .skills/_skills/<name> .skills/_skills/<prefix><name>`
@@ -213,12 +234,12 @@ The kit ships a helper for this: **`.skills/_harness/migrate-to-subtree.sh`**. I
    - Search for `dependencies:` mentions of the old name across `.skills/_skills/*/SKILL.md` and update them
    - Run `.skills/_harness/check.sh` to confirm
 
-4. **Apply** (clean working tree required):
+4. **Apply** (clean working tree required; the script ignores its own untracked file and `*.bak/` dirs):
 
    ```bash
-   .skills/_harness/migrate-to-subtree.sh --apply        # safe drifts only
-   # or
-   .skills/_harness/migrate-to-subtree.sh --apply --force # also overwrite drifted kit skills
+   .skills/_harness/migrate-to-subtree.sh --apply
+   .skills/_harness/migrate-to-subtree.sh --apply --accept-upstream skill-author,skill-template
+   .skills/_harness/migrate-to-subtree.sh --apply --force
    ```
 
 5. **Inspect the backups.** The script left `.skills/_harness.bak/` and any `.skills/_skills/<name>.bak/` directories so you can confirm nothing important was lost. Once happy, `rm -rf` them in a follow-up commit (or keep them on a separate branch).
@@ -263,3 +284,13 @@ Tags follow the kit's semver (see upstream `CHANGELOG.md` and `_meta.yml`).
 - **`check.sh` works through symlinks.** No env-var overrides are needed for the symlinked layout above. Use `SKILLS_*` env vars only if you choose a non-symlink layout (e.g. running scripts directly out of `.skills-harness/`).
 - **Kit-bundled skill IDs stay unprefixed** (`skill-author`, `harness-upgrade`, etc.). Your own skills are prefixed per `skill-author`'s naming convention. The two coexist in `.skills/_index.md`.
 - **Per-skill `version` is the consumer's contract** with kit skills. When `git subtree pull` brings in a skill bump, treat it like any vendored dependency upgrade: read the changelog, run `check.sh`, and smoke-test the affected skill.
+- **`check.sh` is symlink-safe (0.6.0+).** Path resolution uses the script's invocation path with `pwd -L`, so running `.skills/_harness/check.sh` after migration correctly inspects the consumer's `_skills/` and `_index.md` rather than the subtree's. No wrapper script needed.
+- **Consumer/kit role is auto-detected (0.6.0+).** `check.sh` skips the kit-surface assertions (CHANGELOG/README/AGENTS_skills.md kit-version markers) automatically when `.skills-harness/` exists at the repo root or `.skills/_meta.yml` declares `role: consumer`. Set `SKILLS_CHECK_KIT_SURFACES=1` to force the kit-author checks anyway, or `SKILLS_CHECK_KIT_SURFACES=0` to suppress them on a non-subtree consumer install.
+- **`consumer_skills_dir:` schema (optional).** If real skill bodies live outside `.skills/_skills/` (for example a Cursor-style repo that keeps them under `.cursor/skills/<name>/`), record the path in `.skills/_meta.yml`:
+
+  ```yaml
+  consumer_skills_dir: .cursor/skills
+  ```
+
+  The migration script surfaces this declaration during the audit but currently does **not** auto-create the symlinks under `.skills/_skills/<name>/` — you build them by hand, taking care to use the right relative depth (`../../.cursor/skills/<name>` from `.skills/_skills/<name>`). Auto-symlinking from a foreign tree is a planned follow-up.
+- **Reconcile is still manual (planned automation).** `_index.md` merging and `_meta.yml kit_version` bumps are mechanical steps the script doesn't yet perform; a `reconcile` mode (or sibling `reconcile.sh` script) is on the roadmap. Until then, follow the manual steps in the migration workflow above.
