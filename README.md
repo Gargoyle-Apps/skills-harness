@@ -134,7 +134,9 @@ Read `.skills-harness/CHANGELOG.md` for the diff, refresh kit-skill symlinks (id
 
 ### Migrating an existing manual install
 
-If a repo already has `.skills/` from a file-copy install and you want to switch to subtree updates, run `.skills/_harness/migrate-to-subtree.sh` (dry-run by default; `--apply` to perform). It vendors the subtree, replaces kit-owned pieces with symlinks, and **never touches consumer-authored skills, the index, or `_meta.yml`**. It also audits consumer skills against the prefix convention (per **skill-author**) and required frontmatter fields, and prints rename/patch suggestions for you to apply manually. Full procedure (including drift handling with `--accept-upstream <name>` or `--force`) lives in **harness-subtree**.
+If a repo already has `.skills/` from a file-copy install and you want to switch to subtree updates, run `.skills/_harness/migrate-to-subtree.sh` (dry-run by default; `--apply` to perform). It vendors the subtree, replaces kit-owned pieces with symlinks, and — unless `--reconcile` is also passed — **never touches consumer-authored skills, the index, or `_meta.yml`**. It also audits consumer skills against the prefix convention (per **skill-author**) and required frontmatter fields, and prints rename/patch suggestions for you to apply manually.
+
+Pass `--reconcile` (and optionally `--symlink-consumer-skills`) to fold the post-migration index/`_meta.yml` reconcile and consumer-skill shim creation into the same run. Full procedure (including drift handling with `--accept-upstream <name>` or `--force`) lives in **harness-subtree**.
 
 **Bootstrapping on a stale install** (pre-0.6.0 doesn't ship the script):
 

@@ -205,7 +205,7 @@ Old installs sometimes carry an outdated upstream URL (forks, archived locations
 ### What it never touches
 
 - **Consumer-authored skills** (any directory under `.skills/_skills/` whose name is not in the kit-bundled set) — left exactly as they are.
-- **`.skills/_index.md`** and **`.skills/_meta.yml`** — these are consumer-owned. The script prints a reconcile checklist instead of editing them.
+- **`.skills/_index.md`** and **`.skills/_meta.yml`** — consumer-owned. By default the script prints a reconcile checklist instead of editing them. Pass **`--reconcile`** to opt in to automated kit-row merge + `kit_version`/`repo_url` bump (consumer rows and other `_meta.yml` fields stay verbatim).
 - **Native discovery symlink directories** (`.agents/skills/`, `.claude/skills/`).
 
 ### What it audits (warns, never modifies)
@@ -243,6 +243,8 @@ Old installs sometimes carry an outdated upstream URL (forks, archived locations
    .skills/_harness/migrate-to-subtree.sh --apply --accept-upstream skill-author,skill-template
    .skills/_harness/migrate-to-subtree.sh --apply --force
    ```
+
+   To collapse steps 6–7 (manual `_index.md` reconcile and `_meta.yml` bump) into the same run, add `--reconcile`. To also generate `.skills/_skills/<name>/` shim symlinks when `consumer_skills_dir:` is declared, add `--symlink-consumer-skills`. Both are dry-run-friendly; preview first, then re-run with `--apply`.
 
 5. **Inspect the backups.** The script left `.skills/_harness.bak/` and any `.skills/_skills/<name>.bak/` directories so you can confirm nothing important was lost. Once happy, `rm -rf` them in a follow-up commit (or keep them on a separate branch).
 

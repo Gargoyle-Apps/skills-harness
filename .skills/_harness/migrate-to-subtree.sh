@@ -341,6 +341,66 @@ if ! $SKIP_SUBTREE; then
   note ""
 fi
 
+# --- Step 4b: --skip-subtree kit-link refresh ---------------------------------
+#
+# Update-mode (--skip-subtree) doesn't run migrate_kit_skill, so when an
+# upstream `git subtree pull` adds a new bundled skill, the consumer's
+# .skills/_skills/<new-kit-skill> symlink is never created and check.sh later
+# fails. Refresh kit symlinks here:
+#   * missing entry → create symlink to the subtree copy
+#   * symlink whose target no longer exists in the subtree (e.g. a kit skill
+#     was removed/renamed upstream) → remove (with note)
+#   * pre-existing real directory → leave alone, surface a hint so the user
+#     can re-run the full migration without --skip-subtree if they want it
+#     converted to a symlink
+# Idempotent: correct symlinks print "ok".
+
+refresh_kit_skill_link() {
+  local name="$1"
+  local local_path=".skills/_skills/$name"
+  local target_rel="../../$PREFIX/.skills/_skills/$name"
+  local subtree_path="$PREFIX/.skills/_skills/$name"
+
+  if [[ -L "$local_path" ]]; then
+    if [[ -e "$local_path" ]]; then
+      note "  ok    $name (symlink resolves)"
+    else
+      if $APPLY; then
+        rm "$local_path"
+        do_ "removed dangling symlink $local_path (target no longer in subtree)"
+      else
+        plan "remove dangling symlink $local_path (target $target_rel missing)"
+      fi
+    fi
+    return
+  fi
+
+  if [[ -d "$local_path" ]]; then
+    note "  skip  $name is a real directory (re-run without --skip-subtree to convert)"
+    return
+  fi
+
+  if [[ ! -d "$subtree_path" ]]; then
+    warn "kit skill '$name' listed but $subtree_path is missing — skipping"
+    return
+  fi
+
+  if $APPLY; then
+    ln -s "$target_rel" "$local_path"
+    do_ "linked $local_path -> $target_rel"
+  else
+    plan "create symlink $local_path -> $target_rel"
+  fi
+}
+
+if $SKIP_SUBTREE; then
+  note "Step: refresh kit-bundled skill symlinks (update mode)"
+  for name in $KIT_SKILL_NAMES; do
+    refresh_kit_skill_link "$name"
+  done
+  note ""
+fi
+
 # --- Step 5: audit consumer-authored skills (never modify) --------------------
 
 derive_prefix() {
@@ -531,16 +591,19 @@ reconcile_meta() {
     warn "--reconcile: .skills/_meta.yml not found, skipping bump"
     return 0
   fi
+  # `|| true` on each grep keeps `set -euo pipefail` from aborting when an
+  # optional key is absent — the append-if-missing logic below depends on
+  # being able to observe an empty cur_kv / cur_url.
   local up_kv up_url
-  up_kv="$(grep -E '^kit_version:' "$upstream_meta" | head -1 | sed 's/^kit_version://')"
+  up_kv="$( { grep -E '^kit_version:' "$upstream_meta" || true; } | head -1 | sed 's/^kit_version://')"
   up_kv="$(trim "$up_kv")"
-  up_url="$(grep -E '^repo_url:' "$upstream_meta" | head -1 | sed 's/^repo_url://')"
+  up_url="$( { grep -E '^repo_url:' "$upstream_meta" || true; } | head -1 | sed 's/^repo_url://')"
   up_url="$(trim "$up_url")"
 
   local cur_kv cur_url
-  cur_kv="$(grep -E '^kit_version:' .skills/_meta.yml | head -1 | sed 's/^kit_version://')"
+  cur_kv="$( { grep -E '^kit_version:' .skills/_meta.yml || true; } | head -1 | sed 's/^kit_version://')"
   cur_kv="$(trim "$cur_kv")"
-  cur_url="$(grep -E '^repo_url:' .skills/_meta.yml | head -1 | sed 's/^repo_url://')"
+  cur_url="$( { grep -E '^repo_url:' .skills/_meta.yml || true; } | head -1 | sed 's/^repo_url://')"
   cur_url="$(trim "$cur_url")"
 
   if [[ "$cur_kv" == "$up_kv" && "$cur_url" == "$up_url" ]]; then
@@ -645,7 +708,11 @@ reconcile_index() {
   fi
 
   if ! $APPLY; then
-    if (( dropped == 0 && added == 0 )); then
+    # Compare the would-be result to the live file, not just dropped/added
+    # counts: a drop+add of byte-identical rows produces an unchanged file,
+    # and we want dry-run to honour the same "ok already matches" promise as
+    # apply-mode (the cmp below).
+    if cmp -s "$tmp" "$local_index"; then
       note "  ok    .skills/_index.md kit rows already match upstream (no merge needed)"
     else
       plan ".skills/_index.md: drop $dropped stale kit rows, add $added current kit rows"
