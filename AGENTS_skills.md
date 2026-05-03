@@ -7,9 +7,19 @@
   applies to consumer repos after bootstrap, NOT to this upstream repo.
 -->
 
-**Kit version:** `0.5.2` — history in root **`CHANGELOG.md`**. Maintainers shipping a new kit release: follow the **kit-release** skill so **`CHANGELOG.md`**, **`.skills/_meta.yml`**, this line, and **`README.md`** (Kit version) stay in sync; run **`.skills/_harness/check.sh`** when done.
+**Kit version:** `0.6.0` — history in root **`CHANGELOG.md`**. Maintainers shipping a new kit release: follow the **kit-release** skill so **`CHANGELOG.md`**, **`.skills/_meta.yml`**, this line, and **`README.md`** (Kit version) stay in sync; run **`.skills/_harness/check.sh`** when done.
 
 This file is **`AGENTS_skills.md`** so dropping the kit into a repo **does not overwrite** an existing project **`AGENTS.md`**. It exists only until one-time setup is finished. After setup, **delete this file** (or replace it with a one-line pointer only if your template says so).
+
+## How this repo got the kit
+
+Three install shapes are supported. Detection is best-effort and informs **how updates happen**, not whether bootstrap is required:
+
+- **Manual file copy** — `.skills/` and `AGENTS_skills.md` were copied in by hand. Updates are manual; see the **harness-upgrade** skill.
+- **Git subtree at `.skills-harness/`** — the entire upstream kit is vendored as a subtree, and this `AGENTS_skills.md` was copied to the root from `.skills-harness/AGENTS_skills.md`. Updates use `git subtree pull`; see the **harness-subtree** skill.
+- **Upstream maintainer (this very repo)** — `AGENTS_skills.md` is the canonical template; do not delete it here.
+
+If you see a `.skills-harness/` directory at the repo root alongside `.skills/`, you are in the **subtree** shape. Note this and load **harness-subtree** instead of **harness-upgrade** for any update work. Otherwise proceed with bootstrap as written below.
 
 ## Skill naming in consumer repos
 

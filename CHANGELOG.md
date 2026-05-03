@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-05-02
+
+### Added
+
+- **`migrate-to-subtree.sh`:** new helper script under `.skills/_harness/` that migrates a manual file-copy install to a subtree-vendored install **non-destructively**. Dry-run by default; `--apply` performs the actions. Adds the subtree at `.skills-harness/`, backs up `.skills/_harness/` and each kit-bundled skill to `*.bak/` and replaces them with symlinks into the subtree, and **never touches consumer-authored skills, `.skills/_index.md`, or `.skills/_meta.yml`**. Drifted kit skills are kept (the script prints `diff` commands); `--force --apply` accepts upstream after review. Audits consumer skills against the **skill-author** prefix convention (derives expected prefix from the repo's directory name and reports renames) and against the five required frontmatter fields; both audits are warn-only — renames stay manual because the index, frontmatter `name`, and `dependencies` references must move together.
+- **`harness-subtree` skill (v1.1.0):** documents installing, updating, and **migrating to** the kit in a consumer repo as a `git subtree` at `.skills-harness/`, with a symlinked `.skills/` shell so kit-managed pieces stay overwritable while consumer-authored skills, the index, and `_meta.yml` remain independent. Covers initial install, `git subtree pull` updates, post-pull symlink/index reconcile, version pinning, gotchas, and a 10-step **Migrating an existing manual install to subtree** workflow that leans on `migrate-to-subtree.sh` for the safe parts and walks through audit, drift handling, prefix/frontmatter cleanup, apply, backup inspection, index reconcile, native-discovery re-link, and validation. Triggers include *migrate manual install to subtree* and *convert harness install to subtree*.
+- **`README.md`:** new **Migrating an existing manual install** subsection under Deploying as a git subtree pointing at the helper script and the skill.
+- **`README.md`:** new top-level **Deploying as a git subtree** section with layout diagram, install commands, update commands, pinning notes, and a "Why versioning matters more under subtree" subsection that ties consumer pulls to the per-skill `version` and `CHANGELOG` contract.
+- **`AGENTS_skills.md`:** new **How this repo got the kit** section so agents detect manual-copy vs. subtree installs (presence of `.skills-harness/`) and route to **harness-upgrade** vs. **harness-subtree** accordingly.
+- **`_rules.md` (and all `*_template.md` via `sync.sh`):** new bullet declaring that `.skills-harness/` is upstream-owned in subtree installs and pointing at **harness-subtree** for any reconcile work.
+
+### Changed
+
+- **`kit-release` v1.1.0:** new Notes bullets emphasizing that subtree consumers diff against `CHANGELOG.md` and per-skill `version` bumps on every `git subtree pull`, plus optional tagging guidance for consumers who pin to a release tag.
+- **`harness-upgrade` v1.1.0:** "When to use" now defers to **harness-subtree** when `.skills-harness/` is present, so subtree-vendored repos don't follow the file-copy migration path.
+
 ## [0.5.2] - 2026-04-29
 
 ### Added

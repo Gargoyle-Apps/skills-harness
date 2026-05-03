@@ -9,7 +9,7 @@ triggers:
   - enable IDE symlinks
   - update skills system
 dependencies: []
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # Harness Upgrade
@@ -17,6 +17,8 @@ version: "1.0.0"
 ## When to use this skill
 
 Load when upgrading a repo's skills-harness from an older version (pre-0.4.0) to the current version, or when enabling native IDE skill discovery on an existing installation.
+
+**If the repo has a `.skills-harness/` directory** at the root, the kit is vendored as a git subtree — load **harness-subtree** instead. This skill is for repos installed by file copy.
 
 ## Prerequisites
 

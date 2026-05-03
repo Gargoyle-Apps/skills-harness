@@ -87,6 +87,67 @@ For upgrading from an older harness version, use the bundled **harness-upgrade**
 
 Merge or replace `.skills/_harness/` and bundled skills from upstream. Keep your custom skills under `.skills/_skills/` and your index rows. See the **harness-upgrade** skill for guided migration.
 
+For repos that vendor the entire kit via `git subtree pull` (see **Deploying as a git subtree** below), updates are a single command and the **harness-subtree** skill walks through the post-pull reconcile.
+
+## Deploying as a git subtree
+
+Manual file-copy installs work, but `git subtree` is the recommended way to vendor `skills-harness` into a consumer repo when you want **traceable, single-command updates** and **no submodule fragility**. The full procedure (and post-pull reconcile) is documented in the bundled **harness-subtree** skill — load it with a phrase like *"vendor skills-harness as a subtree"*. The summary:
+
+### Layout
+
+The kit is vendored as-is into `.skills-harness/`. The consumer's runtime tree under `.skills/` stays in place and uses **symlinks** to point its kit-managed pieces at the vendored copy:
+
+```text
+<consumer-repo>/
+├── .skills-harness/        ← vendored kit (subtree; do not hand-edit)
+│   └── .skills/{_harness,_skills,_index.md,_meta.yml}
+├── .skills/
+│   ├── _harness            → symlink → ../.skills-harness/.skills/_harness
+│   ├── _skills/
+│   │   ├── <kit-skill>     → symlinks → ../../.skills-harness/.skills/_skills/<name>
+│   │   └── <prefix>-<own>/ ← real consumer-owned skill dirs
+│   ├── _index.md           ← consumer-owned (kit rows + own rows)
+│   └── _meta.yml           ← consumer-owned, mirrors vendored kit_version
+└── AGENTS.md               ← Path A harness or Path B policy
+```
+
+This keeps the kit pieces overwritable on every pull while consumer-authored skills, the index, and the local `_meta.yml` stay independent.
+
+### One-time install
+
+```bash
+git remote add skills-harness https://github.com/Gargoyle-Apps/skills-harness
+git fetch skills-harness
+git subtree add --prefix=.skills-harness skills-harness main --squash
+```
+
+Then create the symlinked `.skills/` shell, copy `.skills-harness/AGENTS_skills.md` to repo root, complete bootstrap (Path A or B), delete the bootstrap file, and run `.skills/_harness/check.sh`. The **harness-subtree** skill has the exact commands.
+
+### Updating
+
+```bash
+git fetch skills-harness
+git subtree pull --prefix=.skills-harness skills-harness main --squash
+```
+
+Read `.skills-harness/CHANGELOG.md` for the diff, refresh kit-skill symlinks (idempotent loop in **harness-subtree**), reconcile any new rows into your `.skills/_index.md`, bump `.skills/_meta.yml` `kit_version`, and re-run `check.sh`.
+
+### Migrating an existing manual install
+
+If a repo already has `.skills/` from a file-copy install and you want to switch to subtree updates, run `.skills/_harness/migrate-to-subtree.sh` (dry-run by default; `--apply` to perform). It vendors the subtree, replaces kit-owned pieces with symlinks, and **never touches consumer-authored skills, the index, or `_meta.yml`**. It also audits consumer skills against the prefix convention (per **skill-author**) and required frontmatter fields, and prints rename/patch suggestions for you to apply manually. Full procedure, including how drifted kit skills are kept vs. overwritten with `--force`, lives in **harness-subtree**.
+
+### Pinning
+
+Pin to a specific kit release with `git subtree add/pull --prefix=.skills-harness skills-harness <tag-or-sha> --squash`. Kit tags follow the semver in **`.skills/_meta.yml`** and root **`CHANGELOG.md`** — which is exactly why the next two sections matter so much for subtree consumers.
+
+### Why versioning matters more under subtree
+
+Because the kit can be updated mid-project with a single command, **per-skill `version` fields and the kit `CHANGELOG.md` are the contract** between this repo and every vendored consumer:
+
+- A bumped kit-bundled skill `version` signals consumers that behaviour they previously relied on may have changed.
+- The kit-level semver in `.skills/_meta.yml` and the top entry in `CHANGELOG.md` are what consumers diff against their pinned version.
+- `kit-release` (this repo) and `harness-subtree` / `harness-upgrade` (consumer side) are the two halves of that contract.
+
 ## Validation
 
 Run `.skills/_harness/check.sh` to verify index/directory consistency, frontmatter, template sync, and symlink integrity.
@@ -97,7 +158,7 @@ For progressive skill loading via MCP, see [skillport](https://github.com/gotala
 
 ## Kit version
 
-**Current release:** `0.5.2`
+**Current release:** `0.6.0`
 
 - **Canonical:** [`kit_version` in `.skills/_meta.yml`](.skills/_meta.yml)
 - **History:** [CHANGELOG.md](CHANGELOG.md)
