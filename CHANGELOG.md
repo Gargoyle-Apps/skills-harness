@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-05-02
+
+Closes the two follow-ups from [issue #3](https://github.com/Gargoyle-Apps/skills-harness/issues/3) (originally deferred from 0.6.0). Verified end-to-end against the same consumer (`Minecraft Minder`) that produced the original report; ImpureCrumpet flagged `--symlink-consumer-skills` as the single biggest UX win in the validation comment.
+
+### Added
+
+- **`migrate-to-subtree.sh --reconcile`** — automates the previously-manual post-`git subtree pull` reconcile. Drops every existing kit-skill row from `.skills/_index.md` and re-inserts upstream's rows for those names; bumps `kit_version` and `repo_url` in `.skills/_meta.yml` to match the subtree. Consumer rows, intro text, table comments, and other `_meta.yml` fields (`role`, `prefixes`, `consumer_skills_dir`, custom keys) are preserved verbatim. Idempotent — re-running prints `ok already matches` for both files. Dry-run by default; `--apply` writes.
+- **`migrate-to-subtree.sh --symlink-consumer-skills`** — for repos that declare `consumer_skills_dir:` in `_meta.yml` (e.g. `.cursor/skills`), generates `.skills/_skills/<name> → ../../<consumer_skills_dir>/<name>` symlinks with correct relative depth. Skips entries without a `SKILL.md`, skips kit-skill name collisions, refuses to clobber pre-existing real directories (warns and skips). Idempotent. Eliminates the relative-depth foot-gun (`../../../` vs `../../`) flagged in the original report.
+- **`migrate-to-subtree.sh --skip-subtree`** — companion flag for already-vendored installs: skips the subtree-add and kit-skill replacement steps so `--reconcile` and `--symlink-consumer-skills` can run in update-mode against an existing `.skills-harness/` tree without re-vendoring.
+- **`harness-subtree` v1.4.0** — "Updating the vendored kit" section rewritten around the new single-command flow: `migrate-to-subtree.sh --skip-subtree --reconcile --symlink-consumer-skills --apply`. Notes section updated to mark both `consumer_skills_dir` auto-symlink and `_index.md`/`_meta.yml` reconcile as shipped (0.6.1+).
+
+### Fixed
+
+- **`migrate-to-subtree.sh` — `set -e` traps in helper functions.** New helpers (`reconcile_meta`, `reconcile_index`, `symlink_consumer_skills`) used bare `return` after conditional commands, which under `set -e` could propagate the conditional's exit status and abort the script mid-run. All bare `return`s in the new helpers now use explicit `return 0`. Same pattern applied as a defensive fix in pre-existing helpers.
+
 ## [0.6.0] - 2026-05-02
 
 ### Fixed

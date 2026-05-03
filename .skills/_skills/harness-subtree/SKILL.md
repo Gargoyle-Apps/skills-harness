@@ -12,7 +12,7 @@ triggers:
   - migrate manual install to subtree
   - convert harness install to subtree
 dependencies: []
-version: "1.3.0"
+version: "1.4.0"
 ---
 
 # Harness Subtree
@@ -129,29 +129,29 @@ The split is deliberate: kit-owned files live under `.skills-harness/` (overwrit
 
    This creates a merge commit. Resolve conflicts only inside `.skills-harness/` — never hand-edit subtree files outside of conflict resolution.
 
-2. **Read `.skills-harness/CHANGELOG.md`** for the diff between your previous vendored version and the new one. Pay attention to:
-   - Bumped per-skill `version` fields (a kit skill may have new behaviour).
-   - New bundled skills (you'll need to symlink them, see step 3).
-   - Removed/renamed bundled skills (remove stale symlinks).
+2. **Read `.skills-harness/CHANGELOG.md`** for the diff between your previous vendored version and the new one. Pay attention to bumped per-skill `version` fields, new bundled skills, and any removed/renamed bundled skills.
 
-3. **Refresh kit-skill symlinks** under `.skills/_skills/` (idempotent):
+3. **Run reconcile + symlink refresh in a single dry-run** to preview everything `--apply` would change:
 
    ```bash
-   for s in .skills-harness/.skills/_skills/*/; do
-     name="$(basename "$s")"
-     [ -L ".skills/_skills/$name" ] || ln -s "../../.skills-harness/.skills/_skills/$name" ".skills/_skills/$name"
-   done
-   # Prune broken kit-skill symlinks from removed/renamed upstream skills:
-   for link in .skills/_skills/*; do
-     [ -L "$link" ] && [ ! -e "$link" ] && rm "$link"
-   done
+   .skills/_harness/migrate-to-subtree.sh \
+     --skip-subtree --reconcile --symlink-consumer-skills
    ```
 
-4. **Refresh `.skills/_index.md`.** The upstream index changed; merge new kit rows into your consumer index without dropping your own rows. Easiest: open both `.skills-harness/.skills/_index.md` and `.skills/_index.md` side by side and reconcile.
+   `--skip-subtree` tells the script the kit is already vendored and to act in update-mode. The dry-run prints planned changes to `.skills/_index.md`, `.skills/_meta.yml`, and any new symlinks for consumer skills under `consumer_skills_dir:`.
 
-5. **Bump `.skills/_meta.yml`** `kit_version` to match `.skills-harness/.skills/_meta.yml` (or stay pinned and document why).
+4. **Apply:**
 
-6. **Re-run native discovery** if you set it up:
+   ```bash
+   .skills/_harness/migrate-to-subtree.sh \
+     --skip-subtree --reconcile --symlink-consumer-skills --apply
+   ```
+
+   What this does:
+   - **`--reconcile`** rewrites `.skills/_index.md` by dropping every existing kit-skill row and re-inserting upstream's rows for those names; consumer rows and intro text/comments are preserved verbatim. Bumps `kit_version` and `repo_url` in `.skills/_meta.yml` to match the subtree's copy; every other field (`role`, `prefixes`, `consumer_skills_dir`, custom keys) is preserved. Idempotent — re-running prints `ok already matches` for both files.
+   - **`--symlink-consumer-skills`** (only if `consumer_skills_dir:` is declared in `_meta.yml`) walks that directory, ignores entries without a `SKILL.md` and ignores anything whose name collides with a kit skill, and creates `.skills/_skills/<name> → ../../<consumer_skills_dir>/<name>` symlinks for the rest. Pre-existing real directories are never clobbered (the script warns and skips). Idempotent.
+
+5. **Re-run native discovery** if you set it up:
 
    ```bash
    .skills/_harness/link.sh .agents/skills    # or .claude/skills
@@ -159,11 +159,13 @@ The split is deliberate: kit-owned files live under `.skills-harness/` (overwrit
 
    `link.sh` auto-prunes dangling symlinks left by removed kit skills.
 
-7. **Validate:**
+6. **Validate:**
 
    ```bash
    .skills/_harness/check.sh
    ```
+
+The pre-0.6.1 manual reconcile (hand-merging the index, hand-bumping `_meta.yml`, hand-creating consumer-skill shims with the right relative depth) is no longer needed. If you prefer that flow anyway, omit `--reconcile` and `--symlink-consumer-skills` and the script will print the manual checklist instead.
 
 ## Migrating an existing manual install to subtree
 
@@ -292,5 +294,5 @@ Tags follow the kit's semver (see upstream `CHANGELOG.md` and `_meta.yml`).
   consumer_skills_dir: .cursor/skills
   ```
 
-  The migration script surfaces this declaration during the audit but currently does **not** auto-create the symlinks under `.skills/_skills/<name>/` — you build them by hand, taking care to use the right relative depth (`../../.cursor/skills/<name>` from `.skills/_skills/<name>`). Auto-symlinking from a foreign tree is a planned follow-up.
-- **Reconcile is still manual (planned automation).** `_index.md` merging and `_meta.yml kit_version` bumps are mechanical steps the script doesn't yet perform; a `reconcile` mode (or sibling `reconcile.sh` script) is on the roadmap. Until then, follow the manual steps in the migration workflow above.
+  Then `migrate-to-subtree.sh --symlink-consumer-skills [--apply]` generates the `.skills/_skills/<name> → ../../<consumer_skills_dir>/<name>` shims with correct relative depth. Idempotent. Refuses to clobber real directories at the link path (warns and skips). Skips entries without a `SKILL.md` and any name that collides with a kit skill. (0.6.1+)
+- **`--reconcile` automates `_index.md` and `_meta.yml` merge.** Drops every kit-skill row from your local `_index.md` and re-inserts upstream's rows for those names; bumps `kit_version`/`repo_url` in `_meta.yml` to match the subtree. Consumer rows, intro text, table comments, and other `_meta.yml` fields (`role`, `prefixes`, `consumer_skills_dir`) are preserved verbatim. Use after every `git subtree pull`; combine with `--symlink-consumer-skills` for a single-command update. (0.6.1+)
