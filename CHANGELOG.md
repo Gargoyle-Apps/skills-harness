@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.2] - 2026-05-18
+## [1.1.2] - 2026-05-18
 
 ### Added
 
@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`harness-subtree` v1.5.2** — migration validate step documents `check.sh --link` as an alternative to manual `link.sh`.
 - **`harness-upgrade` v1.1.1** — documents `check.sh --link` / completeness validation in the 0.4.0 changes table.
 - **`skill-author` v1.5.3** — step 8 mentions `check.sh --link` for syncing native discovery dirs.
+
+### Fixed
+
+- **Kit semver matches release tags.** `kit_version`, CHANGELOG, README, and `AGENTS_skills.md` now align with git tag **`v1.1.2`**. Earlier **`v1.1.1`** / **`v1.1.2`** tags pointed at the 1.0.1 tree without matching `_meta.yml`; **`v1.1.2`** now points at this release. Prefer **`v1.1.2`** over **`v1.0.2`** (short-lived tag on the same commit before renumbering).
 
 ## [1.0.1] - 2026-05-02
 
