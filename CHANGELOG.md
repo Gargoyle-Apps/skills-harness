@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.2] - 2026-05-18
+## [1.2.0] - 2026-06-30
+
+### Added
+
+- **Caveman skill trio (bundled).** New kit-bundled skills vendored from [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) (MIT, prompt content only — no upstream installer, hooks, npm, or statusline machinery):
+  - **`caveman` v1.0.0** — ultra-compressed communication mode (~75% output-token reduction) with `lite` / `full` / `ultra` / `wenyan-lite` / `wenyan-full` / `wenyan-ultra` intensity levels and built-in Auto-Clarity for security/destructive/ambiguous cases.
+  - **`caveman-commit` v1.0.0** — terse Conventional Commits messages (subject ≤50 chars, why over what).
+  - **`caveman-review` v1.0.0** — one-line PR review comments with optional severity prefixes.
+- **`caveman/deploy.sh`** — zero-dependency helper to deploy the trio to an IDE config location (`cursor` → `~/.cursor/skills/`, `claude` → `~/.claude/skills/`) via symlink or `--copy`. `--always-on` writes the config-level activation the IDE injects each turn (Cursor per-project `.cursor/rules/caveman.mdc`; Claude Code global `~/.claude/CLAUDE.md`), mirroring caveman's own `caveman-activate.md` rule body. Supports `--level`, `--uninstall [DIR]`, and `--dry-run`.
+
+
 
 ### Added
 

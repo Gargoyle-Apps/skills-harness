@@ -173,7 +173,7 @@ For progressive skill loading via MCP, see [skillport](https://github.com/gotala
 
 ## Kit version
 
-**Current release:** `1.1.2`
+**Current release:** `1.2.0`
 
 - **Canonical:** [`kit_version` in `.skills/_meta.yml`](.skills/_meta.yml)
 - **History:** [CHANGELOG.md](CHANGELOG.md)
