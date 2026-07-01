@@ -91,19 +91,10 @@ fi
 intro="$(head -n $((table_header_line - 1)) "$INDEX_FILE" && printf x)"
 intro="${intro%x}"
 
-# Find where the table ends: first line after header that doesn't start with |
-total_lines="$(wc -l < "$INDEX_FILE")"
-after_table_start=""
-line_num=$((table_header_line + 1))  # skip header
-while (( line_num <= total_lines )); do
-  cur="$(sed -n "${line_num}p" "$INDEX_FILE")"
-  if [[ "$cur" == "|"* ]]; then
-    line_num=$((line_num + 1))
-    continue
-  fi
-  after_table_start="$line_num"
-  break
-done
+# Find where the table ends: first line after the header that doesn't start with '|'.
+# Single awk pass (was a per-line `sed -n Np` loop = O(n^2) subprocess spawns).
+# Empty result means the table runs to EOF (no trailing prose), matching prior behavior.
+after_table_start="$(awk -v hdr="$table_header_line" 'NR>hdr && $0 !~ /^\|/ {print NR; exit}' "$INDEX_FILE")"
 
 trailing=""
 if [[ -n "$after_table_start" ]]; then

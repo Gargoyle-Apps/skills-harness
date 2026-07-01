@@ -1,6 +1,6 @@
 ---
 name: skill-conflicts
-description: "Detect conflicts between repo-managed skills and same-named skills or slash-commands in the user's IDE config."
+description: "Detect conflicts between repo-managed skills and same-named skills/slash-commands in the user's IDE config."
 triggers:
   - detect skill conflicts
   - skill conflict

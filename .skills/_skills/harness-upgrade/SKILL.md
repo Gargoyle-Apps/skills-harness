@@ -1,6 +1,6 @@
 ---
 name: harness-upgrade
-description: "Upgrade a skills-harness installation to the latest version with native IDE discovery."
+description: "Upgrade a skills-harness install to the latest version with native IDE discovery."
 triggers:
   - upgrade harness
   - update harness

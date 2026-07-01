@@ -1,6 +1,6 @@
 ---
 name: skill-author
-description: "How to write a new SKILL.md from scratch and register it in the index."
+description: "Write a new SKILL.md from scratch and register it in the index."
 triggers:
   - write a skill
   - author a skill

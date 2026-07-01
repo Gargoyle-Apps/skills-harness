@@ -1,6 +1,6 @@
 ---
 name: caveman-review
-description: "Write ultra-compressed one-line code review comments (location, problem, fix) with optional severity prefixes."
+description: "Ultra-compressed one-line code review comments (location, problem, fix); optional severity prefixes."
 triggers:
   - review this PR
   - code review

@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-06-30
+
+### Changed
+
+- Trimmed every skill `description` ~10-20% (kept match keywords) to shrink the recurring `_index.md` cost agents load per task.
+- `build-index.sh`: replaced the per-line `sed -n Np` table-end scan (O(n²) subprocess spawns) with a single `awk` pass. Output byte-identical; trailing prose still preserved.
+
 ## [1.4.0] - 2026-06-30
 
 ### Changed

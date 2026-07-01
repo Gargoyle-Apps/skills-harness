@@ -1,6 +1,6 @@
 ---
 name: caveman-commit
-description: "Generate ultra-terse Conventional Commits messages (subject <=50 chars, why over what) with no fluff."
+description: "Generate ultra-terse Conventional Commits messages (subject <=50 chars, why over what)."
 triggers:
   - write a commit
   - commit message

@@ -1,6 +1,6 @@
 ---
 name: harness-subtree
-description: "Install or update the skills-harness kit in a consumer repository as a git subtree at .skills-harness/."
+description: "Install or update the skills-harness kit in a consumer repo as a git subtree at .skills-harness/."
 triggers:
   - deploy harness as subtree
   - install harness as subtree

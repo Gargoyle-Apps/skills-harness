@@ -1,6 +1,6 @@
 ---
 name: caveman
-description: "Ultra-compressed caveman communication mode that cuts ~75% of output tokens while preserving full technical accuracy; supports lite/full/ultra/wenyan intensity levels."
+description: "Ultra-compressed caveman output mode; cuts ~75% output tokens, keeps full technical accuracy; lite/full/ultra/wenyan levels."
 triggers:
   - caveman mode
   - talk like caveman
