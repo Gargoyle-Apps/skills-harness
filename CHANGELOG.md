@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0] - 2026-06-30
+## [1.3.0] - 2026-06-30
+
+### Added
+
+- **`skill-conflicts` skill v1.0.0 + `.skills/_harness/skill-conflicts.sh`.** Detects collisions between repo-managed skills (`.skills/_skills/<name>`) and same-named skills or slash-commands in the user's IDE config (`~/.cursor/skills`, `~/.claude/skills`, `~/.cursor/commands`, `~/.claude/commands`; overridable via env). Classifies each hit: symlink-into-repo → OK (managed), identical independent copy → WARN (drift risk), divergent definition or command/skill name clash → CONFLICT (exit 1). Read-only; never mutates user config.
+
+### Changed
+
+- **Renamed the two install shapes from "Path A / Path B" to function-based names:** **Single-Tool** (Single-Tool Harness — installs one tool's runtime harness in the repo) and **Tool-Neutral** (Tool-Neutral Skills — portable skills only, no tool harness committed). Updated `AGENTS_skills.md` (headings keep a "formerly Path A/B" alias), the canonical Rules bullet in `_rules.md` and all 10 `*_template.md` files (kept in sync), `README.md` (new "Install shapes: Single-Tool vs Tool-Neutral" section with comparison table), **`skill-author` v1.5.4**, **`harness-subtree` v1.5.3**, and **`harness-upgrade` v1.1.2**.
+
+
 
 ### Added
 

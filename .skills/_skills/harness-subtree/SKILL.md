@@ -12,7 +12,7 @@ triggers:
   - migrate manual install to subtree
   - convert harness install to subtree
 dependencies: []
-version: "1.5.2"
+version: "1.5.3"
 ---
 
 # Harness Subtree
@@ -57,7 +57,7 @@ After install, the consumer repo looks like this:
 │   │   └── <prefix>-<your-skill>/   ← symlink → ../../<consumer_skills_dir>/<name> when declared; else real dir
 │   ├── _index.md           ← consumer-owned: kit rows + your rows
 │   └── _meta.yml           ← consumer-owned: pin to vendored kit_version
-└── AGENTS.md               ← Path A harness or Path B policy; see AGENTS_skills.md
+└── AGENTS.md               ← Single-Tool harness or Tool-Neutral policy; see AGENTS_skills.md
 ```
 
 The split is deliberate: kit-owned files live under `.skills-harness/` (overwritten on every pull), while consumer-owned files live under `.skills/`. Symlinks bridge them so the standard runtime paths (`.skills/_harness/...`, `.skills/_skills/<name>/SKILL.md`) keep working without env-var gymnastics.
@@ -106,9 +106,9 @@ The split is deliberate: kit-owned files live under `.skills-harness/` (overwrit
    cp .skills-harness/AGENTS_skills.md AGENTS_skills.md
    ```
 
-   Open `AGENTS_skills.md` with your agent and complete **Path A** (single-IDE harness install) or **Path B** (agnostic policy). Delete `AGENTS_skills.md` when done.
+   Open `AGENTS_skills.md` with your agent and complete **Single-Tool** (single-tool harness install) or **Tool-Neutral** (agnostic policy). Delete `AGENTS_skills.md` when done.
 
-7. **Update `.gitignore`.** The native-discovery symlink directories (`.agents/skills/`, `.claude/skills/`) are machine-local — they should already be ignored if Path A added them. Symlinks under `.skills/` and the `.skills-harness/` subtree directory itself **are** committed.
+7. **Update `.gitignore`.** The native-discovery symlink directories (`.agents/skills/`, `.claude/skills/`) are machine-local — they should already be ignored if the Single-Tool setup added them. Symlinks under `.skills/` and the `.skills-harness/` subtree directory itself **are** committed.
 
 8. **Validate:**
 
@@ -293,7 +293,7 @@ Tags follow the kit's semver (see upstream `CHANGELOG.md` and `_meta.yml`).
 
 ## Notes and gotchas
 
-- **Do not edit files inside `.skills-harness/`.** Local edits are silently overwritten on the next `git subtree pull`. Contribute changes upstream instead, or use Path B and override behaviour in your own consumer-owned skills.
+- **Do not edit files inside `.skills-harness/`.** Local edits are silently overwritten on the next `git subtree pull`. Contribute changes upstream instead, or use the Tool-Neutral setup and override behaviour in your own consumer-owned skills.
 - **Consumer skills live outside the subtree.** Bodies sit in real directories under `.skills/_skills/<prefix>-<name>/` (traditional layout) or under `consumer_skills_dir:` (e.g. `.cursor/skills/<name>/`) with `.skills/_skills/<name>/` as a directory symlink shim. Apply the prefix convention from `skill-author`.
 - **Directory symlinks — inner files look like plain files (gh issue #5).** Kit skills and `consumer_skills_dir` shims link the **directory** `_skills/<name>/`, not individual files. `SKILL.md` inside therefore shows as a regular file (`-rw-r--r--`); `readlink` on it is empty and `test -L` is false even when fully in sync. To verify wiring, run **`check.sh`** (prints `directory symlink → <target> ✓` per entry) or `readlink .skills/_skills/<name>` on the **directory** itself — not on inner paths.
 - **`AGENTS_skills.md` is ephemeral.** It is copied from `.skills-harness/AGENTS_skills.md` only during bootstrap and removed afterwards. It will reappear in `.skills-harness/` after each pull — that's fine; do not copy it back to root unless you are re-bootstrapping.
