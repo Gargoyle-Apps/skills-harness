@@ -12,20 +12,23 @@ set -euo pipefail
 # Usage:
 #   deploy.sh <target> [--always-on [DIR]] [--level LVL] [--copy] [--uninstall] [--dry-run]
 #
-# Targets:
-#   cursor   Symlink trio into ~/.cursor/skills/   (override: CURSOR_SKILLS_DIR)
-#   claude   Symlink trio into ~/.claude/skills/   (override: CLAUDE_SKILLS_DIR)
+# Targets (skill dir → override env):
+#   cursor     Symlink trio into ~/.cursor/skills/     (CURSOR_SKILLS_DIR)
+#   claude     Symlink trio into ~/.claude/skills/     (CLAUDE_SKILLS_DIR)
+#   codex      Symlink trio into ~/.codex/skills/      (CODEX_SKILLS_DIR)
+#   continue   Rules-only (no SKILL.md discovery) — writes ~/.continue/rules/caveman.md
+#              (CONTINUE_RULES_DIR). VS Code / JetBrains "Continue" extension.
 #
 # Options:
-#   --always-on [DIR]  Also install an always-on directive.
-#                        cursor: writes <DIR>/.cursor/rules/caveman.mdc (alwaysApply);
-#                                DIR defaults to the current directory (per-project).
-#                        claude: appends a marker block to ~/.claude/CLAUDE.md (global).
-#   --level LVL        Default intensity baked into the always-on rule. One of:
+#   --always-on [DIR]  Install the always-on activation the tool injects every turn:
+#                        cursor:   <DIR>/.cursor/rules/caveman.mdc (per-project; DIR defaults to cwd)
+#                        claude:   marker block in ~/.claude/CLAUDE.md   (global)   (CLAUDE_MEMORY_FILE)
+#                        codex:    marker block in ~/.codex/AGENTS.md    (global)   (CODEX_AGENTS_FILE)
+#                        continue: sets alwaysApply:true in the rule file (else alwaysApply:false)
+#   --level LVL        Default intensity baked into the activation. One of:
 #                        lite | full | ultra | wenyan-lite | wenyan-full | wenyan-ultra.
-#                        Only meaningful with --always-on. Omit for caveman's default (full).
-#   --copy             Copy files instead of symlinking (self-contained; survives repo deletion).
-#   --uninstall        Remove the trio (and any always-on artifacts) for the target.
+#   --copy             Copy skill files instead of symlinking (not applicable to continue).
+#   --uninstall        Remove the trio and any activation artifacts for the target.
 #                        For cursor, pass the project DIR to also remove its rule:
 #                        deploy.sh cursor --uninstall <DIR>  (DIR defaults to cwd).
 #   --dry-run          Print actions without touching the filesystem.
@@ -34,9 +37,12 @@ set -euo pipefail
 # Notes:
 #   - Symlinks point back to this repo, so edits here propagate to the deployed copy.
 #   - Cursor global user rules are UI-only and cannot be scripted; --always-on for
-#     cursor is therefore per-project (.cursor/rules). Claude Code supports true
-#     global always-on via ~/.claude/CLAUDE.md.
-#   - Idempotent: safe to re-run. Marker block is not duplicated.
+#     cursor is per-project (.cursor/rules). Claude Code and Codex support true global
+#     always-on via ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md respectively.
+#   - Continue has no SKILL.md discovery; its standing-instruction mechanism is
+#     ~/.continue/rules/*.md, so `continue` always writes that rule (alwaysApply toggled
+#     by --always-on) and never symlinks skills.
+#   - Idempotent: safe to re-run. Marker blocks are not duplicated.
 
 TRIO=(caveman caveman-commit caveman-review)
 BEGIN_MARKER="<!-- caveman-begin -->"
@@ -45,7 +51,7 @@ CAVEMAN_LEVELS="lite full ultra wenyan-lite wenyan-full wenyan-ultra"
 
 # Always-on rule body, mirroring caveman's own src/rules/caveman-activate.md
 # (MIT, JuliusBrussee/caveman). Emits an optional leading "Start in <level>" line
-# when LEVEL is set. Shared verbatim by the Cursor rule file and the Claude memory block.
+# when LEVEL is set. Shared verbatim by every target's activation artifact.
 rule_body() {
   if [[ -n "${LEVEL:-}" ]]; then
     printf 'Start in %s mode (as if the user ran /caveman %s).\n\n' "$LEVEL" "$LEVEL"
@@ -93,12 +99,14 @@ DO_COPY=false
 UNINSTALL=false
 DRY_RUN=false
 
+is_target() { case "$1" in cursor|claude|codex|continue) return 0 ;; *) return 1 ;; esac; }
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    cursor|claude) TARGET="$1"; shift ;;
+    cursor|claude|codex|continue) TARGET="$1"; shift ;;
     --always-on)
       ALWAYS_ON=true; shift
-      if [[ $# -gt 0 && "$1" != --* && "$1" != "cursor" && "$1" != "claude" ]]; then
+      if [[ $# -gt 0 && "$1" != --* ]] && ! is_target "$1"; then
         ALWAYS_ON_DIR="$1"; shift
       fi
       ;;
@@ -123,7 +131,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$TARGET" ]]; then
-  echo "ERROR: no target given (cursor|claude). Run with --help." >&2
+  echo "ERROR: no target given (cursor|claude|codex|continue). Run with --help." >&2
   exit 1
 fi
 
@@ -134,15 +142,36 @@ if [[ -n "$LEVEL" ]]; then
     echo "ERROR: invalid --level '$LEVEL' (allowed: $CAVEMAN_LEVELS)" >&2
     exit 1
   fi
-  if ! $ALWAYS_ON && ! $UNINSTALL; then
-    echo "WARN:  --level only affects the always-on rule; add --always-on to apply it." >&2
-  fi
 fi
 
+# --- Per-target capabilities ---
+# SKILLS_DIR empty ⇒ target has no SKILL.md discovery (continue).
+# AO_KIND: cursor-rule | memory-block | continue-rule
+# Note: do NOT pre-clear CONTINUE_RULES_DIR here — it doubles as its own env
+# override and clearing it would defeat the ${VAR:-default} fallback below.
+SKILLS_DIR=""
+AO_KIND=""
+MEM_FILE=""
 case "$TARGET" in
-  cursor) SKILLS_DIR="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}" ;;
-  claude) SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}" ;;
+  cursor)
+    SKILLS_DIR="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
+    AO_KIND="cursor-rule" ;;
+  claude)
+    SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
+    AO_KIND="memory-block"; MEM_FILE="${CLAUDE_MEMORY_FILE:-$HOME/.claude/CLAUDE.md}" ;;
+  codex)
+    SKILLS_DIR="${CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
+    AO_KIND="memory-block"; MEM_FILE="${CODEX_AGENTS_FILE:-$HOME/.codex/AGENTS.md}" ;;
+  continue)
+    AO_KIND="continue-rule"; CONTINUE_RULES_DIR="${CONTINUE_RULES_DIR:-$HOME/.continue/rules}" ;;
 esac
+
+if [[ -z "$SKILLS_DIR" ]] && $DO_COPY; then
+  echo "WARN:  --copy has no effect for $TARGET (rules-only target)." >&2
+fi
+if [[ -n "$LEVEL" ]] && ! $ALWAYS_ON && [[ "$AO_KIND" != "continue-rule" ]]; then
+  echo "WARN:  --level only affects the always-on activation; add --always-on to apply it." >&2
+fi
 
 run() {
   if $DRY_RUN; then
@@ -152,36 +181,88 @@ run() {
   fi
 }
 
+remove_memory_block() {
+  local mem="$1"
+  if [[ -f "$mem" ]] && grep -qF "$BEGIN_MARKER" "$mem"; then
+    run "sed -i.bak '/$BEGIN_MARKER/,/$END_MARKER/d' \"$mem\" && rm -f \"$mem.bak\""
+    echo "  removed always-on block from $mem"
+  fi
+}
+
+write_memory_block() {
+  local mem="$1"
+  echo "Adding always-on block to $mem${LEVEL:+ (level=$LEVEL)}"
+  run "mkdir -p \"$(dirname "$mem")\""
+  if [[ -f "$mem" ]] && grep -qF "$BEGIN_MARKER" "$mem"; then
+    echo "  block already present; skipping (idempotent). Re-run --uninstall then --always-on to change level."
+  elif $DRY_RUN; then
+    echo "  [dry-run] append caveman block to $mem"
+  else
+    {
+      printf '\n%s\n' "$BEGIN_MARKER"
+      rule_body
+      printf '%s\n' "$END_MARKER"
+    } >> "$mem"
+    echo "  appended block."
+  fi
+}
+
 # --- Uninstall ---
 if $UNINSTALL; then
-  echo "Uninstalling caveman trio from $TARGET ($SKILLS_DIR)"
-  for name in "${TRIO[@]}"; do
-    dest="$SKILLS_DIR/$name"
-    if [[ -e "$dest" || -L "$dest" ]]; then
-      run "rm -rf \"$dest\""
-      echo "  removed $dest"
-    fi
-  done
-
-  if [[ "$TARGET" == "cursor" ]]; then
-    rule_dir="${ALWAYS_ON_DIR:-$PWD}/.cursor/rules"
-    rule_file="$rule_dir/caveman.mdc"
-    if [[ -f "$rule_file" ]]; then
-      run "rm -f \"$rule_file\""
-      echo "  removed always-on rule $rule_file"
-    fi
-  else
-    mem="$HOME/.claude/CLAUDE.md"
-    if [[ -f "$mem" ]] && grep -qF "$BEGIN_MARKER" "$mem"; then
-      run "sed -i.bak '/$BEGIN_MARKER/,/$END_MARKER/d' \"$mem\" && rm -f \"$mem.bak\""
-      echo "  removed always-on block from $mem"
-    fi
+  echo "Uninstalling caveman trio from $TARGET"
+  if [[ -n "$SKILLS_DIR" ]]; then
+    for name in "${TRIO[@]}"; do
+      dest="$SKILLS_DIR/$name"
+      if [[ -e "$dest" || -L "$dest" ]]; then
+        run "rm -rf \"$dest\""
+        echo "  removed $dest"
+      fi
+    done
   fi
+
+  case "$AO_KIND" in
+    cursor-rule)
+      rule_file="${ALWAYS_ON_DIR:-$PWD}/.cursor/rules/caveman.mdc"
+      if [[ -f "$rule_file" ]]; then
+        run "rm -f \"$rule_file\""
+        echo "  removed always-on rule $rule_file"
+      fi ;;
+    memory-block) remove_memory_block "$MEM_FILE" ;;
+    continue-rule)
+      rule_file="$CONTINUE_RULES_DIR/caveman.md"
+      if [[ -f "$rule_file" ]]; then
+        run "rm -f \"$rule_file\""
+        echo "  removed rule $rule_file"
+      fi ;;
+  esac
   echo "Done."
   exit 0
 fi
 
-# --- Install skills ---
+# --- Continue: rules-only target (no skill symlinks) ---
+if [[ "$AO_KIND" == "continue-rule" ]]; then
+  rule_file="$CONTINUE_RULES_DIR/caveman.md"
+  always="$($ALWAYS_ON && echo true || echo false)"
+  echo "Writing Continue rule: $rule_file (alwaysApply=$always${LEVEL:+, level=$LEVEL})"
+  run "mkdir -p \"$CONTINUE_RULES_DIR\""
+  if $DRY_RUN; then
+    echo "  [dry-run] write $rule_file"
+  else
+    {
+      printf -- '---\n'
+      printf 'name: caveman\n'
+      printf 'alwaysApply: %s\n' "$always"
+      printf 'description: Ultra-compressed caveman output mode (~75%% fewer tokens); terse, keeps code and technical terms exact.\n'
+      printf -- '---\n\n'
+      rule_body
+    } > "$rule_file"
+  fi
+  $ALWAYS_ON || echo "  note: alwaysApply:false — Continue pulls this in by description. Use --always-on for every-turn savings."
+  echo "Done."
+  exit 0
+fi
+
+# --- Install skills (cursor / claude / codex) ---
 echo "Deploying caveman trio to $TARGET ($SKILLS_DIR)"
 run "mkdir -p \"$SKILLS_DIR\""
 
@@ -203,43 +284,29 @@ for name in "${TRIO[@]}"; do
   fi
 done
 
-# --- Always-on ---
+# --- Always-on activation ---
 if $ALWAYS_ON; then
-  if [[ "$TARGET" == "cursor" ]]; then
-    proj="${ALWAYS_ON_DIR:-$PWD}"
-    rule_dir="$proj/.cursor/rules"
-    rule_file="$rule_dir/caveman.mdc"
-    echo "Writing always-on rule: $rule_file (per-project${LEVEL:+, level=$LEVEL})"
-    run "mkdir -p \"$rule_dir\""
-    if $DRY_RUN; then
-      echo "  [dry-run] write $rule_file"
-    else
-      {
-        printf -- '---\n'
-        printf 'description: Always-on caveman compression%s\n' "${LEVEL:+ ($LEVEL)}"
-        printf 'alwaysApply: true\n'
-        printf -- '---\n\n'
-        rule_body
-      } > "$rule_file"
-    fi
-    echo "  note: Cursor global user rules are UI-only; this rule applies to $proj only."
-  else
-    mem="$HOME/.claude/CLAUDE.md"
-    echo "Adding always-on block to global memory: $mem${LEVEL:+ (level=$LEVEL)}"
-    run "mkdir -p \"$(dirname "$mem")\""
-    if [[ -f "$mem" ]] && grep -qF "$BEGIN_MARKER" "$mem"; then
-      echo "  block already present; skipping (idempotent). Re-run --uninstall then --always-on to change level."
-    elif $DRY_RUN; then
-      echo "  [dry-run] append caveman block to $mem"
-    else
-      {
-        printf '\n%s\n' "$BEGIN_MARKER"
-        rule_body
-        printf '%s\n' "$END_MARKER"
-      } >> "$mem"
-      echo "  appended block."
-    fi
-  fi
+  case "$AO_KIND" in
+    cursor-rule)
+      proj="${ALWAYS_ON_DIR:-$PWD}"
+      rule_dir="$proj/.cursor/rules"
+      rule_file="$rule_dir/caveman.mdc"
+      echo "Writing always-on rule: $rule_file (per-project${LEVEL:+, level=$LEVEL})"
+      run "mkdir -p \"$rule_dir\""
+      if $DRY_RUN; then
+        echo "  [dry-run] write $rule_file"
+      else
+        {
+          printf -- '---\n'
+          printf 'description: Always-on caveman compression%s\n' "${LEVEL:+ ($LEVEL)}"
+          printf 'alwaysApply: true\n'
+          printf -- '---\n\n'
+          rule_body
+        } > "$rule_file"
+      fi
+      echo "  note: Cursor global user rules are UI-only; this rule applies to $proj only." ;;
+    memory-block) write_memory_block "$MEM_FILE" ;;
+  esac
 else
   echo "Skills installed on-demand (trigger match). Re-run with --always-on for every-response savings."
 fi

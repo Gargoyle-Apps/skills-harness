@@ -15,8 +15,13 @@ set -euo pipefail
 # Config locations scanned (override via env):
 #   CURSOR_SKILLS_DIR      (default ~/.cursor/skills)
 #   CLAUDE_SKILLS_DIR      (default ~/.claude/skills)
+#   CODEX_SKILLS_DIR       (default ~/.codex/skills)
 #   CURSOR_COMMANDS_DIR    (default ~/.cursor/commands)
 #   CLAUDE_COMMANDS_DIR    (default ~/.claude/commands)
+#   CODEX_PROMPTS_DIR      (default ~/.codex/prompts)   Codex custom prompts (/name)
+#
+# Continue is rules-only (no SKILL.md discovery), so it has nothing that can
+# shadow a repo skill by name and is intentionally not scanned here.
 #
 # Exit status: 0 = no conflicts (clean or only managed symlinks / identical copies),
 #              1 = at least one CONFLICT (divergent same-named definition).
@@ -26,7 +31,7 @@ for arg in "$@"; do
   case "$arg" in
     --quiet) QUIET=true ;;
     -h|--help)
-      sed -n '3,26p' "$0" | sed 's/^# \{0,1\}//'
+      awk '/^#!/||/^set /{next} /^#/{sub(/^# ?/,"");print;h=1;next} h{exit}' "$0"
       exit 0 ;;
     *) echo "Unknown option: $arg" >&2; exit 1 ;;
   esac
@@ -38,8 +43,10 @@ SKILLS_DIR="${SKILLS_DIR:-$(dirname "$HARNESS_DIR")/_skills}"
 
 CURSOR_SKILLS_DIR="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
 CLAUDE_SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
+CODEX_SKILLS_DIR="${CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
 CURSOR_COMMANDS_DIR="${CURSOR_COMMANDS_DIR:-$HOME/.cursor/commands}"
 CLAUDE_COMMANDS_DIR="${CLAUDE_COMMANDS_DIR:-$HOME/.claude/commands}"
+CODEX_PROMPTS_DIR="${CODEX_PROMPTS_DIR:-$HOME/.codex/prompts}"
 
 conflicts=0
 managed=0
@@ -108,8 +115,10 @@ check_command() {
 for name in "${skill_names[@]}"; do
   check_skill_dir "cursor:skills" "$CURSOR_SKILLS_DIR" "$name"
   check_skill_dir "claude:skills" "$CLAUDE_SKILLS_DIR" "$name"
+  check_skill_dir "codex:skills"  "$CODEX_SKILLS_DIR"  "$name"
   check_command   "cursor:commands" "$CURSOR_COMMANDS_DIR" "$name"
   check_command   "claude:commands" "$CLAUDE_COMMANDS_DIR" "$name"
+  check_command   "codex:prompts"   "$CODEX_PROMPTS_DIR"   "$name"
 done
 
 # --- Summary ---

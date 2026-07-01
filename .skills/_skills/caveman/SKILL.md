@@ -10,7 +10,7 @@ triggers:
   - compress output
   - /caveman
 dependencies: []
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 Respond terse like smart caveman. All technical substance stay. Only fluff die.
@@ -85,4 +85,4 @@ Code/commits/PRs: write normal. "stop caveman" or "normal mode": revert. Level p
 ## Notes
 
 - Vendored from [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) (`skills/caveman`), MIT licensed. Prompt content only — none of the upstream installer, hooks, npm packages, or statusline machinery is included.
-- As a harness skill this loads **on-demand** when a trigger fires; it is not always-on. For always-on / cross-project cost savings, deploy to your IDE config with `deploy.sh` (see this skill's directory).
+- As a harness skill this loads **on-demand** when a trigger fires; it is not always-on. For always-on / cross-project cost savings, deploy to your IDE config with `deploy.sh` (see this skill's directory) — targets: `cursor`, `claude`, `codex`, `continue`.

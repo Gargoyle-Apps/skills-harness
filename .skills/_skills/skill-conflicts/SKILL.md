@@ -9,7 +9,7 @@ triggers:
   - check skill conflicts
   - does my config conflict with repo skills
 dependencies: []
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # Skill Conflicts
@@ -20,7 +20,7 @@ Load when the user asks whether a skill managed by **this repo** (`.skills/_skil
 
 ## What counts as a conflict
 
-Skills in this repo are discovered alongside user-level config (`~/.cursor/skills/`, `~/.claude/skills/`) and slash-commands (`~/.cursor/commands/`, `~/.claude/commands/`). A collision on the same **name** is a problem only when the definitions differ:
+Skills in this repo are discovered alongside user-level config: skills in `~/.cursor/skills/`, `~/.claude/skills/`, `~/.codex/skills/`, and slash-commands / prompts in `~/.cursor/commands/`, `~/.claude/commands/`, `~/.codex/prompts/`. A collision on the same **name** is a problem only when the definitions differ:
 
 | Situation | Verdict |
 |---|---|
@@ -37,7 +37,7 @@ Skills in this repo are discovered alongside user-level config (`~/.cursor/skill
 .skills/_harness/skill-conflicts.sh
 ```
 
-   It enumerates repo-managed skills (dirs under `.skills/_skills/`, skipping `_`-prefixed helpers) and checks each name against the user config locations. Exit code is `1` when at least one CONFLICT is found, `0` otherwise. Override any scan location with `CURSOR_SKILLS_DIR`, `CLAUDE_SKILLS_DIR`, `CURSOR_COMMANDS_DIR`, `CLAUDE_COMMANDS_DIR`.
+   It enumerates repo-managed skills (dirs under `.skills/_skills/`, skipping `_`-prefixed helpers) and checks each name against the user config locations for Cursor, Claude Code, and Codex. Exit code is `1` when at least one CONFLICT is found, `0` otherwise. Override any scan location with `CURSOR_SKILLS_DIR`, `CLAUDE_SKILLS_DIR`, `CODEX_SKILLS_DIR`, `CURSOR_COMMANDS_DIR`, `CLAUDE_COMMANDS_DIR`, `CODEX_PROMPTS_DIR`. Continue is rules-only (no SKILL.md discovery), so it has nothing that shadows a repo skill by name and is not scanned.
 
 2. Report the findings to the user grouped by verdict (CONFLICT first, then WARN, then OK counts). Do not auto-delete anything in the user's config.
 

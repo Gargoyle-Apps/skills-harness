@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - 2026-06-30
+## [1.4.0] - 2026-06-30
+
+### Changed
+
+- **`caveman/deploy.sh` v1.1.0 — added `codex` and `continue` targets** alongside `cursor`/`claude`:
+  - **`codex`** — symlinks the trio into `~/.codex/skills/` (override `CODEX_SKILLS_DIR`); `--always-on` appends a marker block to the global `~/.codex/AGENTS.md` (override `CODEX_AGENTS_FILE`).
+  - **`continue`** — rules-only (Continue has no `SKILL.md` discovery): writes `~/.continue/rules/caveman.md` (override `CONTINUE_RULES_DIR`) with `alwaysApply: true` under `--always-on`, else `alwaysApply: false` (pulled in by description). `--copy` is a no-op here.
+  - Fixed `--level` warning gating and a `CONTINUE_RULES_DIR` override that was being pre-cleared.
+- **`skill-conflicts` v1.1.0** — scanner now also checks `~/.codex/skills/` and `~/.codex/prompts/` (`/name` collisions). Continue is rules-only and intentionally not scanned. New env overrides `CODEX_SKILLS_DIR`, `CODEX_PROMPTS_DIR`.
+
+
 
 ### Added
 
