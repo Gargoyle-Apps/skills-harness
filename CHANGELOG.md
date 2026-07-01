@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-07-01
+
+### Added
+
+- **`caveman/deploy.sh --print` (skill v1.2.0)** — user-level activation via copy/paste for globals that can't be scripted (e.g. Cursor's Settings → Rules → User Rules). Writes nothing: `stdout` is the paste-ready activation block, `stderr` says where to paste it. `target` is optional and only tailors the paste hint (`cursor`/`claude`/`codex`/`continue`, else generic), leaving the door open for any IDE with a "User Rules" / "Custom Instructions" box. Honors `--level`.
+
 ## [1.4.1] - 2026-06-30
 
 ### Changed

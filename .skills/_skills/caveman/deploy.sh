@@ -11,6 +11,7 @@ set -euo pipefail
 #
 # Usage:
 #   deploy.sh <target> [--always-on [DIR]] [--level LVL] [--copy] [--uninstall] [--dry-run]
+#   deploy.sh [target] --print [--level LVL]
 #
 # Targets (skill dir → override env):
 #   cursor     Symlink trio into ~/.cursor/skills/     (CURSOR_SKILLS_DIR)
@@ -27,6 +28,11 @@ set -euo pipefail
 #                        continue: sets alwaysApply:true in the rule file (else alwaysApply:false)
 #   --level LVL        Default intensity baked into the activation. One of:
 #                        lite | full | ultra | wenyan-lite | wenyan-full | wenyan-ultra.
+#   --print            Don't touch the filesystem — print the activation block to stdout
+#                        (paste target + guidance go to stderr) so you can copy/paste it into
+#                        an IDE's global "User Rules" / "Custom Instructions" box. This is the
+#                        only path for non-scriptable globals like Cursor's user rules. `target`
+#                        is optional and only tailors the paste hint; omit it for generic text.
 #   --copy             Copy skill files instead of symlinking (not applicable to continue).
 #   --uninstall        Remove the trio and any activation artifacts for the target.
 #                        For cursor, pass the project DIR to also remove its rule:
@@ -37,8 +43,9 @@ set -euo pipefail
 # Notes:
 #   - Symlinks point back to this repo, so edits here propagate to the deployed copy.
 #   - Cursor global user rules are UI-only and cannot be scripted; --always-on for
-#     cursor is per-project (.cursor/rules). Claude Code and Codex support true global
-#     always-on via ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md respectively.
+#     cursor is per-project (.cursor/rules). For a GLOBAL cursor rule use --print and
+#     paste the output into Settings → Rules → User Rules. Claude Code and Codex support
+#     true global always-on via ~/.claude/CLAUDE.md and ~/.codex/AGENTS.md respectively.
 #   - Continue has no SKILL.md discovery; its standing-instruction mechanism is
 #     ~/.continue/rules/*.md, so `continue` always writes that rule (alwaysApply toggled
 #     by --always-on) and never symlinks skills.
@@ -209,6 +216,7 @@ LEVEL=""
 DO_COPY=false
 UNINSTALL=false
 DRY_RUN=false
+PRINT=false
 
 is_target() { case "$1" in cursor|claude|codex|continue) return 0 ;; *) return 1 ;; esac; }
 
@@ -226,6 +234,7 @@ while [[ $# -gt 0 ]]; do
       [[ $# -gt 0 ]] || { echo "ERROR: --level needs a value ($CAVEMAN_LEVELS)" >&2; exit 1; }
       LEVEL="$1"; shift
       ;;
+    --print) PRINT=true; shift ;;
     --copy) DO_COPY=true; shift ;;
     --uninstall) UNINSTALL=true; shift ;;
     --dry-run) DRY_RUN=true; shift ;;
@@ -240,7 +249,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [[ -z "$TARGET" ]]; then
+# A target is required for install/uninstall, but optional for --print (it only
+# tailors the paste hint). Validate --level first so --print reports bad levels too.
+if [[ -z "$TARGET" ]] && ! $PRINT; then
   echo "ERROR: no target given (cursor|claude|codex|continue). Run with --help." >&2
   exit 1
 fi
@@ -252,6 +263,26 @@ if [[ -n "$LEVEL" ]]; then
     echo "ERROR: invalid --level '$LEVEL' (allowed: $CAVEMAN_LEVELS)" >&2
     exit 1
   fi
+fi
+
+# --- Print mode: emit paste-ready activation, touch nothing ---
+# stdout = exactly the text to paste; stderr = where to paste it.
+if $PRINT; then
+  case "$TARGET" in
+    cursor)   dest="Cursor → Settings → Rules → User Rules (global; applies to every project)." ;;
+    claude)   dest="~/.claude/CLAUDE.md (global). Scriptable alt: deploy.sh claude --always-on." ;;
+    codex)    dest="~/.codex/AGENTS.md (global). Scriptable alt: deploy.sh codex --always-on." ;;
+    continue) dest="Continue global rules (~/.continue/rules/caveman.md). Scriptable alt: deploy.sh continue --always-on." ;;
+    *)        dest="your IDE's global \"User Rules\" / \"Custom Instructions\" box." ;;
+  esac
+  {
+    echo "Caveman — user-level activation${LEVEL:+ (level=$LEVEL)}"
+    echo "Paste the block below (stdout) into: $dest"
+    echo "Note: non-scriptable globals (e.g. Cursor user rules) must be added via the UI."
+    echo "------------------------------------------------------------------------"
+  } >&2
+  rule_body
+  exit 0
 fi
 
 # --- Per-target capabilities ---
