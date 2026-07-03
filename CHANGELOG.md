@@ -5,11 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.5.0] - 2026-07-01
+## [1.5.0] - 2026-07-03
 
 ### Added
 
 - **`caveman/deploy.sh --print` (skill v1.2.0)** — user-level activation via copy/paste for globals that can't be scripted (e.g. Cursor's Settings → Rules → User Rules). Writes nothing: `stdout` is the paste-ready activation block, `stderr` says where to paste it. `target` is optional and only tailors the paste hint (`cursor`/`claude`/`codex`/`continue`, else generic), leaving the door open for any IDE with a "User Rules" / "Custom Instructions" box. Honors `--level`.
+
+### Fixed
+
+- **Harness shell safety and docs drift ([#6](https://github.com/Gargoyle-Apps/skills-harness/issues/6)–[#11](https://github.com/Gargoyle-Apps/skills-harness/issues/11)).** Hardened `build-index.sh`, `check.sh`, `link.sh`, `sync.sh`, `migrate-to-subtree.sh`, and `caveman/deploy.sh` for bash 3.2, destructive-op edge cases, and symlink topology. `build-index.sh` is idempotent with corrected `SKILL.md` frontmatter parsing; `check.sh` no longer crashes on bash 3.2 and reports dangling native-discovery symlinks; `link.sh` prune/`--clean` removes broken symlinks; `sync.sh --write` no longer wipes Rules blocks; `caveman/deploy.sh` avoids unsafe `rm -rf` / `sed`-to-EOF patterns on user skill dirs; `migrate-to-subtree.sh` closes subtree-migration safety gaps. Docs: restore missing `## [x.y.z]` headings for tagged releases in CHANGELOG, fix broken `v1.0.0` pin example, retarget Cursor Single-Tool setup to `.mdc` rules (`CURSOR_template.md`).
 
 ## [1.4.1] - 2026-06-30
 
