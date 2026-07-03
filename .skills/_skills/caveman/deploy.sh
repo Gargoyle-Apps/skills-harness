@@ -83,12 +83,123 @@ script_src="${BASH_SOURCE[0]:-$0}"
 script_dir="$(cd "$(dirname "$script_src")" && pwd -P)"
 SKILLS_ROOT="$(cd "$script_dir/.." && pwd -P)"
 
-for name in "${TRIO[@]}"; do
-  if [[ ! -f "$SKILLS_ROOT/$name/SKILL.md" ]]; then
-    echo "ERROR: expected skill not found: $SKILLS_ROOT/$name/SKILL.md" >&2
+run() {
+  if $DRY_RUN; then
+    printf '  [dry-run]'
+    printf ' %q' "$@"
+    echo
+  else
+    "$@"
+  fi
+}
+
+resolve_symlink_target() {
+  local link="$1"
+  local target
+  target="$(readlink "$link")"
+  if [[ "$target" != /* ]]; then
+    target="$(cd "$(dirname "$link")" && pwd)/$target"
+  fi
+  target="$(cd "$(dirname "$target")" 2>/dev/null && pwd -P)/$(basename "$target")"
+  printf '%s' "$target"
+}
+
+is_managed_skill_dest() {
+  local dest="$1" name="$2"
+  [[ -L "$dest" ]] || return 1
+  local resolved expected
+  resolved="$(resolve_symlink_target "$dest")"
+  expected="$(cd "$SKILLS_ROOT/$name" && pwd -P)"
+  [[ "$resolved" == "$expected" ]]
+}
+
+verify_skills_present() {
+  for name in "${TRIO[@]}"; do
+    if [[ ! -f "$SKILLS_ROOT/$name/SKILL.md" ]]; then
+      echo "ERROR: expected skill not found: $SKILLS_ROOT/$name/SKILL.md" >&2
+      exit 1
+    fi
+  done
+}
+
+clear_dest_for_install() {
+  local dest="$1" name="$2"
+  [[ ! -e "$dest" && ! -L "$dest" ]] && return 0
+
+  if is_managed_skill_dest "$dest" "$name"; then
+    run rm -f "$dest"
+    return 0
+  fi
+
+  if [[ -d "$dest" && ! -L "$dest" ]]; then
+    echo "ERROR: $dest is a real directory (not created by deploy.sh). Move it aside or resolve with skill-conflicts.sh." >&2
     exit 1
   fi
-done
+
+  if [[ -L "$dest" ]]; then
+    echo "ERROR: $dest is a symlink to $(readlink "$dest"), not $SKILLS_ROOT/$name. Remove manually first." >&2
+    exit 1
+  fi
+
+  run rm -f "$dest"
+}
+
+remove_managed_skill_dest() {
+  local dest="$1" name="$2"
+  [[ ! -e "$dest" && ! -L "$dest" ]] && return 0
+  if is_managed_skill_dest "$dest" "$name"; then
+    run rm -f "$dest"
+    echo "  removed $dest"
+  else
+    echo "  skipped $dest (not managed by deploy.sh)"
+  fi
+}
+
+remove_memory_block() {
+  local mem="$1"
+  if [[ ! -f "$mem" ]]; then
+    return 0
+  fi
+  if grep -qF "$BEGIN_MARKER" "$mem" && ! grep -qF "$END_MARKER" "$mem"; then
+    echo "WARN:  $mem has begin marker but no end marker; skipping removal (fix manually)" >&2
+    return 0
+  fi
+  if ! grep -qF "$BEGIN_MARKER" "$mem"; then
+    return 0
+  fi
+  if $DRY_RUN; then
+    echo "  [dry-run] remove always-on block from $mem"
+    return 0
+  fi
+  local tmp
+  tmp="$(mktemp)"
+  awk -v begin="$BEGIN_MARKER" -v end="$END_MARKER" '
+    $0 == begin { skip=1; next }
+    $0 == end { skip=0; next }
+    !skip { print }
+  ' "$mem" > "$tmp"
+  cat "$tmp" > "$mem"
+  rm -f "$tmp"
+  echo "  removed always-on block from $mem"
+}
+
+write_memory_block() {
+  local mem="$1"
+  echo "Adding always-on block to $mem${LEVEL:+ (level=$LEVEL)}"
+  run mkdir -p "$(dirname "$mem")"
+  if [[ -f "$mem" ]] && grep -qF "$BEGIN_MARKER" "$mem"; then
+    echo "  block already present; skipping (idempotent). Re-run --uninstall then --always-on to change level."
+  elif $DRY_RUN; then
+    echo "  [dry-run] append caveman block to $mem"
+  else
+    {
+      printf '\n%s\n' "$BEGIN_MARKER"
+      rule_body
+      printf '%s\n' "$END_MARKER"
+    } >> "$mem"
+    echo "  appended block."
+  fi
+}
 
 # --- Parse args ---
 TARGET=""
@@ -106,7 +217,7 @@ while [[ $# -gt 0 ]]; do
     cursor|claude|codex|continue) TARGET="$1"; shift ;;
     --always-on)
       ALWAYS_ON=true; shift
-      if [[ $# -gt 0 && "$1" != --* ]] && ! is_target "$1"; then
+      if [[ $# -gt 0 && "$1" != -* ]] && ! is_target "$1"; then
         ALWAYS_ON_DIR="$1"; shift
       fi
       ;;
@@ -120,7 +231,6 @@ while [[ $# -gt 0 ]]; do
     --dry-run) DRY_RUN=true; shift ;;
     -h|--help) usage; exit 0 ;;
     *)
-      # Bare path after the target = the project dir (e.g. for --uninstall's rule cleanup).
       if [[ -n "$TARGET" && -z "$ALWAYS_ON_DIR" && "$1" != -* ]]; then
         ALWAYS_ON_DIR="$1"; shift
       else
@@ -145,10 +255,6 @@ if [[ -n "$LEVEL" ]]; then
 fi
 
 # --- Per-target capabilities ---
-# SKILLS_DIR empty ⇒ target has no SKILL.md discovery (continue).
-# AO_KIND: cursor-rule | memory-block | continue-rule
-# Note: do NOT pre-clear CONTINUE_RULES_DIR here — it doubles as its own env
-# override and clearing it would defeat the ${VAR:-default} fallback below.
 SKILLS_DIR=""
 AO_KIND=""
 MEM_FILE=""
@@ -173,50 +279,12 @@ if [[ -n "$LEVEL" ]] && ! $ALWAYS_ON && [[ "$AO_KIND" != "continue-rule" ]]; the
   echo "WARN:  --level only affects the always-on activation; add --always-on to apply it." >&2
 fi
 
-run() {
-  if $DRY_RUN; then
-    echo "  [dry-run] $*"
-  else
-    eval "$*"
-  fi
-}
-
-remove_memory_block() {
-  local mem="$1"
-  if [[ -f "$mem" ]] && grep -qF "$BEGIN_MARKER" "$mem"; then
-    run "sed -i.bak '/$BEGIN_MARKER/,/$END_MARKER/d' \"$mem\" && rm -f \"$mem.bak\""
-    echo "  removed always-on block from $mem"
-  fi
-}
-
-write_memory_block() {
-  local mem="$1"
-  echo "Adding always-on block to $mem${LEVEL:+ (level=$LEVEL)}"
-  run "mkdir -p \"$(dirname "$mem")\""
-  if [[ -f "$mem" ]] && grep -qF "$BEGIN_MARKER" "$mem"; then
-    echo "  block already present; skipping (idempotent). Re-run --uninstall then --always-on to change level."
-  elif $DRY_RUN; then
-    echo "  [dry-run] append caveman block to $mem"
-  else
-    {
-      printf '\n%s\n' "$BEGIN_MARKER"
-      rule_body
-      printf '%s\n' "$END_MARKER"
-    } >> "$mem"
-    echo "  appended block."
-  fi
-}
-
 # --- Uninstall ---
 if $UNINSTALL; then
   echo "Uninstalling caveman trio from $TARGET"
   if [[ -n "$SKILLS_DIR" ]]; then
     for name in "${TRIO[@]}"; do
-      dest="$SKILLS_DIR/$name"
-      if [[ -e "$dest" || -L "$dest" ]]; then
-        run "rm -rf \"$dest\""
-        echo "  removed $dest"
-      fi
+      remove_managed_skill_dest "$SKILLS_DIR/$name" "$name"
     done
   fi
 
@@ -224,14 +292,14 @@ if $UNINSTALL; then
     cursor-rule)
       rule_file="${ALWAYS_ON_DIR:-$PWD}/.cursor/rules/caveman.mdc"
       if [[ -f "$rule_file" ]]; then
-        run "rm -f \"$rule_file\""
+        run rm -f "$rule_file"
         echo "  removed always-on rule $rule_file"
       fi ;;
     memory-block) remove_memory_block "$MEM_FILE" ;;
     continue-rule)
       rule_file="$CONTINUE_RULES_DIR/caveman.md"
       if [[ -f "$rule_file" ]]; then
-        run "rm -f \"$rule_file\""
+        run rm -f "$rule_file"
         echo "  removed rule $rule_file"
       fi ;;
   esac
@@ -244,7 +312,7 @@ if [[ "$AO_KIND" == "continue-rule" ]]; then
   rule_file="$CONTINUE_RULES_DIR/caveman.md"
   always="$($ALWAYS_ON && echo true || echo false)"
   echo "Writing Continue rule: $rule_file (alwaysApply=$always${LEVEL:+, level=$LEVEL})"
-  run "mkdir -p \"$CONTINUE_RULES_DIR\""
+  run mkdir -p "$CONTINUE_RULES_DIR"
   if $DRY_RUN; then
     echo "  [dry-run] write $rule_file"
   else
@@ -262,24 +330,23 @@ if [[ "$AO_KIND" == "continue-rule" ]]; then
   exit 0
 fi
 
+verify_skills_present
+
 # --- Install skills (cursor / claude / codex) ---
 echo "Deploying caveman trio to $TARGET ($SKILLS_DIR)"
-run "mkdir -p \"$SKILLS_DIR\""
+run mkdir -p "$SKILLS_DIR"
 
 for name in "${TRIO[@]}"; do
   src="$SKILLS_ROOT/$name"
   dest="$SKILLS_DIR/$name"
 
-  # Clear any prior entry so re-runs are clean.
-  if [[ -e "$dest" || -L "$dest" ]]; then
-    run "rm -rf \"$dest\""
-  fi
+  clear_dest_for_install "$dest" "$name"
 
   if $DO_COPY; then
-    run "cp -R \"$src\" \"$dest\""
+    run cp -R "$src" "$dest"
     echo "  copied  $name -> $dest"
   else
-    run "ln -s \"$src\" \"$dest\""
+    run ln -s "$src" "$dest"
     echo "  linked  $name -> $dest"
   fi
 done
@@ -292,7 +359,7 @@ if $ALWAYS_ON; then
       rule_dir="$proj/.cursor/rules"
       rule_file="$rule_dir/caveman.mdc"
       echo "Writing always-on rule: $rule_file (per-project${LEVEL:+, level=$LEVEL})"
-      run "mkdir -p \"$rule_dir\""
+      run mkdir -p "$rule_dir"
       if $DRY_RUN; then
         echo "  [dry-run] write $rule_file"
       else

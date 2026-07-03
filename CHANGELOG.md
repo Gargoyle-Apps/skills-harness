@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed `--level` warning gating and a `CONTINUE_RULES_DIR` override that was being pre-cleared.
 - **`skill-conflicts` v1.1.0** — scanner now also checks `~/.codex/skills/` and `~/.codex/prompts/` (`/name` collisions). Continue is rules-only and intentionally not scanned. New env overrides `CODEX_SKILLS_DIR`, `CODEX_PROMPTS_DIR`.
 
-
+## [1.3.0] - 2026-06-30
 
 ### Added
 
@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Renamed the two install shapes from "Path A / Path B" to function-based names:** **Single-Tool** (Single-Tool Harness — installs one tool's runtime harness in the repo) and **Tool-Neutral** (Tool-Neutral Skills — portable skills only, no tool harness committed). Updated `AGENTS_skills.md` (headings keep a "formerly Path A/B" alias), the canonical Rules bullet in `_rules.md` and all 10 `*_template.md` files (kept in sync), `README.md` (new "Install shapes: Single-Tool vs Tool-Neutral" section with comparison table), **`skill-author` v1.5.4**, **`harness-subtree` v1.5.3**, and **`harness-upgrade` v1.1.2**.
 
-
+## [1.2.0] - 2026-06-30
 
 ### Added
 
@@ -42,7 +42,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **`caveman-review` v1.0.0** — one-line PR review comments with optional severity prefixes.
 - **`caveman/deploy.sh`** — zero-dependency helper to deploy the trio to an IDE config location (`cursor` → `~/.cursor/skills/`, `claude` → `~/.claude/skills/`) via symlink or `--copy`. `--always-on` writes the config-level activation the IDE injects each turn (Cursor per-project `.cursor/rules/caveman.mdc`; Claude Code global `~/.claude/CLAUDE.md`), mirroring caveman's own `caveman-activate.md` rule body. Supports `--level`, `--uninstall [DIR]`, and `--dry-run`.
 
+### Fixed
 
+- **`check.sh` — consumer-skill directory symlink topology** is now diagnosable when the kit is subtree-vendored or `consumer_skills_dir` is declared ([#5](https://github.com/Gargoyle-Apps/skills-harness/issues/5)).
+
+## [1.1.2] - 2026-05-18
 
 ### Added
 
@@ -74,8 +78,8 @@ First **stable** kit release for multi-repo deployment. Intended behaviour match
 
 ### Changed
 
-- **Pinning examples** in **README** and **harness-subtree** now cite `v1.0.0` for reproducible curl/bootstrap and subtree pulls.
-- **`harness-subtree` v1.5.0** — frontmatter bump; bootstrap/curl examples aligned with the `v1.0.0` tag.
+- **Pinning examples** in **README** and **harness-subtree** now cite `v1.0.1` for reproducible curl/bootstrap and subtree pulls.
+- **`harness-subtree` v1.5.0** — frontmatter bump; bootstrap/curl examples aligned with the `v1.0.1` tag.
 - **`skill-author` v1.5.2** — example `_meta.yml` snippet: `kit_version` set to `1.0.0`.
 
 ## [0.6.1] - 2026-05-02

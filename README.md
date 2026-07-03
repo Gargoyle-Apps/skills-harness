@@ -165,7 +165,7 @@ chmod +x .skills/_harness/migrate-to-subtree.sh
 .skills/_harness/migrate-to-subtree.sh        # dry-run first
 ```
 
-Swap `main` for a release tag (e.g. `v1.0.0`) for a reproducible install. The script ignores its own untracked status and any `*.bak/` directories during the dirty-tree check, so running it from `.skills/_harness/` is fine.
+Swap `main` for a release tag (e.g. `v1.0.1`) for a reproducible install. The script ignores its own untracked status and any `*.bak/` directories during the dirty-tree check, so running it from `.skills/_harness/` is fine.
 
 ### Pinning
 

@@ -183,7 +183,7 @@ curl -sSLo .skills/_harness/migrate-to-subtree.sh \
 chmod +x .skills/_harness/migrate-to-subtree.sh
 ```
 
-The script's dirty-tree check ignores its own untracked file plus any `*.bak/` directories, so dropping it directly into `.skills/_harness/` and running from there is fine. For a fully reproducible install, swap `main` in the URL above for a kit release tag (e.g. `v1.0.0`).
+The script's dirty-tree check ignores its own untracked file plus any `*.bak/` directories, so dropping it directly into `.skills/_harness/` and running from there is fine. For a fully reproducible install, swap `main` in the URL above for a kit release tag (e.g. `v1.0.1`).
 
 ### Stale `repo_url` in `.skills/_meta.yml`
 
