@@ -8,7 +8,7 @@ set -euo pipefail
 # alongside this repo's skills. When the same NAME exists in both places with
 # different content, it is ambiguous which definition wins — a silent conflict.
 # A user-config entry that is a symlink back into this repo is NOT a conflict;
-# it is the same skill, deployed from here (e.g. by caveman/deploy.sh).
+# it is the same skill, deployed from here (e.g. by caveman/scripts/deploy.sh).
 #
 # Usage: skill-conflicts.sh [--quiet]
 #

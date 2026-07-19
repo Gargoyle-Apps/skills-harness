@@ -6,10 +6,11 @@ set -euo pipefail
 #   2. Every row in _index.md has a matching directory under _skills/
 #   3. Each SKILL.md has required frontmatter fields
 #   4. Each SKILL.md name field matches its directory name
-#   5. Rules blocks in all templates match the canonical _rules.md
-#   6. _skills/<name>/ entry topology (directory symlinks for kit/consumer shims) when applicable
-#   7. Native discovery dirs (.agents/skills/, .claude/skills/) mirror _skills/ when present
-#   8. kit_version in _meta.yml matches newest CHANGELOG release, README, and AGENTS_skills.md
+#   5. Level 3 resource layout (scripts/, references/, assets/) and path references
+#   6. Rules blocks in all templates match the canonical _rules.md
+#   7. _skills/<name>/ entry topology (directory symlinks for kit/consumer shims) when applicable
+#   8. Native discovery dirs (.agents/skills/, .claude/skills/) mirror _skills/ when present
+#   9. kit_version in _meta.yml matches newest CHANGELOG release, README, and AGENTS_skills.md
 #
 # Options:
 #   --quiet              Suppress success footer
@@ -171,7 +172,92 @@ if [[ -d "$SKILLS_DIR" ]]; then
   done
 fi
 
-# --- 5: Rules block sync ---
+# --- 5: Level 3 resource layout (scripts/, references/, assets/) ---
+
+resource_dirs=(scripts references assets)
+
+trim_resource_ref() {
+  local s="$1"
+  s="$(echo "$s" | sed -E 's/[.,;:!?)}\`"'\''>]+$//')"
+  printf '%s' "$s"
+}
+
+if [[ -d "$SKILLS_DIR" ]]; then
+  for skill_dir in "$SKILLS_DIR"/*/; do
+    [[ -d "$skill_dir" ]] || continue
+    dir_name="$(basename "$skill_dir")"
+    case "$dir_name" in
+      _*) continue ;;
+    esac
+    skill_file="$skill_dir/SKILL.md"
+    [[ -f "$skill_file" ]] || continue
+
+    for rd in "${resource_dirs[@]}"; do
+      if [[ -e "$skill_dir/$rd" && ! -d "$skill_dir/$rd" ]]; then
+        err "$dir_name/$rd exists but is not a directory"
+      fi
+    done
+
+    for item in "$skill_dir"/*; do
+      [[ -f "$item" && ! -L "$item" ]] || continue
+      base="$(basename "$item")"
+      [[ "$base" == "SKILL.md" ]] && continue
+      case "$base" in
+        *.sh|*.py|*.js|*.ts|*.rb|*.pl)
+          warn "$dir_name/$base: script at skill root — move to scripts/"
+          ;;
+        *.md)
+          warn "$dir_name/$base: markdown at skill root — move to references/"
+          ;;
+      esac
+    done
+
+    # Track referenced paths so we only report each missing path once.
+    seen_refs="|"
+    in_fm=false
+    fm_done=false
+    while IFS= read -r line; do
+      if [[ "$line" == "---" ]]; then
+        if $in_fm; then
+          fm_done=true
+          in_fm=false
+          continue
+        else
+          in_fm=true
+          continue
+        fi
+      fi
+      $fm_done || continue
+
+      refs="$(echo "$line" | grep -oE '(scripts|references|assets)/[A-Za-z0-9_./-]+\.[A-Za-z0-9][A-Za-z0-9._-]*' || true)"
+      [[ -z "$refs" ]] && continue
+
+      while IFS= read -r ref_path; do
+        [[ -z "$ref_path" ]] && continue
+        ref_path="$(trim_resource_ref "$ref_path")"
+        [[ -z "$ref_path" ]] && continue
+        if [[ "$seen_refs" == *"|${ref_path}|"* ]]; then
+          continue
+        fi
+        seen_refs="${seen_refs}${ref_path}|"
+
+        if [[ ! -e "$skill_dir/$ref_path" ]]; then
+          err "$dir_name/SKILL.md references missing resource: $ref_path"
+          continue
+        fi
+
+        # Symlink stability: bundled resources must resolve through symlinked skill dirs.
+        if [[ -L "$skill_dir" && ! -r "$skill_dir/$ref_path" ]]; then
+          err "$dir_name/SKILL.md resource not readable through directory symlink: $ref_path (→ $(readlink "$skill_dir"))"
+        fi
+      done <<EOF
+$refs
+EOF
+    done < "$skill_file"
+  done
+fi
+
+# --- 6: Rules block sync ---
 
 if [[ -f "$RULES_FILE" ]]; then
   canonical="$(sed -n '/^# Rules$/,$ p' "$RULES_FILE" | tail -n +2)"
@@ -210,7 +296,7 @@ if [[ -d "$SKILLS_DIR" ]]; then
   done
 fi
 
-# --- 6: _skills/ entry topology (directory symlinks) ---
+# --- 7: _skills/ entry topology (directory symlinks) ---
 # When the kit is subtree-vendored or consumer_skills_dir is declared, kit skills and
 # consumer shims are directory symlinks. Inner files (SKILL.md) look like regular files;
 # verify sync here, not with readlink on inner paths. See gh issue #5.
@@ -290,7 +376,7 @@ if $HAS_SUBTREE || [[ -n "$CONSUMER_SKILLS_DIR" ]]; then
   done
 fi
 
-# --- 7: Native discovery symlink completeness (optional) ---
+# --- 8: Native discovery symlink completeness (optional) ---
 
 native_symdirs=(".agents/skills" ".claude/skills")
 
@@ -369,7 +455,7 @@ for symdir in "${native_symdirs[@]}"; do
   done
 done
 
-# --- 8: Kit version surfaces (_meta.yml, CHANGELOG, README, AGENTS_skills.md) ---
+# --- 9: Kit version surfaces (_meta.yml, CHANGELOG, README, AGENTS_skills.md) ---
 
 META_FILE="$(dirname "$HARNESS_DIR")/_meta.yml"
 CHANGELOG_FILE="$REPO_ROOT/CHANGELOG.md"

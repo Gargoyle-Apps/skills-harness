@@ -8,7 +8,7 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
-version: "1.5.4"
+version: "1.6.0"
 ---
 
 # Skill Author
@@ -95,10 +95,15 @@ That makes the override explicit and machine-readable for the audit, instead of 
 3. Fill in frontmatter — `name` must match directory name exactly (including any prefix)
 4. Write the body as agent-facing instructions, not human documentation
 5. Choose triggers carefully — these are what cause the skill to be loaded
-6. Run `.skills/_harness/build-index.sh --write` to regenerate `.skills/_index.md` from frontmatter — the index is the source of truth at runtime and must always be in sync with `.skills/_skills/`
-7. If this skill depends on another, list it in `dependencies`
-8. If native discovery symlinks are configured, re-run `.skills/_harness/link.sh` with the appropriate target (e.g. `.agents/skills`), or `.skills/_harness/check.sh --link` to sync all existing native dirs and validate
-9. Run `.skills/_harness/check.sh` to validate index and frontmatter consistency (if your environment supports script execution)
+6. **Bundled resources (Level 3):** if the skill needs scripts, extra docs, or static files, use the standard subfolders (see **skill-template** → *Skill directory layout*):
+   - `scripts/` — shell/Python/JS helpers the agent runs (reference as `scripts/<file>` in `SKILL.md`)
+   - `references/` — supplementary markdown the agent reads on demand
+   - `assets/` — templates, schemas, images, data files
+   Keep `SKILL.md` lean; reference bundled paths with relative URLs so `check.sh` can verify they exist. Do not leave scripts or extra `.md` files at the skill root.
+7. Run `.skills/_harness/build-index.sh --write` to regenerate `.skills/_index.md` from frontmatter — the index is the source of truth at runtime and must always be in sync with `.skills/_skills/`
+8. If this skill depends on another, list it in `dependencies`
+9. If native discovery symlinks are configured, re-run `.skills/_harness/link.sh` with the appropriate target (e.g. `.agents/skills`), or `.skills/_harness/check.sh --link` to sync all existing native dirs and validate
+10. Run `.skills/_harness/check.sh` to validate index, frontmatter, and resource layout (if your environment supports script execution)
 
 ## Renaming or deleting a skill
 
@@ -122,9 +127,19 @@ Never leave the index out of sync with the skills directory.
 Use these sections as needed — not all are required:
 
 - **When to use this skill** — conditions for loading
-- **Instructions** — step-by-step agent directions
+- **Instructions** — step-by-step agent directions; point at `scripts/`, `references/`, or `assets/` when bundled files are involved
 - **Examples** — concrete usage examples
-- **Notes** — edge cases, caveats, or references
+- **Notes** — edge cases and caveats
+
+## Bundled resources checklist
+
+Only when the skill ships files beyond `SKILL.md`:
+
+- [ ] Scripts live under `scripts/`, not the skill root
+- [ ] Extra markdown lives under `references/`, not the skill root
+- [ ] Templates/data/images live under `assets/`
+- [ ] Every bundled path appears in `SKILL.md` with a relative reference (e.g. `scripts/<name>.sh`, `references/<name>.md`)
+- [ ] `check.sh` passes (missing references are errors; loose root scripts/markdown are warnings)
 
 ## What makes a good trigger
 

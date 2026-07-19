@@ -8,7 +8,7 @@ triggers:
   - reformat skill
   - convert rule
 dependencies: []
-version: "1.1.0"
+version: "1.2.0"
 ---
 
 # Skill Template
@@ -20,6 +20,22 @@ Copy this file to `.skills/_skills/<your-skill-name>/SKILL.md` and fill it in.
 
 Load when the user needs the canonical skill layout, is creating a new skill, or is converting an existing rule or doc into the standard format.
 
+## Skill directory layout
+
+Every skill is a directory. `SKILL.md` is required; optional subfolders follow the [Agent Skills](https://cursor.com/docs/skills) / [agentskills.io](https://agentskills.io/specification) convention for bundled resources (Level 3 — loaded only when referenced):
+
+```text
+.skills/_skills/<name>/
+├── SKILL.md          ← required: frontmatter + agent instructions
+├── scripts/          ← optional: executable helpers the agent runs via shell
+├── references/       ← optional: extra markdown/docs loaded on demand
+└── assets/           ← optional: templates, schemas, images, data files
+```
+
+**Progressive disclosure:** keep `SKILL.md` focused. Move long reference material to `references/`, deterministic steps to `scripts/`, and static files to `assets/`. Reference them from `SKILL.md` with relative paths (e.g. `scripts/<name>.sh`, `references/<name>.md`). The agent (and native IDE discovery) loads these only when the task needs them — not at trigger time.
+
+Do **not** place scripts or extra markdown loose at the skill root; `check.sh` warns on that layout.
+
 ## Instructions
 
 1. Copy this file to `.skills/_skills/<name>/SKILL.md`.
@@ -27,10 +43,12 @@ Load when the user needs the canonical skill layout, is creating a new skill, or
 3. Write `description` as one sentence, 1–1024 characters — used by the harness index and native IDE skill matching ([agentskills.io](https://agentskills.io/specification) `description` rules).
 4. List natural-language `triggers` users might say.
 5. Fill **When to use**, **Instructions**, and **Examples** for the agent.
+6. If the skill needs bundled files, add `scripts/`, `references/`, and/or `assets/` and link to them from `SKILL.md` with relative paths.
 
 ## Examples
 
 - "Add a skill for our deploy checklist" → use this template, then register in `.skills/_index.md`.
+- "Skill with a validation script" → put `scripts/<name>.sh` in the skill dir and tell the agent to run it from **Instructions**.
 
 ---
 

@@ -85,10 +85,10 @@ BODY
 # Print the leading comment header as help (stops at first non-comment line).
 usage() { awk '/^#!/||/^set /{next} /^#/{sub(/^# ?/,"");print;h=1;next} h{exit}' "$0"; }
 
-# --- Resolve this repo's _skills root (two levels up from this script) ---
+# --- Resolve this repo's _skills root (skill dir is parent of scripts/) ---
 script_src="${BASH_SOURCE[0]:-$0}"
 script_dir="$(cd "$(dirname "$script_src")" && pwd -P)"
-SKILLS_ROOT="$(cd "$script_dir/.." && pwd -P)"
+SKILLS_ROOT="$(cd "$script_dir/../.." && pwd -P)"
 
 run() {
   if $DRY_RUN; then
