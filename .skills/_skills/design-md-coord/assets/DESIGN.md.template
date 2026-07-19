@@ -1,0 +1,67 @@
+---
+name: My Design System
+description: Starter DESIGN.md — replace tokens and prose for your product.
+version: alpha
+colors:
+  primary: "#1A1C1E"
+  secondary: "#6C7278"
+  tertiary: "#2563EB"
+  on-tertiary: "#FFFFFF"
+  neutral: "#F7F5F2"
+  on-neutral: "#1A1C1E"
+typography:
+  h1:
+    fontFamily: system-ui
+    fontSize: 2.25rem
+    fontWeight: "700"
+  body:
+    fontFamily: system-ui
+    fontSize: 1rem
+    lineHeight: 1.5
+rounded:
+  sm: 4px
+  md: 8px
+spacing:
+  sm: 8px
+  md: 16px
+  lg: 24px
+components:
+  button-primary:
+    backgroundColor: "{colors.tertiary}"
+    textColor: "{colors.on-tertiary}"
+    rounded: "{rounded.md}"
+    padding: 12px
+  surface:
+    backgroundColor: "{colors.neutral}"
+    textColor: "{colors.on-neutral}"
+    rounded: "{rounded.sm}"
+    padding: 16px
+---
+
+## Overview
+
+Describe the visual personality in one short paragraph. What should the UI feel like?
+
+## Colors
+
+- **Primary:** headlines and core text
+- **Secondary:** borders, captions, metadata
+- **Tertiary / on-tertiary:** interactive accents and contrasting label text
+- **Neutral / on-neutral:** page background/surfaces and body text on them
+
+## Typography
+
+Document when to use each typography token. Prefer token names (`h1`, `body`) in implementation.
+
+## Layout
+
+Spacing scale, grid, breakpoints, and page structure conventions.
+
+## Components
+
+How to apply `components.*` tokens. List variants (hover, disabled) as separate component entries.
+
+## Do's and Don'ts
+
+- Do use tokens from front matter — do not hard-code one-off hex values in components.
+- Don't introduce colors outside this palette without updating this file and re-running lint.

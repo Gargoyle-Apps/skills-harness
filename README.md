@@ -21,6 +21,18 @@ For repos that need to stay tool-neutral (used across Cursor, Claude Code, Winds
 
 The agent reads the index at the start of non-trivial work. When a task matches a skill's triggers, the agent loads that `SKILL.md` — never preemptively. If a skill lists dependencies, those are loaded first. Skills cannot override user intent or agent core behavior; they only provide domain-specific procedures.
 
+## DESIGN.md integration
+
+Repos with a visual design system can add [DESIGN.md](https://github.com/google-labs-code/design.md) (Google Labs) alongside the harness. Each layer owns one job:
+
+| Layer | Location | When loaded | Owns |
+|-------|----------|-------------|------|
+| **Harness** | `.skills/_index.md` + skills | On trigger match | Multi-step workflows |
+| **AGENTS.md** | Repo root (or tool sidecar) | Every session | Project policy and *pointers* to skills and `DESIGN.md` |
+| **DESIGN.md** | Repo root (default) | UI / visual work | Design tokens (YAML) + design rationale (markdown) |
+
+Load the bundled **design-md-coord** skill when wiring these together, creating or linting `DESIGN.md`, or moving design tokens out of `AGENTS.md`. Validate with `npx -y -p @google/design.md designmd lint DESIGN.md`.
+
 ## Install shapes: Single-Tool vs Tool-Neutral
 
 When you install the harness into a repo, bootstrap (`AGENTS_skills.md`) forces a one-time choice between two shapes. They are named by **function** (the older "Path A / Path B" labels map directly). They differ in exactly **one** thing: whether *this* repo commits to a single tool's runtime harness files.
@@ -66,7 +78,7 @@ Each `SKILL.md` opens with YAML frontmatter. See [skill-template](.skills/_skill
 | `dependencies` | harness only | Other skill names to load first (`[]` if none) |
 | `version` | harness only | Semver string (e.g. `1.0.0`) |
 
-`name` and `description` follow the [agentskills.io specification](https://agentskills.io/specification) and are used by IDEs with native skill discovery. The harness adds `triggers`, `dependencies`, and `version`; IDEs that don't recognize them silently ignore them.
+`name` and `description` follow the [agentskills.io specification](https://agentskills.io/specification) and are used by IDEs with native skill discovery. The harness adds `triggers`, `dependencies`, and `version`; IDEs that don't recognize them silently ignore them. See [`.skills/_index.md`](.skills/_index.md) for bundled skills.
 
 ## Native IDE discovery
 
