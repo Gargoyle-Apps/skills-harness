@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # Lint a DESIGN.md file via @google/design.md (Google Labs).
+# Pinned: @google/design.md@0.3.0 — bump here and in SKILL.md/quickref when upgrading.
 # Usage: lint-design.sh [path/to/DESIGN.md]
 # Default path: DESIGN.md in the current working directory.
 
@@ -19,4 +20,4 @@ fi
 
 # designmd shim avoids Windows Markdown file-association issues with design.md bin name.
 # -y: non-interactive (agents/CI); never prompt to install the package.
-exec npx -y -p @google/design.md designmd lint "$FILE"
+exec npx -y -p @google/design.md@0.3.0 designmd lint "$FILE"

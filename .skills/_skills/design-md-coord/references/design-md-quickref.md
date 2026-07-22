@@ -50,15 +50,15 @@ Define companion tokens such as `on-tertiary` in `colors:` when referencing them
 
 ## CLI (`@google/design.md`)
 
-Install: `npm install @google/design.md` or use `npx` (no install).
+Install: `npm install @google/design.md@0.3.0` or use `npx` (no install). Pin matches `scripts/lint-design.sh`.
 
 **Prefer the `designmd` shim** (Windows-safe):
 
 ```bash
-npx -y -p @google/design.md designmd lint DESIGN.md
-npx -y -p @google/design.md designmd diff DESIGN.md DESIGN-v2.md
-npx -y -p @google/design.md designmd export --format css-tailwind DESIGN.md
-npx -y -p @google/design.md designmd spec --rules
+npx -y -p @google/design.md@0.3.0 designmd lint DESIGN.md
+npx -y -p @google/design.md@0.3.0 designmd diff DESIGN.md DESIGN-v2.md
+npx -y -p @google/design.md@0.3.0 designmd export --format css-tailwind DESIGN.md
+npx -y -p @google/design.md@0.3.0 designmd spec --rules
 ```
 
 Always include `-y` so `npx` never prompts (agents/CI).

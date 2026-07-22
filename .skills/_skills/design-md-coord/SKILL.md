@@ -10,7 +10,9 @@ triggers:
   - design.md and agents.md
   - google design.md format
   - move tokens out of agents.md
-dependencies: []
+dependencies:
+  - skill-author
+compatibility: "Requires Node.js and npx for lint-design.sh and designmd CLI"
 version: "1.0.1"
 ---
 
@@ -65,7 +67,7 @@ Add a short **Design system** block to root `AGENTS.md` (or the repo's Tool-Neut
 
 For UI, styling, components, and visual identity, read `DESIGN.md` at the repo root before implementing.
 Use token values from its YAML front matter; use `##` sections for application context.
-Validate with `.skills/_skills/design-md-coord/scripts/lint-design.sh` (or `npx -y -p @google/design.md designmd lint DESIGN.md`).
+Validate with `.skills/_skills/design-md-coord/scripts/lint-design.sh` (or `npx -y -p @google/design.md@0.3.0 designmd lint DESIGN.md`).
 Do not duplicate design tokens or color/type scales in this file.
 ```
 
@@ -76,13 +78,13 @@ Adjust the `DESIGN.md` path if it is not at root. Keep this block under ~5 lines
 Run the official linter (requires Node.js / `npx`):
 
 ```bash
-npx -y -p @google/design.md designmd lint DESIGN.md
+npx -y -p @google/design.md@0.3.0 designmd lint DESIGN.md
 ```
 
 Or, when this skill is present in the repo:
 
 ```bash
-.skills/_skills/design-md-coord/scripts/lint-design.sh [path/to/DESIGN.md]
+scripts/lint-design.sh [path/to/DESIGN.md]
 ```
 
 - Exit `0` — proceed; warnings are informational unless the user asked for zero warnings.
@@ -101,7 +103,7 @@ Other useful commands (see quickref): `diff`, `export`, `spec`.
 
 ### 6. Consumer repos with prefixes
 
-Consumer-authored skills about design (e.g. `uxpm-brand-review`) follow **skill-author** prefix rules. Kit skill **design-md-coord** stays unprefixed when vendored from skills-harness.
+When authoring consumer design skills, load **skill-author** first for prefix rules. Consumer-authored skills about design (e.g. `uxpm-brand-review`) follow those prefix rules. Kit skill **design-md-coord** stays unprefixed when vendored from skills-harness.
 
 ## Examples
 
@@ -111,6 +113,7 @@ Consumer-authored skills about design (e.g. `uxpm-brand-review`) follow **skill-
 
 ## Notes
 
-- DESIGN.md format is **alpha**; expect schema drift. Pin `@google/design.md` in `package.json` for reproducible lint/export in CI.
+- DESIGN.md format is **alpha**; expect schema drift. This skill pins `@google/design.md@0.3.0` in `scripts/lint-design.sh` and CLI examples; pin the same version in `package.json` for reproducible lint/export in CI.
 - Spec: [github.com/google-labs-code/design.md](https://github.com/google-labs-code/design.md) · [stitch.withgoogle.com/docs/design-md/specification](https://stitch.withgoogle.com/docs/design-md/specification)
-- Windows: use the `designmd` shim (`npx -y -p @google/design.md designmd …`) — see quickref. Always pass `-y` so agents/CI never hang on an install prompt.
+- Windows: use the `designmd` shim (`npx -y -p @google/design.md@0.3.0 designmd …`) — see quickref. Always pass `-y` so agents/CI never hang on an install prompt.
+- Trigger eval cases: `references/trigger-evals.json` (should-trigger / should-not-trigger queries for harness matching).

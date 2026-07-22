@@ -1,0 +1,20 @@
+{
+  "should_trigger": [
+    "add DESIGN.md to our skills-harness repo",
+    "wire up design.md for the app",
+    "lint our DESIGN.md file",
+    "move the color palette out of AGENTS.md into DESIGN.md",
+    "coordinate AGENTS.md and design.md",
+    "create a design.md in google labs format",
+    "export design tokens from DESIGN.md to tailwind"
+  ],
+  "should_not_trigger": [
+    "fix the backend API timeout",
+    "write a new skill for deploy",
+    "refactor the database migration",
+    "add unit tests for the auth service",
+    "update the README",
+    "tweak button padding on the settings page",
+    "run check.sh on the harness"
+  ]
+}
