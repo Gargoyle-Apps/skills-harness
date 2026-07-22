@@ -8,7 +8,7 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
-version: "1.6.0"
+version: "2.0.0"
 ---
 
 # Skill Author
@@ -93,8 +93,9 @@ That makes the override explicit and machine-readable for the audit, instead of 
 1. Create directory: `.skills/_skills/<prefix><name>/` (see **Naming convention** above; the kit itself uses no prefix)
 2. Copy `.skills/_skills/skill-template/SKILL.md` as your starting point
 3. Fill in frontmatter — `name` must match directory name exactly (including any prefix)
-4. Write the body as agent-facing instructions, not human documentation
-5. Choose triggers carefully — these are what cause the skill to be loaded
+4. Write the body as agent-facing instructions, not human documentation (see **Body structure** and **Writing style** below)
+5. Choose triggers carefully — these are what cause the skill to be loaded (see **Description quality**)
+5b. **Trigger smoke-test.** After drafting `description` and `triggers`, propose one realistic user phrase. If that phrase would not obviously load this skill from the index, tighten the *when* half and try again.
 6. **Bundled resources (Level 3):** if the skill needs scripts, extra docs, or static files, use the standard subfolders (see **skill-template** → *Skill directory layout*):
    - `scripts/` — shell/Python/JS helpers the agent runs (reference as `scripts/<file>` in `SKILL.md`)
    - `references/` — supplementary markdown the agent reads on demand
@@ -104,6 +105,50 @@ That makes the override explicit and machine-readable for the audit, instead of 
 8. If this skill depends on another, list it in `dependencies`
 9. If native discovery symlinks are configured, re-run `.skills/_harness/link.sh` with the appropriate target (e.g. `.agents/skills`), or `.skills/_harness/check.sh --link` to sync all existing native dirs and validate
 10. Run `.skills/_harness/check.sh` to validate index, frontmatter, and resource layout (if your environment supports script execution)
+
+10. Run `.skills/_harness/check.sh` to validate index, frontmatter, and resource layout (if your environment supports script execution)
+11. For new or substantially changed skills, run **skill-reviewer** (or request a human review) before merge
+
+## Description quality
+
+`description` is used by native IDE matching; `triggers` are used by the harness index. Both should state *what* the skill does and *when* to load it.
+
+Before committing, check:
+
+- [ ] Third person in `description` — no "I", no "you can use this"
+- [ ] States *what* (action) and *when* (trigger contexts)
+- [ ] `triggers` lists natural phrases users actually say
+- [ ] Slightly assertive on the *when* — agents tend to **under**-trigger; passive fit descriptions miss loads
+- [ ] Under 1024 characters for `description`
+- [ ] Does not duplicate the full body — complements it
+
+See [optimizing descriptions](https://agentskills.io/skill-creation/optimizing-descriptions) for more detail.
+
+## Body structure
+
+Order sections for an agent that just loaded the file:
+
+1. **When to use this skill** — concrete situations (and optional anti-triggers)
+2. **Instructions** — numbered steps when order matters; point at `scripts/`, `references/`, `assets/` when bundled
+3. **Examples** — concrete input/output when helpful
+4. **Failure modes / verification** — what to do when a step fails
+5. **Notes** — edge cases
+
+Optional scaffolds from **skill-template**: Prerequisites, Failure modes table, What not to do.
+
+## Writing style
+
+- **Imperative voice** — "Run X", not "This skill runs X"
+- **Brief why** — one clause when the reason is non-obvious
+- **One default per concept** — avoid option menus unless alternatives are genuinely needed
+- **Token discipline** — cut paragraphs that do not change agent behavior
+
+## What not to do
+
+- Don't paste secrets, tokens, or customer data into skills
+- Don't duplicate another skill's workflow — reference it instead
+- Don't put design tokens in skills — use `DESIGN.md` (**design-md-coord**)
+- Don't skip **skill-reviewer** for skills that bundle scripts or instruct network/shell use
 
 ## Renaming or deleting a skill
 
@@ -117,19 +162,10 @@ Never leave the index out of sync with the skills directory.
 ## Frontmatter checklist
 
 - [ ] `name` matches directory name
-- [ ] `description` is one sentence, suitable for an index
+- [ ] `description` states what + when (see **Description quality**)
 - [ ] `triggers` covers the natural language phrases that should invoke this skill
 - [ ] `dependencies` is present (empty list `[]` if none)
 - [ ] `version` is set
-
-## Body structure
-
-Use these sections as needed — not all are required:
-
-- **When to use this skill** — conditions for loading
-- **Instructions** — step-by-step agent directions; point at `scripts/`, `references/`, or `assets/` when bundled files are involved
-- **Examples** — concrete usage examples
-- **Notes** — edge cases and caveats
 
 ## Bundled resources checklist
 
@@ -143,9 +179,7 @@ Only when the skill ships files beyond `SKILL.md`:
 
 ## What makes a good trigger
 
-Triggers should match how a user would naturally ask for the task, not internal
-jargon. Prefer phrases over single words. Think about what someone would type
-before they knew this skill existed.
+Triggers should match how a user would naturally ask for the task, not internal jargon. Prefer phrases over single words. Agents often under-trigger — when in doubt, add another concrete phrase rather than a single broad keyword.
 
 ## Circular dependencies
 

@@ -8,13 +8,14 @@ triggers:
   - reformat skill
   - convert rule
 dependencies: []
-version: "1.2.0"
+version: "1.3.0"
 ---
 
 # Skill Template
 
 Use this as a starting point for any new skill.
 Copy this file to `.skills/_skills/<your-skill-name>/SKILL.md` and fill it in.
+Pair with **skill-author** for registration, index sync, and review.
 
 ## When to use this skill
 
@@ -44,6 +45,40 @@ Do **not** place scripts or extra markdown loose at the skill root; `check.sh` w
 4. List natural-language `triggers` users might say.
 5. Fill **When to use**, **Instructions**, and **Examples** for the agent.
 6. If the skill needs bundled files, add `scripts/`, `references/`, and/or `assets/` and link to them from `SKILL.md` with relative paths.
+
+## Body scaffolds (copy into your skill)
+
+Use these sections as needed — delete unused headings rather than leaving them empty:
+
+```markdown
+## When to use this skill
+
+- Concrete trigger one.
+- Concrete trigger two.
+
+## Prerequisites
+
+Skip if none.
+
+## Instructions
+
+1. First step.
+2. Verification step.
+
+## Examples
+
+**Scenario name** — input / expected outcome.
+
+## Failure modes
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+|         |              |     |
+
+## What not to do
+
+- Scope foot-gun specific to this skill.
+```
 
 ## Examples
 

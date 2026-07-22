@@ -33,6 +33,8 @@ Repos with a visual design system can add [DESIGN.md](https://github.com/google-
 
 Load the bundled **design-md-coord** skill when wiring these together, creating or linting `DESIGN.md`, or moving design tokens out of `AGENTS.md`. Validate with `npx -y -p @google/design.md designmd lint DESIGN.md`.
 
+Load **skill-reviewer** when reviewing skill changes (quality, security, harness layout). **skill-author** covers creating skills; **skill-catalog-maintainer** audits the catalog; **skill-import** / **skill-export** handle cross-repo vendoring.
+
 ## Install shapes: Single-Tool vs Tool-Neutral
 
 When you install the harness into a repo, bootstrap (`AGENTS_skills.md`) forces a one-time choice between two shapes. They are named by **function** (the older "Path A / Path B" labels map directly). They differ in exactly **one** thing: whether *this* repo commits to a single tool's runtime harness files.

@@ -15,7 +15,11 @@ Read the full `SKILL.md` only at that point — never preemptively.
 | harness-upgrade | Upgrade a skills-harness install to the latest version with native IDE discovery. | upgrade harness, update harness, migrate harness, add native discovery, enable IDE symlinks, update skills system |
 | kit-release | Bump skills-harness kit semver; keep CHANGELOG, README, AGENTS_skills.md, _meta.yml in sync. | bump kit version, bump harness version, release skills harness, cut a harness release, skills-harness version, kit release |
 | skill-author | Write a new SKILL.md from scratch and register it in the index. | write a skill, author a skill, new skill, add a skill |
+| skill-catalog-maintainer | Audit skills under .skills/_skills/ for overlap, trigger collisions, size, and index drift; may edit skills with dry-run and confirmation. | skill inventory, catalog health, duplicate skill triggers, skill overlap, split this skill, skill catalog audit |
 | skill-conflicts | Detect conflicts between repo-managed skills and same-named skills/slash-commands in the user's IDE config. | detect skill conflicts, skill conflict, conflicting skills, skill name collision, check skill conflicts, does my config conflict with repo skills |
+| skill-export | Publish a skill from this repo to another repository via branch and PR; stamps upstream lineage on the target only. Never modifies this repo. | export skill, publish skill, share skill to another repo, push skill downstream |
+| skill-import | Import or refresh a vendored skill from another git repo into .skills/_skills/ with upstream lineage and skill-reviewer validation. | import skill, vendor skill, pull skill from repo, refresh imported skill, update vendored skill |
+| skill-reviewer | Review skill changes (SKILL.md, scripts/, references/, assets/) for quality, security, and harness layout. Use when a PR touches a skill or the user requests a skill review. | review skill, skill review, audit SKILL.md, review skill changes, skill security review, review this skill |
 | skill-template | Canonical SKILL.md format, authoring notes, refactor guide. | new skill, skill format, create skill, reformat skill, convert rule |
 
 Add a row here whenever a new skill is added to `.skills/_skills/`.
