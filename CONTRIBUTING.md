@@ -35,7 +35,7 @@ Follow the bundled **skill-author** skill (`.skills/_skills/skill-author/SKILL.m
 4. If native discovery symlinks are set up, re-run `.skills/_harness/link.sh <target>` to include the new skill.
 5. Run `.skills/_harness/check.sh` to verify index-to-directory consistency.
 
-Kit-bundled skills ship unprefixed (`skill-author`, `skill-reviewer`, `design-md-coord`, `harness-subtree`, …). See [`.skills/_index.md`](.skills/_index.md) for the full list.
+Kit-bundled skills ship unprefixed (`skill-author`, `skill-reviewer`, `harness-subtree`, …). See [`.skills/_index.md`](.skills/_index.md) for the full list.
 
 New or changed skills with bundled scripts should pass **skill-reviewer** before merge. Consumer repos may document optional `upstream:` frontmatter on imported skills — see **skill-import**.
 

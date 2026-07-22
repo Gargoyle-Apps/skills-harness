@@ -146,7 +146,7 @@ Optional scaffolds from **skill-template**: Prerequisites, Failure modes table, 
 
 - Don't paste secrets, tokens, or customer data into skills
 - Don't duplicate another skill's workflow — reference it instead
-- Don't put design tokens in skills — use `DESIGN.md` (**design-md-coord**)
+- Don't put design tokens in skills — use repo-root `DESIGN.md` (Google Labs format)
 - Don't skip **skill-reviewer** for skills that bundle scripts or instruct network/shell use
 
 ## Renaming or deleting a skill

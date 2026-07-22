@@ -31,7 +31,7 @@ Repos with a visual design system can add [DESIGN.md](https://github.com/google-
 | **AGENTS.md** | Repo root (or tool sidecar) | Every session | Project policy and *pointers* to skills and `DESIGN.md` |
 | **DESIGN.md** | Repo root (default) | UI / visual work | Design tokens (YAML) + design rationale (markdown) |
 
-Load the bundled **design-md-coord** skill when wiring these together, creating or linting `DESIGN.md`, or moving design tokens out of `AGENTS.md`. Validate with `npx -y -p @google/design.md designmd lint DESIGN.md`.
+Point `AGENTS.md` at `DESIGN.md` for UI work; keep design tokens in `DESIGN.md` YAML front matter, not in `AGENTS.md` or skill files. Validate with `npx -y -p @google/design.md designmd lint DESIGN.md`.
 
 Load **skill-reviewer** when reviewing skill changes (quality, security, harness layout). **skill-author** covers creating skills; **skill-catalog-maintainer** audits the catalog; **skill-import** / **skill-export** handle cross-repo vendoring.
 
