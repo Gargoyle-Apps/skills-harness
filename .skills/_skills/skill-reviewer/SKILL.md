@@ -22,7 +22,7 @@ Rubric sources (cite in review comments when recommending fixes):
 - [agentskills.io specification](https://agentskills.io/specification) — frontmatter and layout contract.
 - [skill creation best practices](https://agentskills.io/skill-creation/best-practices) — cut/keep heuristic, progressive disclosure.
 - [optimizing descriptions](https://agentskills.io/skill-creation/optimizing-descriptions) — description triggering rules.
-- [enterprise security review](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#security-review-and-vetting) — risk-tier model.
+- Optional supplement: [Claude enterprise security review](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#security-review-and-vetting) — risk-tier model for enterprise deployments.
 
 ## Constraints
 
@@ -37,7 +37,7 @@ Review files inside a skill directory — any folder under `.skills/_skills/<nam
 
 **Harness-specific checks:** frontmatter includes harness fields (`triggers`, `dependencies`, `version`); `name` matches directory; index row exists in `.skills/_index.md` when the skill is kit- or consumer-managed; resource paths referenced in `SKILL.md` exist (`check.sh` section 5). Run `.skills/_harness/check.sh` when validating locally.
 
-**Optional plugin surfaces:** when the diff touches plugin manifests (`.claude-plugin/`, `hooks.json`, MCP server configs, subagent definitions), load `references/plugin-checks.md`. Skip plugin checks for skill-only changes.
+**Optional plugin surfaces:** when the diff touches hook configs, MCP server definitions, subagent definitions, or IDE plugin manifests (e.g. `.claude-plugin/`, `.cursor-plugin/`), load `references/plugin-checks.md`. Skip plugin checks for skill-only changes.
 
 Do not comment on unrelated repo changes outside skill directories and optional plugin surfaces.
 
@@ -49,7 +49,7 @@ Do not comment on unrelated repo changes outside skill directories and optional 
 | MEDIUM | Best-practice gap, token bloat | discretionary |
 | LOW | Style nit | no |
 
-Block merge when: any finding is HIGH; the change modifies this skill's directory or the pipeline that invokes it; you cannot complete the review (file unparseable, context exhausted — post partial findings and explain). To block, request changes and escalate HIGH security findings to the repo maintainer or security team per project policy. Never auto-approve.
+Block merge when: any finding is HIGH; the diff touches this skill's own directory (self-referential — a skill cannot approve changes to its own rubric or pipeline; escalate to a human maintainer); the diff changes review pipeline assets outside the skill dir (e.g. `.skills/_harness/check.sh`); or you cannot complete the review (file unparseable, context exhausted — post partial findings and explain). To block, request changes and escalate HIGH security findings to the repo maintainer or security team per project policy. Never auto-approve.
 
 ## Risk-tier indicators
 
@@ -97,3 +97,4 @@ Classify the skill's overall risk before walking checks. Two or more HIGH indica
 - `references/output-format.md` — review comment structure.
 - `references/threat-model.md` — background for why a check exists.
 - `references/examples.md` — worked HIGH / MEDIUM finding examples.
+- `references/trigger-evals.json` — optional should-trigger / should-not-trigger cases for Q3.

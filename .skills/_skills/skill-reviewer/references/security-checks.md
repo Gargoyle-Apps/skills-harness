@@ -1,7 +1,5 @@
 # Frontmatter and security checks (1–23)
 
-> Load when walking the **Security** phase. Checks 1–4 are deterministic — verify with inline `grep`/`wc` against the YAML frontmatter. Checks 5+ need judgment.
-
 ## TOC
 
 | # | Check | Default severity |
@@ -30,6 +28,8 @@
 | 22 | Cross-skill access | HIGH when reading or modifying |
 | 23 | Auto-actions without user confirmation | HIGH for destructive |
 
+> Load when walking the **Security** phase. Checks 1–4 are deterministic — verify with inline `grep`/`wc` against the YAML frontmatter. Checks 5+ need judgment. Optional supplement: [Claude enterprise security review](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/enterprise#security-review-and-vetting).
+
 ## 1. `name` field (HIGH when invalid)
 
 Per spec — every violation HIGH (registry may collide or silently fail to load):
@@ -38,7 +38,7 @@ Per spec — every violation HIGH (registry may collide or silently fail to load
 - Must match parent directory name exactly.
 - No XML tags. No reserved words `anthropic` or `claude`.
 
-LOW: vague names (`helper`, `utils`, `tools`, `data`, `files`) — recommend gerund form (`processing-pdfs`, `analyzing-logs`) per [best-practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#naming-conventions).
+LOW: vague names (`helper`, `utils`, `tools`, `data`, `files`) — recommend gerund form (`processing-pdfs`, `analyzing-logs`) per [agentskills.io best practices](https://agentskills.io/skill-creation/best-practices).
 
 ## 2. `description` field (HIGH when missing/empty, MEDIUM when weak)
 
@@ -124,7 +124,7 @@ Escalate to **HIGH** when the URL would be fetched from a script that also reads
 
 ## 10. Script quality (MEDIUM unless noted)
 
-Per [best-practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#solve-dont-punt) and [using-scripts](https://agentskills.io/skill-creation/using-scripts):
+Per [agentskills.io using scripts](https://agentskills.io/skill-creation/using-scripts) and [best practices](https://agentskills.io/skill-creation/best-practices):
 
 | Issue | Severity |
 |---|---|

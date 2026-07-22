@@ -89,6 +89,32 @@ usage() { awk '/^#!/||/^set /{next} /^#/{sub(/^# ?/,"");print;h=1;next} h{exit}'
 script_src="${BASH_SOURCE[0]:-$0}"
 script_dir="$(cd "$(dirname "$script_src")" && pwd -P)"
 SKILLS_ROOT="$(cd "$script_dir/../.." && pwd -P)"
+PROJECT_ROOT="$(pwd -P)"
+
+# Resolve ALWAYS_ON_DIR to a canonical path; reject if outside PROJECT_ROOT (PWD at script start).
+resolve_always_on_dir() {
+  local input="${1:-$PROJECT_ROOT}"
+  local dir parent
+
+  if [[ -d "$input" ]]; then
+    dir="$(cd "$input" && pwd -P)"
+  elif [[ -d "$(dirname "$input")" ]]; then
+    parent="$(cd "$(dirname "$input")" && pwd -P)"
+    dir="$parent/$(basename "$input")"
+  else
+    echo "ERROR: project directory does not exist: $input" >&2
+    exit 1
+  fi
+
+  case "$dir" in
+    "$PROJECT_ROOT"|"$PROJECT_ROOT"/*) ;;
+    *)
+      echo "ERROR: project directory must be inside $PROJECT_ROOT (got: $dir)" >&2
+      exit 1
+      ;;
+  esac
+  printf '%s' "$dir"
+}
 
 run() {
   if $DRY_RUN; then
@@ -265,6 +291,10 @@ if [[ -n "$LEVEL" ]]; then
   fi
 fi
 
+if [[ -n "$ALWAYS_ON_DIR" ]]; then
+  ALWAYS_ON_DIR="$(resolve_always_on_dir "$ALWAYS_ON_DIR")"
+fi
+
 # --- Print mode: emit paste-ready activation, touch nothing ---
 # stdout = exactly the text to paste; stderr = where to paste it.
 if $PRINT; then
@@ -321,7 +351,7 @@ if $UNINSTALL; then
 
   case "$AO_KIND" in
     cursor-rule)
-      rule_file="${ALWAYS_ON_DIR:-$PWD}/.cursor/rules/caveman.mdc"
+      rule_file="$(resolve_always_on_dir "${ALWAYS_ON_DIR:-}")/.cursor/rules/caveman.mdc"
       if [[ -f "$rule_file" ]]; then
         run rm -f "$rule_file"
         echo "  removed always-on rule $rule_file"
@@ -386,7 +416,7 @@ done
 if $ALWAYS_ON; then
   case "$AO_KIND" in
     cursor-rule)
-      proj="${ALWAYS_ON_DIR:-$PWD}"
+      proj="$(resolve_always_on_dir "${ALWAYS_ON_DIR:-}")"
       rule_dir="$proj/.cursor/rules"
       rule_file="$rule_dir/caveman.mdc"
       echo "Writing always-on rule: $rule_file (per-project${LEVEL:+, level=$LEVEL})"

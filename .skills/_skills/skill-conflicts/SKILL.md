@@ -50,3 +50,4 @@ Skills in this repo are discovered alongside user-level config: skills in `~/.cu
 
 - Detection is best-effort and limited to the scanned locations. Tools with other user-config paths won't be covered unless you pass them via the env overrides above.
 - This scans **user/config-level** collisions only. In-repo index/directory consistency is validated separately by `.skills/_harness/check.sh`.
+- Trigger eval cases: `references/trigger-evals.json` (IDE/config collision detection vs **skill-author** / **skill-reviewer** near-misses).

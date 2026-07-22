@@ -45,11 +45,15 @@ No reciprocal metadata is written on the source skill in this repo.
 
 1. **Pick skills and target** — which skill(s), target `owner/repo`, and destination path (usually `.skills/_skills/<name>/` or the target's documented skills root).
 
-2. **Assemble payload** — copy `SKILL.md`, `scripts/`, `references/`, `assets/`. Strip harness-only wiring (index rows, `.skills/_harness` references). Add `upstream:` on the target copy.
+2. **Confirm with user** — restate target repo, branch name, and skill list; wait for explicit approval before creating a branch or PR.
 
-3. **Land via PR** — create a branch on the target and open a pull request. Never direct-push to the target's default branch without project policy allowing it.
+3. **Assemble payload** — copy `SKILL.md`, `scripts/`, `references/`, `assets/`. Strip harness-only wiring (index rows, `.skills/_harness` references). Add `upstream:` on the target copy.
 
-4. **Stop** — export completes when the target PR is open (or the user asked for a local copy only). Do not modify this repo.
+4. **Land via PR** — create a branch on the target and open a pull request. Never direct-push to the target's default branch without project policy allowing it.
+
+5. **Stop** — export completes when the target PR is open (or the user asked for a local copy only). Do not modify this repo.
+
+Optional trigger evals: `references/trigger-evals.json`.
 
 ## Re-publishing
 

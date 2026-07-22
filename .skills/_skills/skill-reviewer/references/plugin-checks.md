@@ -1,15 +1,15 @@
 # Plugin-primitive checks (P1–P8)
 
-> Load when the change touches plugin surfaces beyond skills: IDE plugin manifests, hook configs, MCP server definitions, or subagent files. **Skip this file** when the diff only changes `.skills/_skills/<name>/` content.
+> Load when the change touches plugin surfaces beyond skills: hook configs, MCP server definitions, subagent files, or IDE plugin manifests. **Skip this file** when the diff only changes `.skills/_skills/<name>/` content.
 
 ## When to apply
 
 | Surface | Examples |
 |---|---|
-| Plugin manifests | `.claude-plugin/plugin.json`, `.cursor-plugin/`, team bundle manifests |
 | Hooks | `hooks/hooks.json`, hook scripts referenced from manifests |
 | MCP | MCP server config JSON, server references in manifests |
 | Subagents | Subagent definition files with tool grants |
+| Plugin manifests | `.claude-plugin/plugin.json`, `.cursor-plugin/`, team bundle manifests |
 
 If the repo has no plugin layout, note "plugin checks skipped" and continue with quality + security checks only.
 
@@ -38,7 +38,7 @@ If the repo has no plugin layout, note "plugin checks skipped" and continue with
 
 ## P1. Plugin manifest
 
-- Valid JSON with required identity fields (`name`, `version` or commit-based versioning per project docs). **HIGH** when malformed.
+Generic pattern: a JSON manifest at the plugin root declares identity (`name`, `version` or commit-based versioning per project docs) and optional primitives (hooks, MCP servers, subagents). **HIGH** when malformed.
 - **HIGH** on silent `name` renames without migration notes (orphans installed copies).
 - **HIGH** when manifest declares hooks, MCP servers, or subagents the repo policy has not approved — route to P4–P8.
 

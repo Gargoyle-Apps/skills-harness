@@ -48,7 +48,7 @@ By default, skills describe workflows; they do not edit sibling skills. **This s
 ### 1. Enumerate skills
 
 ```bash
-find .skills/_skills -name SKILL.md
+find .skills/_skills -name SKILL.md ! -path '*/_*/*'
 ```
 
 Skip `_`-prefixed harness internals. Exclude `skill-template` from overlap analysis (starter artifact) but list it under authoring aids.
@@ -79,7 +79,7 @@ If most prose already lives in `references/`, say so.
 
 ### 6. Deliver the report
 
-Sections: **Trigger clusters**, **Intent collisions**, **Size / structure**, **Recommended next actions**. Include planned edits only when the user may want this skill to apply fixes.
+Sections: **Trigger clusters**, **Intent collisions**, **Size / structure**, **Recommended next actions**. Include planned edits only when the user may want this skill to apply fixes. Optional eval cases: `references/trigger-evals.json`.
 
 ## What not to do
 

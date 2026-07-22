@@ -93,3 +93,7 @@ Skills stay in `.skills/_skills/` regardless of IDE — the same files, just dif
 | `check.sh` updated | Validates native discovery dirs mirror `_skills/` when present; `check.sh --link` runs `link.sh` to repair |
 | `skill-author` updated | Reminds authors to re-run `link.sh` after adding skills |
 | Frontmatter | `name` + `description` documented as [agentskills.io](https://agentskills.io/specification)-compatible; harness extensions (`triggers`, `dependencies`, `version`) unchanged |
+
+## Notes
+
+- Trigger eval cases: `references/trigger-evals.json` (file-copy upgrade and native discovery vs **harness-subtree** and skill-author near-misses).

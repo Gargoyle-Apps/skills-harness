@@ -1,6 +1,6 @@
 ---
 name: skill-author
-description: "Write a new SKILL.md from scratch and register it in the index."
+description: "Creates a new SKILL.md from scratch and registers it in the harness index. Load when the user wants to author, add, or register a new skill."
 triggers:
   - write a skill
   - author a skill
@@ -8,6 +8,7 @@ triggers:
   - add a skill
 dependencies:
   - skill-template
+  - skill-reviewer
 version: "2.0.0"
 ---
 
@@ -86,7 +87,7 @@ prefixes:
 
 That makes the override explicit and machine-readable for the audit, instead of relying on contributors to remember the unwritten convention.
 
-**Authoring against a multi-prefix repo:** before creating a new skill, read `.skills/_meta.yml`. If `prefixes:` is present, ask the user (or pick from context) which family the new skill belongs to and use that prefix. If absent, derive the single prefix as before. The bundled `migrate-to-subtree.sh` audit reads the same list and accepts any of the declared prefixes.
+**Authoring against a multi-prefix repo:** before creating a new skill, read `.skills/_meta.yml`. If `prefixes:` is present, ask the user (or pick from context) which family the new skill belongs to and use that prefix. If absent, derive the single prefix as before. `.skills/_harness/migrate-to-subtree.sh` reads the same list and accepts any of the declared prefixes.
 
 ## Steps
 
@@ -105,8 +106,6 @@ That makes the override explicit and machine-readable for the audit, instead of 
 8. If this skill depends on another, list it in `dependencies`
 9. If native discovery symlinks are configured, re-run `.skills/_harness/link.sh` with the appropriate target (e.g. `.agents/skills`), or `.skills/_harness/check.sh --link` to sync all existing native dirs and validate
 10. Run `.skills/_harness/check.sh` to validate index, frontmatter, and resource layout (if your environment supports script execution)
-
-10. Run `.skills/_harness/check.sh` to validate index, frontmatter, and resource layout (if your environment supports script execution)
 11. For new or substantially changed skills, run **skill-reviewer** (or request a human review) before merge
 
 ## Description quality
@@ -122,7 +121,7 @@ Before committing, check:
 - [ ] Under 1024 characters for `description`
 - [ ] Does not duplicate the full body — complements it
 
-See [optimizing descriptions](https://agentskills.io/skill-creation/optimizing-descriptions) for more detail.
+See [optimizing descriptions](https://agentskills.io/skill-creation/optimizing-descriptions) for more detail. Optional eval cases: `references/trigger-evals.json`.
 
 ## Body structure
 
@@ -152,12 +151,12 @@ Optional scaffolds from **skill-template**: Prerequisites, Failure modes table, 
 
 ## Renaming or deleting a skill
 
-When renaming or removing an existing skill, update `.skills/_index.md` in the same operation:
+When renaming or removing an existing skill, keep the directory and index in sync:
 
-- **Rename:** update the directory name, the frontmatter `name` field, and the index row together.
-- **Delete:** remove the directory and its index row together.
+- **Rename:** update the directory name and the frontmatter `name` field together, then run `.skills/_harness/build-index.sh --write`.
+- **Delete:** remove the directory, then run `.skills/_harness/build-index.sh --write`.
 
-Never leave the index out of sync with the skills directory.
+Never hand-edit `.skills/_index.md` — regenerate it from frontmatter.
 
 ## Frontmatter checklist
 
