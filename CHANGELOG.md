@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`toon-export` (v1.1.0)** — universal TOON encode/validate skill with JSON-hub ingest (YAML/CSV adapters in one skill, no per-format siblings); `@toon-format/cli` encode, strict-decode gate, `scripts/validate-toon.sh`, `scripts/encode-from-json.sh`, `scripts/csv-to-json.sh`.
 - **Level 3 skill resources** — `skill-template` / `skill-author` document `scripts/`, `references/`, `assets/`; `check.sh` validates layout and path references; `caveman` deploy helper moved to `scripts/deploy.sh`.
 - **`skill-reviewer` (v1.0.0)** — quality and security rubric for skill changes (`references/` bundle: quality, security, plugin, output format, examples, threat model).
 - **`skill-author` (v2.0.0)** — merged authoring quality guidance (description, body structure, writing style, trigger smoke-test).
