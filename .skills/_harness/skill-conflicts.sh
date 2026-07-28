@@ -13,6 +13,8 @@ set -euo pipefail
 # Usage: skill-conflicts.sh [--quiet]
 #
 # Config locations scanned (override via env):
+#   SKILLS_HARNESS_DIR     (default: script dir, logical path via pwd -L)
+#   SKILLS_DIR             (default: ../_skills relative to harness)
 #   CURSOR_SKILLS_DIR      (default ~/.cursor/skills)
 #   CLAUDE_SKILLS_DIR      (default ~/.claude/skills)
 #   CODEX_SKILLS_DIR       (default ~/.codex/skills)
@@ -37,8 +39,12 @@ for arg in "$@"; do
   esac
 done
 
+# Resolve without following symlinks so subtree-vendored installs (where
+# .skills/_harness/ → .skills-harness/.skills/_harness/) still scan the
+# consumer's .skills/_skills/ rather than the kit subtree's. See gh issue #14.
 script_src="${BASH_SOURCE[0]:-$0}"
-HARNESS_DIR="$(cd "$(dirname "$script_src")" && pwd -P)"
+script_dir="$(dirname "$script_src")"
+HARNESS_DIR="${SKILLS_HARNESS_DIR:-$(cd "$script_dir" && pwd -L)}"
 SKILLS_DIR="${SKILLS_DIR:-$(dirname "$HARNESS_DIR")/_skills}"
 
 CURSOR_SKILLS_DIR="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`skill-conflicts.sh` — symlink-safe `SKILLS_DIR` (gh issue [#14](https://github.com/Gargoyle-Apps/skills-harness/issues/14)).** Path resolution now uses `${BASH_SOURCE[0]}` + `pwd -L` and honors `SKILLS_HARNESS_DIR`, matching `check.sh`. Default invocation on subtree-vendored consumer repos scans the full `.skills/_skills/` set (kit + consumer-authored skills) instead of only `.skills-harness/.skills/_skills/`.
+
 ### Added
 
 - **`toon-export` (v1.1.0)** — universal TOON encode/validate skill with JSON-hub ingest (YAML/CSV adapters in one skill, no per-format siblings); `@toon-format/cli` encode, strict-decode gate, `scripts/validate-toon.sh`, `scripts/encode-from-json.sh`, `scripts/csv-to-json.sh`.

@@ -91,12 +91,12 @@ Harness-specific fields (`triggers`, `dependencies`, `version`) are recommended 
 
 ## Environment overrides
 
-Both `check.sh` and `link.sh` derive paths from their own location. If your repo has a non-standard layout (monorepo, submodule, `tools/.skills/`), override with environment variables:
+Both `check.sh`, `link.sh`, and `skill-conflicts.sh` derive paths from their own location. If your repo has a non-standard layout (monorepo, submodule, `tools/.skills/`), override with environment variables:
 
 | Variable | Used by | Default |
 |----------|---------|---------|
-| `SKILLS_HARNESS_DIR` | check, link | directory containing the script |
-| `SKILLS_DIR` | check, link | `../_skills` relative to harness |
+| `SKILLS_HARNESS_DIR` | check, link, skill-conflicts | directory containing the script |
+| `SKILLS_DIR` | check, link, skill-conflicts | `../_skills` relative to harness |
 | `SKILLS_REPO_ROOT` | check, link | two levels above harness |
 | `SKILLS_INDEX` | check | `../_index.md` relative to harness |
 | `SKILLS_RULES` | check | `_rules.md` in harness dir |

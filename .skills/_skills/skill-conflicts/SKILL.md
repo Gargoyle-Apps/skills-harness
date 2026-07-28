@@ -9,7 +9,7 @@ triggers:
   - check skill conflicts
   - does my config conflict with repo skills
 dependencies: []
-version: "1.1.0"
+version: "1.1.1"
 ---
 
 # Skill Conflicts
@@ -49,5 +49,6 @@ Skills in this repo are discovered alongside user-level config: skills in `~/.cu
 ## Notes
 
 - Detection is best-effort and limited to the scanned locations. Tools with other user-config paths won't be covered unless you pass them via the env overrides above.
+- **Subtree installs:** path resolution uses `pwd -L` (same as `check.sh`), so the default scan covers the consumer's `.skills/_skills/` (kit + consumer-authored skills), not only the vendored kit under `.skills-harness/`. Override with `SKILLS_HARNESS_DIR` or `SKILLS_DIR` only for non-standard layouts.
 - This scans **user/config-level** collisions only. In-repo index/directory consistency is validated separately by `.skills/_harness/check.sh`.
 - Trigger eval cases: `references/trigger-evals.json` (IDE/config collision detection vs **skill-author** / **skill-reviewer** near-misses).
