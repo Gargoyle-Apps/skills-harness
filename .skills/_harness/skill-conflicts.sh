@@ -17,7 +17,8 @@ set -euo pipefail
 #   SKILLS_DIR             (default: ../_skills relative to harness)
 #   CURSOR_SKILLS_DIR      (default ~/.cursor/skills)
 #   CLAUDE_SKILLS_DIR      (default ~/.claude/skills)
-#   CODEX_SKILLS_DIR       (default ~/.codex/skills)
+#   CODEX_SKILLS_DIR       (default ~/.agents/skills)
+#   CODEX_LEGACY_SKILLS_DIR (default ~/.codex/skills; migration scan only)
 #   CURSOR_COMMANDS_DIR    (default ~/.cursor/commands)
 #   CLAUDE_COMMANDS_DIR    (default ~/.claude/commands)
 #   CODEX_PROMPTS_DIR      (default ~/.codex/prompts)   Codex custom prompts (/name)
@@ -49,7 +50,8 @@ SKILLS_DIR="${SKILLS_DIR:-$(dirname "$HARNESS_DIR")/_skills}"
 
 CURSOR_SKILLS_DIR="${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}"
 CLAUDE_SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
-CODEX_SKILLS_DIR="${CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
+CODEX_SKILLS_DIR="${CODEX_SKILLS_DIR:-$HOME/.agents/skills}"
+CODEX_LEGACY_SKILLS_DIR="${CODEX_LEGACY_SKILLS_DIR:-$HOME/.codex/skills}"
 CURSOR_COMMANDS_DIR="${CURSOR_COMMANDS_DIR:-$HOME/.cursor/commands}"
 CLAUDE_COMMANDS_DIR="${CLAUDE_COMMANDS_DIR:-$HOME/.claude/commands}"
 CODEX_PROMPTS_DIR="${CODEX_PROMPTS_DIR:-$HOME/.codex/prompts}"
@@ -84,6 +86,10 @@ fi
 
 note "Scanning ${#skill_names[@]} repo-managed skill(s) against user config…"
 note ""
+
+if [[ -d "$CODEX_LEGACY_SKILLS_DIR" && "$CODEX_LEGACY_SKILLS_DIR" != "$CODEX_SKILLS_DIR" ]]; then
+  warn "legacy Codex skill directory detected: $CODEX_LEGACY_SKILLS_DIR (migrate user skills to $CODEX_SKILLS_DIR)"
+fi
 
 # --- Skill-vs-skill collisions (directory targets) ---
 check_skill_dir() {
@@ -122,6 +128,9 @@ for name in "${skill_names[@]}"; do
   check_skill_dir "cursor:skills" "$CURSOR_SKILLS_DIR" "$name"
   check_skill_dir "claude:skills" "$CLAUDE_SKILLS_DIR" "$name"
   check_skill_dir "codex:skills"  "$CODEX_SKILLS_DIR"  "$name"
+  if [[ "$CODEX_LEGACY_SKILLS_DIR" != "$CODEX_SKILLS_DIR" ]]; then
+    check_skill_dir "codex:skills:legacy" "$CODEX_LEGACY_SKILLS_DIR" "$name"
+  fi
   check_command   "cursor:commands" "$CURSOR_COMMANDS_DIR" "$name"
   check_command   "claude:commands" "$CLAUDE_COMMANDS_DIR" "$name"
   check_command   "codex:prompts"   "$CODEX_PROMPTS_DIR"   "$name"

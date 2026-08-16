@@ -8,9 +8,8 @@ triggers:
   - skill overlap
   - split this skill
   - skill catalog audit
-dependencies:
-  - skill-author
-version: "1.0.0"
+dependencies: []
+version: "1.1.0"
 ---
 
 # Skill Catalog Maintainer
@@ -33,6 +32,7 @@ By default, skills describe workflows; they do not edit sibling skills. **This s
 2. **Explicit confirmation** — wait for approval ("apply all", "apply 1 and 3", or revisions). Ambiguity means stop.
 3. **Version bumps** — any non-typo skill edit bumps `version` in frontmatter; mention in `CHANGELOG.md` when cutting a kit release.
 4. **Index sync** — run `.skills/_harness/build-index.sh --write` after frontmatter edits.
+5. **Conditional companions** — at the apply-edits gate, load **skill-author** only when creating or restructuring a skill, and load **skill-reviewer** only when the approved diff changes a skill directory. Do not load either for report-only catalog audits.
 
 **Refuse without maintainer action:** rename skill directories, delete skills, bulk retag more than ~3 skills in one pass.
 

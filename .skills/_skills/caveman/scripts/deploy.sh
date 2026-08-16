@@ -16,7 +16,7 @@ set -euo pipefail
 # Targets (skill dir → override env):
 #   cursor     Symlink trio into ~/.cursor/skills/     (CURSOR_SKILLS_DIR)
 #   claude     Symlink trio into ~/.claude/skills/     (CLAUDE_SKILLS_DIR)
-#   codex      Symlink trio into ~/.codex/skills/      (CODEX_SKILLS_DIR)
+#   codex      Symlink trio into ~/.agents/skills/     (CODEX_SKILLS_DIR)
 #   continue   Rules-only (no SKILL.md discovery) — writes ~/.continue/rules/caveman.md
 #              (CONTINUE_RULES_DIR). VS Code / JetBrains "Continue" extension.
 #
@@ -327,7 +327,8 @@ case "$TARGET" in
     SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
     AO_KIND="memory-block"; MEM_FILE="${CLAUDE_MEMORY_FILE:-$HOME/.claude/CLAUDE.md}" ;;
   codex)
-    SKILLS_DIR="${CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
+    SKILLS_DIR="${CODEX_SKILLS_DIR:-$HOME/.agents/skills}"
+    CODEX_LEGACY_SKILLS_DIR="${CODEX_LEGACY_SKILLS_DIR:-$HOME/.codex/skills}"
     AO_KIND="memory-block"; MEM_FILE="${CODEX_AGENTS_FILE:-$HOME/.codex/AGENTS.md}" ;;
   continue)
     AO_KIND="continue-rule"; CONTINUE_RULES_DIR="${CONTINUE_RULES_DIR:-$HOME/.continue/rules}" ;;
@@ -346,6 +347,11 @@ if $UNINSTALL; then
   if [[ -n "$SKILLS_DIR" ]]; then
     for name in "${TRIO[@]}"; do
       remove_managed_skill_dest "$SKILLS_DIR/$name" "$name"
+    done
+  fi
+  if [[ "$TARGET" == "codex" && "${CODEX_LEGACY_SKILLS_DIR:-}" != "$SKILLS_DIR" ]]; then
+    for name in "${TRIO[@]}"; do
+      remove_managed_skill_dest "$CODEX_LEGACY_SKILLS_DIR/$name" "$name"
     done
   fi
 

@@ -11,7 +11,7 @@ triggers:
   - compress output
   - /caveman
 dependencies: []
-version: "1.2.1"
+version: "1.3.1"
 ---
 
 Respond terse like smart caveman. All technical substance stay. Only fluff die.
@@ -97,7 +97,7 @@ Code/commits/PRs: write normal. "stop caveman" or "normal mode": revert. Level p
 
 - `cursor` → `~/.cursor/skills/`
 - `claude` → `~/.claude/skills/`
-- `codex` → `~/.codex/skills/`
+- `codex` → `$HOME/.agents/skills/` (current Codex user-skill location)
 - `continue` → rules-only (`~/.continue/rules/caveman.md`; no SKILL.md discovery)
 
 **`--always-on`** writes persistent rules the IDE injects every turn:
@@ -107,6 +107,6 @@ Code/commits/PRs: write normal. "stop caveman" or "normal mode": revert. Level p
 - `codex` → marker block in `~/.codex/AGENTS.md`
 - `continue` → sets `alwaysApply: true` in the rule file
 
-Recommend `--dry-run` first to preview actions. **`--uninstall`** removes the trio symlinks/copies and any activation artifacts for the target.
+Recommend `--dry-run` first to preview actions. **`--uninstall`** removes the trio symlinks/copies and any activation artifacts for the target. For Codex, it also removes managed legacy trio entries from `~/.codex/skills` during the path-migration window.
 
 **User-level (global) via copy/paste:** for globals that can't be scripted (e.g. Cursor's Settings → Rules → User Rules), run `scripts/deploy.sh [target] --print [--level LVL]`. It writes nothing — `stdout` is the paste-ready activation block, `stderr` says where to paste it. Works for any IDE with a global "User Rules" / "Custom Instructions" box.

@@ -35,13 +35,13 @@ Use after `.skills-harness/` already exists (subtree-vendored consumer repo).
    - **`--reconcile`** rewrites `.skills/_index.md` by dropping every existing kit-skill row and re-inserting upstream's rows for those names; consumer rows and intro text/comments are preserved verbatim. Bumps `kit_version` and `repo_url` in `.skills/_meta.yml` to match the subtree's copy; every other field (`role`, `prefixes`, `consumer_skills_dir`, custom keys) is preserved. Idempotent — re-running prints `ok already matches` for both files.
    - **`--symlink-consumer-skills`** (only if `consumer_skills_dir:` is declared in `_meta.yml`) walks that directory, ignores entries without a `SKILL.md` and ignores anything whose name collides with a kit skill, and creates `.skills/_skills/<name> → ../../<consumer_skills_dir>/<name>` symlinks for the rest. Pre-existing real directories are never clobbered (the script warns and skips). Idempotent.
 
-5. **Re-run native discovery** if you set it up:
+5. **Confirm native discovery.** Migration now creates/syncs every target declared under `native_targets:` in `.skills/_meta.yml`. If this consumer predates that field, select a target during migration with `--native-target .agents/skills` (or `.claude/skills`). You can also repair all declared targets directly:
 
    ```bash
-   .skills/_harness/link.sh .agents/skills    # or .claude/skills
+   .skills/_harness/check.sh --link
    ```
 
-   `link.sh` auto-prunes dangling symlinks left by removed kit skills.
+   `link.sh` auto-prunes dangling symlinks left by removed kit skills, and `check.sh --link` invokes it for every declared target.
 
 6. **Validate:**
 

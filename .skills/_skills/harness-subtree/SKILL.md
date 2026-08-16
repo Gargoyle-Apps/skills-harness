@@ -12,7 +12,7 @@ triggers:
   - migrate manual install to subtree
   - convert harness install to subtree
 dependencies: []
-version: "1.5.4"
+version: "1.6.0"
 ---
 
 # Harness Subtree
@@ -81,7 +81,7 @@ When the consumer repo has **no** `.skills-harness/` directory and you are addin
 
 ### 2. Update vendored kit
 
-When `.skills-harness/` already exists and the user wants to `git subtree pull` a newer upstream release, load `references/update-vendored-kit.md`. The flow is: pull → read `CHANGELOG.md` → dry-run `migrate-to-subtree.sh --skip-subtree --reconcile --symlink-consumer-skills` → apply → re-link native discovery → `check.sh`.
+When `.skills-harness/` already exists and the user wants to `git subtree pull` a newer upstream release, load `references/update-vendored-kit.md`. The flow is: pull → read `CHANGELOG.md` → dry-run `migrate-to-subtree.sh --skip-subtree --reconcile --symlink-consumer-skills` → apply (including declared native-target sync) → `check.sh`.
 
 ### 3. Migrate manual install to subtree
 
@@ -113,6 +113,9 @@ git subtree pull --prefix=.skills-harness skills-harness main --squash
 
 # Migrate audit (dry-run default)
 .skills/_harness/migrate-to-subtree.sh
+
+# Preview selecting a native target; repeat with --apply in the chosen migration flow
+.skills/_harness/migrate-to-subtree.sh --native-target .agents/skills
 
 # Validate any path
 .skills/_harness/check.sh

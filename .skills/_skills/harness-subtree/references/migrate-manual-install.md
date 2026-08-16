@@ -45,8 +45,8 @@ The standard fix when adopting the official upstream:
 ## What it never touches
 
 - **Consumer-authored skills** (any directory under `.skills/_skills/` whose name is not in the kit-bundled set) — left exactly as they are.
-- **`.skills/_index.md`** and **`.skills/_meta.yml`** — consumer-owned. By default the script prints a reconcile checklist instead of editing them. Pass **`--reconcile`** to opt in to automated kit-row merge + `kit_version`/`repo_url` bump (consumer rows and other `_meta.yml` fields stay verbatim).
-- **Native discovery symlink directories** (`.agents/skills/`, `.claude/skills/`).
+- **`.skills/_index.md`** and **`.skills/_meta.yml`** — consumer-owned. By default the script prints a reconcile checklist instead of editing them. Pass **`--reconcile`** to opt in to automated kit-row merge + `kit_version`/`repo_url` bump (consumer rows and other `_meta.yml` fields stay verbatim). Passing **`--native-target`** may add only the requested `native_targets` entry to `_meta.yml`.
+- **Native discovery symlink directories** (`.agents/skills/`, `.claude/skills/`) unless `--native-target` is supplied or `native_targets:` is already declared. In those cases migration creates/syncs the declared targets without touching unrelated entries.
 
 ## What it audits (warns, never modifies)
 
@@ -92,11 +92,11 @@ The standard fix when adopting the official upstream:
 
 7. **Bump `.skills/_meta.yml`** `kit_version` to match `.skills-harness/.skills/_meta.yml` (or pin lower and document why).
 
-8. **Re-link native discovery** if you use it (`link.sh` is now a symlink into the subtree, so just call it):
+8. **Create/sync native discovery.** Existing `native_targets:` declarations are preserved and synchronized automatically. For a legacy install with no declaration, add `--native-target .agents/skills` to the migration command, or call `link.sh` once (it records the path):
 
    ```bash
    .skills/_harness/link.sh .agents/skills    # or .claude/skills
-   # or sync every existing native dir and validate in one step:
+   # or create/sync every declared native target and validate in one step:
    .skills/_harness/check.sh --link
    ```
 

@@ -9,7 +9,7 @@ triggers:
 dependencies:
   - skill-template
   - skill-reviewer
-version: "2.0.0"
+version: "2.0.2"
 ---
 
 # Skill Author
@@ -102,9 +102,9 @@ That makes the override explicit and machine-readable for the audit, instead of 
    - `references/` — supplementary markdown the agent reads on demand
    - `assets/` — templates, schemas, images, data files
    Keep `SKILL.md` lean; reference bundled paths with relative URLs so `check.sh` can verify they exist. Do not leave scripts or extra `.md` files at the skill root.
-7. Run `.skills/_harness/build-index.sh --write` to regenerate `.skills/_index.md` from frontmatter — the index is the source of truth at runtime and must always be in sync with `.skills/_skills/`
+7. Run `.skills/_harness/build-index.sh --write` to regenerate `.skills/_index.md` from frontmatter and keep it in sync with `.skills/_skills/`
 8. If this skill depends on another, list it in `dependencies`
-9. If native discovery symlinks are configured, re-run `.skills/_harness/link.sh` with the appropriate target (e.g. `.agents/skills`), or `.skills/_harness/check.sh --link` to sync all existing native dirs and validate
+9. Run `.skills/_harness/check.sh --link` to create or sync every native target declared in `.skills/_meta.yml`; running `link.sh <target>` directly also records a newly selected target
 10. Run `.skills/_harness/check.sh` to validate index, frontmatter, and resource layout (if your environment supports script execution)
 11. For new or substantially changed skills, run **skill-reviewer** (or request a human review) before merge
 
