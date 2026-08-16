@@ -1,6 +1,6 @@
 ---
 name: skill-catalog-maintainer
-description: "Audit skills under .skills/_skills/ for overlap, trigger collisions, size, and index drift; may edit skills with dry-run and confirmation."
+description: "Audits and optimizes skills under .skills/_skills/ for overlap, routing, context cost, dependencies, and index drift; edits require dry-run and confirmation."
 triggers:
   - skill inventory
   - catalog health
@@ -8,13 +8,16 @@ triggers:
   - skill overlap
   - split this skill
   - skill catalog audit
+  - reduce skill context
+  - condense this skill
+  - trim skill tokens
 dependencies: []
-version: "1.1.0"
+version: "1.2.0"
 ---
 
 # Skill Catalog Maintainer
 
-Audit every skill in `.skills/_skills/`, cluster by `triggers` and by intent in each `description`, and report overlap, redundancy, or oversize skills. May edit other skills' frontmatter and bodies — dry-run and explicit confirmation required.
+Audit every skill in `.skills/_skills/`, cluster by routing intent, measure context cost, and report overlap, redundancy, or oversize skills. May optimize existing skills — dry-run and explicit confirmation required.
 
 ## Edit authority (the exception)
 
@@ -23,6 +26,7 @@ By default, skills describe workflows; they do not edit sibling skills. **This s
 **Permitted edits** (after confirmation):
 
 - Other skills' `SKILL.md` — frontmatter (`description`, `triggers`, `dependencies`, `version`) and body
+- Other skills' `references/` — add or edit gated prose extracted from `SKILL.md`; do not change scripts or assets
 - `.skills/_index.md` — via `build-index.sh --write` after frontmatter changes
 - Root `AGENTS.md` — Skills / harness policy sections when catalog conventions change
 
@@ -41,6 +45,8 @@ By default, skills describe workflows; they do not edit sibling skills. **This s
 - Inventory or health check of the skill catalog
 - Suspected duplicate triggers or redundant workflows
 - Split candidates for oversized skills
+- Direct, transitive, or native metadata context warnings
+- Requests to condense an existing skill without changing behavior
 - Governance housekeeping before a large refactor
 
 ## Steps
@@ -57,7 +63,7 @@ Confirm each directory `name` matches frontmatter `name`; flag drift. Run `.skil
 
 ### 2. Capture metadata and size
 
-Per skill: `name`, `version`, `description`, `triggers`, line count of `SKILL.md`, presence of `references/` / `scripts/` / `assets/`.
+Per skill: `name`, `version`, `description`, `triggers`, direct bytes and lines, dependencies, and presence of `references/` / `scripts/` / `assets/`. Run `.skills/_harness/check.sh` to capture transitive-load, native-metadata, and index-size warnings.
 
 ### 3. Cluster by triggers
 
@@ -67,7 +73,7 @@ Build **trigger phrase → [skills]**. Flag phrases shared by two or more runtim
 
 Derive a 5–8 word intent label from each `description`. Group skills with overlapping user outcomes. Classify: **complementary**, **redundant**, or **unclear boundary** (recommend boundary sentences in descriptions).
 
-### 5. Size bands
+### 5. Context cost
 
 | Band | `SKILL.md` lines | Guidance |
 |------|------------------|----------|
@@ -77,12 +83,15 @@ Derive a 5–8 word intent label from each `description`. Group skills with over
 
 If most prose already lives in `references/`, say so.
 
+When a skill or dependency chain needs reduction, read [references/context-optimization.md](references/context-optimization.md). Preserve routing, behavior, safety gates, and exact commands; passing a size threshold alone is not success.
+
 ### 6. Deliver the report
 
-Sections: **Trigger clusters**, **Intent collisions**, **Size / structure**, **Recommended next actions**. Include planned edits only when the user may want this skill to apply fixes. Optional eval cases: `references/trigger-evals.json`.
+Sections: **Trigger clusters**, **Intent collisions**, **Context cost / structure**, **Recommended next actions**. Include direct and transitive before/after metrics for optimization work. Include planned edits only when the user may want this skill to apply fixes. Optional eval cases: `references/trigger-evals.json`.
 
 ## What not to do
 
 - No silent edits
 - No rename or delete
+- No loss of behavior, safety, or routing merely to meet a context budget
 - Don't dump every skill body into chat — summarize and link paths

@@ -8,7 +8,7 @@ triggers:
   - skill layout
   - refactor to skill
 dependencies: []
-version: "1.3.0"
+version: "1.3.1"
 ---
 
 # Skill Template
@@ -43,8 +43,9 @@ Do **not** place scripts or extra markdown loose at the skill root; `check.sh` w
 2. Set `name` to match the directory name exactly — kebab-case, 1–64 characters, lowercase alphanumeric and hyphens only, no leading/trailing/consecutive hyphens ([agentskills.io](https://agentskills.io/specification) `name` rules).
 3. Write `description` as one sentence, 1–1024 characters — used by the harness index and native IDE skill matching ([agentskills.io](https://agentskills.io/specification) `description` rules).
 4. List natural-language `triggers` users might say.
-5. Fill **When to use**, **Instructions**, and **Examples** for the agent.
-6. If the skill needs bundled files, add `scripts/`, `references/`, and/or `assets/` and link to them from `SKILL.md` with relative paths. Optional trigger evals: `references/trigger-evals.json`.
+5. Put only unconditional runtime companions in `dependencies`; load branch-specific companions from the body step that needs them.
+6. Fill **When to use**, **Instructions**, and **Examples** for the agent.
+7. If the skill needs bundled files, add `scripts/`, `references/`, and/or `assets/` and link to them from `SKILL.md` with relative paths. Optional trigger evals: `references/trigger-evals.json`.
 
 ## Body scaffolds (copy into your skill)
 
