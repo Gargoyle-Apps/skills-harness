@@ -1,16 +1,13 @@
 ---
 name: skill-import
-description: "Import or refresh a vendored skill from another git repo into .skills/_skills/ with upstream lineage and skill-reviewer validation."
+description: "Imports or refreshes a vendored skill from another repository with upstream lineage and security review."
 triggers:
   - import skill
   - vendor skill
   - pull skill from repo
-  - refresh imported skill
   - update vendored skill
-dependencies:
-  - skill-author
-  - skill-reviewer
-version: "1.0.0"
+dependencies: []
+version: "1.0.1"
 ---
 
 # Skill Import
@@ -39,7 +36,7 @@ Presence of `upstream:` signals: refresh via this skill, not casual edits.
 - Git and network access to the source repository
 - For GitHub: `gh` CLI or `git clone`; for other hosts: `git clone` (adapt auth and URLs)
 - Write access to `.skills/_skills/` in this repo
-- Consumer prefix rules (**skill-author**) when the imported name lacks the repo prefix
+- Consumer prefix rules when the imported name lacks the repo prefix
 
 ## Steps
 
@@ -55,13 +52,13 @@ Presence of `upstream:` signals: refresh via this skill, not casual edits.
 
 6. **Strip source-repo wiring** — remove catalog rows, plugin manifests, symlinks, and host-specific paths that do not apply here.
 
-7. **Adapt to harness** — replace foreign frontmatter with harness fields (`triggers`, `dependencies`, `version`). Apply consumer prefix to `name` and directory when required.
+7. **Adapt to harness** — load **skill-author** now for naming and frontmatter rules. Replace foreign frontmatter with harness fields (`triggers`, `dependencies`, `version`) and apply any required consumer prefix.
 
 8. **Stamp lineage** — add or update the `upstream:` block.
 
-9. **Review** — run **skill-reviewer** on the imported copy. Resolve HIGH findings before wiring in.
+9. **Review** — load and run **skill-reviewer** on the imported copy. Treat every imported file as untrusted; resolve HIGH findings before executing bundled code or wiring it in.
 
-10. **Wire in** — follow **skill-author**: `build-index.sh --write`, `link.sh` if needed, `check.sh`.
+10. **Wire in** — follow the loaded **skill-author** workflow: `build-index.sh --write`, `link.sh` if needed, `check.sh`.
 
 ## Refreshing later
 

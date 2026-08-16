@@ -14,13 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **`toon-export` (v1.1.0)** — universal TOON encode/validate skill with JSON-hub ingest (YAML/CSV adapters in one skill, no per-format siblings); `@toon-format/cli` encode, strict-decode gate, `scripts/validate-toon.sh`, `scripts/encode-from-json.sh`, `scripts/csv-to-json.sh`.
+- **`toon-export` (v1.1.1)** — universal TOON encode/validate skill with JSON-hub ingest (YAML/CSV adapters in one skill, no per-format siblings); `@toon-format/cli` encode, strict-decode gate, `scripts/validate-toon.sh`, `scripts/encode-from-json.sh`, `scripts/csv-to-json.sh`.
 - **Level 3 skill resources** — `skill-template` / `skill-author` document `scripts/`, `references/`, `assets/`; `check.sh` validates layout and path references; `caveman` deploy helper moved to `scripts/deploy.sh`.
 - **`skill-reviewer` (v1.0.0)** — quality and security rubric for skill changes (`references/` bundle: quality, security, plugin, output format, examples, threat model).
 - **`skill-author` (v2.0.0)** — merged authoring quality guidance (description, body structure, writing style, trigger smoke-test).
 - **`skill-template` (v1.3.0)** — optional body scaffolds; points to **skill-author** for registration.
 - **`skill-catalog-maintainer` (v1.0.0)** — catalog audit, overlap detection, guarded edit authority.
-- **`skill-import` / `skill-export` (v1.0.0)** — vendored skill pull and target-only publish with optional `upstream:` lineage.
+- **`skill-import` / `skill-export` (v1.0.1)** — vendored skill pull and target-only publish with optional `upstream:` lineage.
 - **Persisted native discovery targets.** `.skills/_meta.yml` now declares `native_targets`; `link.sh` records selections, `check.sh --link` creates/repairs them, and subtree migration preserves and syncs them or accepts repeatable `--native-target` values.
 - **Context-health validation and smoke coverage.** `check.sh` now validates Agent Skills name/description shape and warns on missing/cyclic dependencies, transitive dependency-body cost, native metadata budget, index growth, and large skill bodies. `.skills/_harness/tests/smoke.sh` covers native-target repair, Cursor single-surface setup, and current/legacy Codex user-skill paths.
 
@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Cursor setup uses one shared always-on surface.** `CURSOR_template.md` installs the shared harness in root `AGENTS.md` and no longer duplicates it in an `alwaysApply: true` `.cursor/rules/skills-harness.mdc` file.
 - **Current Codex user-skill path.** `caveman` v1.3.1 deploys Codex skills to `$HOME/.agents/skills` and removes managed legacy entries during uninstall; `skill-conflicts` v1.2.0 scans that path plus legacy `~/.codex/skills` with a migration warning.
 - **Conditional catalog companions.** `skill-catalog-maintainer` v1.1.0 removes its eager `skill-author` dependency and loads author/reviewer companions only at the apply-edits gate. Related workflow docs were updated in `skill-author` v2.0.2, `harness-upgrade` v1.2.0, and `harness-subtree` v1.6.0.
+- **Lean skill loading.** `skill-author` v2.0.3, `skill-import` v1.0.1, and `skill-export` v1.0.1 now load branch-specific companions only when needed; `skill-author` and `toon-export` v1.1.1 move optional detail to gated references and trim routing metadata.
 
 ### Removed
 

@@ -2,7 +2,7 @@
 
 Package: `@toon-format/cli` · Spec: [toonformat.dev](https://toonformat.dev)
 
-**Hub model:** any structured source → **JSON** → encode → strict-decode. YAML/CSV are ingest adapters inside **toon-export** only — do not add separate `yaml-to-toon` or `csv-to-toon` skills.
+**Hub model:** any structured source → **JSON** → encode → strict-decode.
 
 ## Encode JSON → TOON
 
@@ -17,15 +17,6 @@ Helper:
 ```bash
 .skills/_skills/toon-export/scripts/encode-from-json.sh data.json data.toon
 ```
-
-## Ingest → JSON (adapters)
-
-| Source | Example |
-|--------|---------|
-| JSON | Already at the hub |
-| YAML | `yq -o=json file.yaml` or `uv run --with pyyaml` → `json.dumps` |
-| CSV | `.skills/_skills/toon-export/scripts/csv-to-json.sh file.csv /tmp/data.json` |
-| Emitter | Script builds JSON, then `encode-from-json.sh` or pipes to CLI |
 
 ## Decode TOON → JSON (strict)
 

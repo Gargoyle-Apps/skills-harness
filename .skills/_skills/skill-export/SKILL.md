@@ -1,14 +1,12 @@
 ---
 name: skill-export
-description: "Publish a skill from this repo to another repository via branch and PR; stamps upstream lineage on the target only. Never modifies this repo."
+description: "Exports a skill to another repository by PR, adding target-only upstream lineage without modifying the source repo."
 triggers:
   - export skill
   - publish skill
   - share skill to another repo
-  - push skill downstream
-dependencies:
-  - skill-author
-version: "1.0.0"
+dependencies: []
+version: "1.0.1"
 ---
 
 # Skill Export
