@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`skill-talker` (v1.0.0)** — read-only skill interrogation and goal-to-skill mapping from native metadata and the harness index, with bounded document inspection and explicit opt-in handoffs to actionable skills.
 - **`toon-export` (v1.1.1)** — universal TOON encode/validate skill with JSON-hub ingest (YAML/CSV adapters in one skill, no per-format siblings); `@toon-format/cli` encode, strict-decode gate, `scripts/validate-toon.sh`, `scripts/encode-from-json.sh`, `scripts/csv-to-json.sh`.
 - **Level 3 skill resources** — `skill-template` / `skill-author` document `scripts/`, `references/`, `assets/`; `check.sh` validates layout and path references; `caveman` deploy helper moved to `scripts/deploy.sh`.
 - **`skill-reviewer` (v1.0.0)** — quality and security rubric for skill changes (`references/` bundle: quality, security, plugin, output format, examples, threat model).
